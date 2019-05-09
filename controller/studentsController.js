@@ -3,9 +3,22 @@ const moment = require('moment')//格式化时间的插件
 const { find, add, del, update } = require("../model/studentsModel")
 //getlist 获取学员信息
 const getList = async (req, res) => {
+
+    let page = req.query['page'] || 1;
+    let count = req.query['count'] || 3;
+    let classes = req.query['class']
+    let query = {
+        class: classes ? classes : "H51901"
+    }
+    let counts = {
+        skip: (JSON.parse(page) - 1) * count,
+        count: JSON.parse(count)
+    }
+
     //get请求下获取query参数 req.query
-    let result = await find()//model层里面的find方法
+    let result = await find(query, counts)//model层里面的find方法
     //只要model层返回一个数组类型的数据 说明查找是成功的
+
     if (Array.isArray(result)) {
         res.send({
             status: 1,

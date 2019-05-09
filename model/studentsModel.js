@@ -3,6 +3,7 @@ const { mongoose, db } = require("../utils/mongoose") //es6 解构赋值
 
 let Schema = mongoose.Schema({ //定义模型的作用就是规范字段名称 规范传递字段的数量
     sId: { type: String, required: true },
+    class: { type: String, required: true },
     name: { type: String, required: true },
     age: { type: String, required: true },
     city: { type: String, required: true },
@@ -46,9 +47,9 @@ const update = (query, updated) => {
         })
 }
 //查
-const find = (query = {}) => {
+const find = (query = {},count) => {
     //调用mongoose查找数据库的方法 
-    return Collection.find(query)
+    return Collection.find(query).skip(count.skip).limit(count.count)
         .then(res => res)
         .catch(err => err)
 }
