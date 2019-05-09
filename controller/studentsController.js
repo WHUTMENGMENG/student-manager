@@ -5,7 +5,7 @@ const { find, add, del, update } = require("../model/studentsModel")
 const getList = async (req, res) => {
 
     let page = req.query['page'] || 1;
-    let count = req.query['count'] || 3;
+    let count = req.query['count'] || 0;
     let classes = req.query['class']
     let query = {
         class: classes ? classes : "H51901"
@@ -24,6 +24,7 @@ const getList = async (req, res) => {
             status: 1,
             state: true,
             msg: "请求成功",
+            total: result.length,
             data: result
         })
     } else {
@@ -118,10 +119,45 @@ const addStudentsInfo = async (req, res) => {
     }
 
 }
+//获取班级信息
+const getClasses = async (req, res) => {
+    let page = req.query['page'] || 1;
+    let count = req.query['count'] || 0;
+    let counts = {
+        skip: (JSON.parse(page) - 1) * count,
+        count: JSON.parse(count)
+    }
+    //get请求下获取query参数 req.query
+    let result = await find(null, counts)//model层里面的find方法
 
+    //如果返回不是数组说明数据库出错 要阻止代码运行
+    if (!Array.isArray(result)) {
+        res.send({ status: 500, state: false, msg: "获取出错" })
+    }
+
+    let classes = result.map(item => item.class)
+    //数组去重
+    let uniq = (array) => {
+        if (!Array.isArray(array)) {
+            res.send(new Error("需要传入一个数组"))
+        }
+        let obj = {}, newArr = []
+        array.forEach(item => {
+            if (!obj[item]) {
+                console.log(obj[item])
+                newArr.push(item)
+                obj[item] = 1;
+            }
+        })
+        return newArr
+    }
+    let uniqClasses = uniq(classes);
+    res.send({ status: 200, state: true, data: uniqClasses })
+}
 module.exports = {
     getList,
     addStudentsInfo,
     deleteStudent,
-    updateStudent
+    updateStudent,
+    getClasses
 }
