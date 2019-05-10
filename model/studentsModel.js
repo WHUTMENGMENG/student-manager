@@ -1,4 +1,4 @@
-// 定义一个学员模型
+﻿// 定义一个学员模型
 const { mongoose, db } = require("../utils/mongoose") //es6 解构赋值
 
 let Schema = mongoose.Schema({ //定义模型的作用就是规范字段名称 规范传递字段的数量
@@ -8,10 +8,10 @@ let Schema = mongoose.Schema({ //定义模型的作用就是规范字段名称 �
     age: { type: String, required: true },
     city: { type: String, required: true },
     degree: { type: String, required: true },
-    productUrl: { type: String, required: false },
+    productUrl: { type: String, required: true },
     description: { type: String, required: true },
     cTime: { type: String, required: true },
-    avatar: { type: String, required: false }
+    avatarUrl: { type: String, required: false }
 })
 
 //创建集合 
@@ -49,7 +49,7 @@ const update = (query, updated) => {
 //查
 const find = (query = {},count) => {
     //调用mongoose查找数据库的方法 
-    return Collection.find(query).skip(count.skip).limit(count.count)
+    return Collection.find(query).skip(count.skip).limit(count.count).sort({cTime:-1})
         .then(res => res)
         .catch(err => err)
 }

@@ -1,6 +1,6 @@
-const moment = require('moment')//格式化时间的插件
-
+﻿const moment = require('moment')//格式化时间的插件
 const { find, add, del, update } = require("../model/studentsModel")
+
 //getlist 获取学员信息
 const getList = async (req, res) => {
 
@@ -8,7 +8,7 @@ const getList = async (req, res) => {
     let count = req.query['count'] || 0;
     let classes = req.query['class']
     let query = {
-        class: classes ? classes : "H51901"
+        class: classes ? classes : new RegExp(".+")
     }
     let counts = {
         skip: (JSON.parse(page) - 1) * count,
@@ -42,6 +42,8 @@ const getList = async (req, res) => {
 
 //删除
 const deleteStudent = async (req, res) => {
+ let ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    ip = ip.substr(7)
     //删除需要传递一个参数 sId
     let { sId } = req.query
     if (!sId) {
@@ -54,7 +56,7 @@ const deleteStudent = async (req, res) => {
     }
     let result = await del(query)
     if (result.n) {
-        res.send({ status: 1, state: true, msg: "删除成功" })
+        res.send({ status: 1, state: true, msg: "删除成功,操作者为:" + ip })
     } else {
         res.send({ status: 0, state: false, msg: "删除出错" })
     }
@@ -69,13 +71,18 @@ const updateStudent = async (req, res) => {
     let updated = req.body;
 
     let result = await update(query, updated)
-
-    res.send(result)
+	
+	if(result.nModified!==0){
+	res.send({status:200,state:true,msg:"更新成功"})
+	}else {
+	res.send({status:500,state:false,msg:"更新失败"})
+	}
+    
 }
 //增加
 const addStudentsInfo = async (req, res) => {
     //通过 req.body获取 post请求传递过来的参数
-    let cTime = moment().format("YYYY/MM/DD hh:mm:ss")
+    let cTime = moment().format("YYYY/MM/DD hh:mm:ss a")
     req.body.cTime = cTime
 
     //给学员生成一个sID
