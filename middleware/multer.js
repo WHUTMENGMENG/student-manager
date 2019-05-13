@@ -1,4 +1,4 @@
-const multer = require("multer");
+﻿const multer = require("multer");
 const path = require("path") //内置模块 专门用于解析路径
 const uploads = (req, res, next) => {
     var storage = multer.diskStorage({
@@ -19,7 +19,7 @@ const uploads = (req, res, next) => {
             let extendsName = match[0]
 
             //将avatar的文件路径存到数据库里面
-            req.body.avatarUrl = "/avatar/" + filenames + extendsName
+            req.body.avatarUrl = "http://106.12.79.128:1901/avatar/" + filenames + extendsName
 
             cb(null, filenames + extendsName)//处理上传文件的文件名
         }

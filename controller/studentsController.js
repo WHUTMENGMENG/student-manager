@@ -42,7 +42,7 @@ const getList = async (req, res) => {
 
 //删除
 const deleteStudent = async (req, res) => {
- let ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    let ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
     ip = ip.substr(7)
     //删除需要传递一个参数 sId
     let { sId } = req.query
@@ -71,18 +71,18 @@ const updateStudent = async (req, res) => {
     let updated = req.body;
 
     let result = await update(query, updated)
-	
-	if(result.nModified!==0){
-	res.send({status:200,state:true,msg:"更新成功"})
-	}else {
-	res.send({status:500,state:false,msg:"更新失败"})
-	}
-    
+
+    if (result.nModified !== 0) {
+        res.send({ status: 200, state: true, msg: "更新成功" })
+    } else {
+        res.send({ status: 500, state: false, msg: "更新失败" })
+    }
+
 }
 //增加
 const addStudentsInfo = async (req, res) => {
     //通过 req.body获取 post请求传递过来的参数
-    let cTime = moment().format("YYYY/MM/DD hh:mm:ss a")
+    let cTime = moment().format("YYYY/MM/DD HH:mm:ss a")
     req.body.cTime = cTime
 
     //给学员生成一个sID
@@ -161,10 +161,43 @@ const getClasses = async (req, res) => {
     let uniqClasses = uniq(classes);
     res.send({ status: 200, state: true, data: uniqClasses })
 }
+//上传头像
+const uploadStuAvatar = (req, res) => {
+    if (req.body["avatarUrl"]) {
+        res.send({
+            status: 200,
+            state: true,
+            msg: "上传成功",
+            avatarUrl: req.body["avatarUrl"]
+        })
+
+    } else {
+        res.send({ status: 500, state: false, msg: "上传失败" })
+    }
+
+}
+
+//搜索
+
+const searchStu = async (req, res) => {
+    let key = req.query.key;
+
+    let query = {
+        name: new RegExp(key) || ""
+    }
+    let result = await find(query)
+
+    if (result.length) { 
+        res.send({status:200,state:true,data:result})
+    }
+}
+
 module.exports = {
     getList,
     addStudentsInfo,
     deleteStudent,
     updateStudent,
-    getClasses
+    getClasses,
+    uploadStuAvatar,
+    searchStu
 }

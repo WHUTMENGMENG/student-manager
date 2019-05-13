@@ -1,4 +1,4 @@
-//nodejs模块划分 内置模块 三方模块
+﻿//nodejs模块划分 内置模块 三方模块
 var express = require('express');
 var path = require('path'); //内置的path模块
 var cookieParser = require('cookie-parser');
@@ -27,7 +27,7 @@ app.use(express.static(path.join(__dirname, 'assets')))
 //定义一个拦截器 用于校验用户访问的时候是否携带token 并且 校验token是否正确
 const authorizition = (req, res, next) => {
     //如果用户访问的是登入接口 或者是注册接口 就不去拦截
-    if (req.path == "/users/login" || req.path == "/users/register") {
+    if (req.path == "/users/login" || req.path == "/users/register" || req.path=="/students/uploadStuAvatar") {
         next()
     } else {
         //此处要进行token校验了

@@ -47,9 +47,12 @@ const update = (query, updated) => {
         })
 }
 //查
-const find = (query = {},count) => {
+const find = (query = {}, count = {
+    skip: 0,
+    count: ""
+}) => {
     //调用mongoose查找数据库的方法 
-    return Collection.find(query).skip(count.skip).limit(count.count).sort({cTime:-1})
+    return Collection.find(query).skip(count.skip).limit(count.count).sort({ cTime: -1 })
         .then(res => res)
         .catch(err => err)
 }
