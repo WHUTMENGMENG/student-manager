@@ -1,10 +1,11 @@
 const { find, registerModel, loginModel, updated } = require("../model/usersModel")
+const { addLog, findLog } = require("../model/logModel")
 const moment = require("moment")
 const jwt = require("jsonwebtoken")
 //注册
 const register = async (req, res) => {
     //1.接受前端传递过来的参数
-    let cTime = moment().format("YYYY/MM/DD hh:mm:ss")
+    let cTime = moment().format("YYYY/MM/DD HH:mm:ss")
     req.body.cTime = cTime;
     let params = req.body;
     // console.log(cTime)
@@ -79,6 +80,44 @@ const login = async (req, res) => {
             expiresIn: 60 * 1000
         })//1.payload载荷 2.secrect 加密字符串 3.{expirsIn:秒} 生效时间
         //2.在用户访问服务器的时候 必须携带token 进行校验 如果有效那么正常返回数据 ,无效返回错误信息
+        //3.登入成功后记录登入日志
+        //查找上次登入的日志
+        let lastLoginQuery = {
+            username: req.body.username
+        }
+        //获取上次登入结果
+        let findLogResult = await findLog(lastLoginQuery)
+        //如果是第一次登入 让lastLogin的值设置空
+        let lastLogin;
+        if (findLogResult.length!==0) {
+            console.log(11111)
+            findLogResult = findLogResult[0]
+            lastLogin = {
+                loginTime: findLogResult['nowLogin']['loginTime'],
+                ip: findLogResult['nowLogin']['ip']
+            }
+        } else {
+            lastLogin = {
+                loginTime: "",
+                ip: ""
+            }
+        }
+        //获取登入ip
+        let ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+        ip = ip.substr(7)
+        //创建登入事件
+        let loginTime = moment().format("YYYY/MM/DD HH:mm:ss")
+        let nowLogin = {
+            ip,
+            loginTime,
+        }
+        let log = {
+            username: req.body.username,
+            lastLogin,
+            nowLogin,
+        }
+        let setLogResult = await addLog(log)
+        console.log(setLogResult)
         res.send({ status: 1, state: true, msg: "登入成功", userInfo: info, token: token })
     }
 }

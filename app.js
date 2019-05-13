@@ -9,6 +9,7 @@ var indexRouter = require('./routes/index'); //路由
 let customRouter = require("./routes/custom")
 let studentsRouter = require("./routes/students")
 let usersRouter = require('./routes/users');
+let loginLogRouter = require('./routes/LoginLog')
 var app = express();//通过express创建一个服务器
 
 // view engine setup
@@ -61,4 +62,5 @@ app.use('/', authorizition); //使用路由:就是服务器在匹配到不同的
 app.use('/custom', customRouter)
 app.use("/students", studentsRouter)
 app.use('/users', usersRouter);
+app.use('/getloginlog',loginLogRouter)
 module.exports = app;
