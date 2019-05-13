@@ -57,9 +57,20 @@ const find = (query = {}, count = {
         .catch(err => err)
 }
 
+//获取总数目 
+
+const getTotal = (query = {}) => {
+    return Collection.find(query).count()
+        .then(res => res)
+        .catch(error => {
+            console.log(error)
+        })
+}
+
 module.exports = {
     find,
     add,
     del,
-    update
+    update,
+    getTotal
 }

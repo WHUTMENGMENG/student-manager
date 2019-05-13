@@ -1,5 +1,5 @@
 ﻿const moment = require('moment')//格式化时间的插件
-const { find, add, del, update } = require("../model/studentsModel")
+const { find, add, del, update,getTotal } = require("../model/studentsModel")
 
 //getlist 获取学员信息
 const getList = async (req, res) => {
@@ -7,8 +7,10 @@ const getList = async (req, res) => {
     let page = req.query['page'] || 1;
     let count = req.query['count'] || 0;
     let classes = req.query['class']
+    let key = req.query['key'] || ""
     let query = {
-        class: classes ? classes : new RegExp(".+")
+        class: classes ? classes : new RegExp(".+"),
+        name:new RegExp(key)
     }
     let counts = {
         skip: (JSON.parse(page) - 1) * count,
@@ -16,6 +18,7 @@ const getList = async (req, res) => {
     }
 
     //get请求下获取query参数 req.query
+    let total = await getTotal(query)
     let result = await find(query, counts)//model层里面的find方法
     //只要model层返回一个数组类型的数据 说明查找是成功的
 
@@ -24,7 +27,7 @@ const getList = async (req, res) => {
             status: 1,
             state: true,
             msg: "请求成功",
-            total: result.length,
+            total,
             data: result
         })
     } else {
@@ -181,14 +184,21 @@ const uploadStuAvatar = (req, res) => {
 
 const searchStu = async (req, res) => {
     let key = req.query.key;
-
+    let page = req.query['page'] || 1;
+    let count = req.query['count'] || 0;
+    let counts = {
+        skip: (JSON.parse(page) - 1) * count,
+        count: JSON.parse(count)
+    }
     let query = {
         name: new RegExp(key) || ""
     }
-    let result = await find(query)
+    let total = await getTotal(query)
+    let result = await find(query, counts)
+	console.log(total)
 
-    if (result.length) { 
-        res.send({status:200,state:true,data:result})
+    if (result.length) {
+        res.send({ status: 200, state: true,total:total, data: result })
     }
 }
 
