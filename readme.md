@@ -141,7 +141,7 @@ npm start
 |     age     |    是    |     学员的年龄     |
 |    city     |    是    |   目前居住的城市   |
 |   degree    |    是    |        学历        |
-| productUrl  |    否    |      项目地址      |
+| productUrl  |    是    |      项目地址      |
 | description |    是    | 一句话对自己的评价 |
 |   avatar    |    否    |        头像        |
 |    token    |    是    |   用户认证token    |
