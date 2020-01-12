@@ -19,7 +19,7 @@ const uploads = (req, res, next) => {
             let extendsName = match[0]
 
             //将avatar的文件路径存到数据库里面
-            req.body.avatarUrl = "http://106.12.79.128:1901/avatar/" + filenames + extendsName
+            req.body.avatarUrl = "http://49.235.165.18:1901/avatar/" + filenames + extendsName
 
             cb(null, filenames + extendsName)//处理上传文件的文件名
         }
