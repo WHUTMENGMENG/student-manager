@@ -14,7 +14,7 @@ npm install
 npm start
 ```
 
-# 基础地址:http://chst.vip:1901
+# 基础地址:http://www.chst.vip:1901
 
 # 测试账号:lbw 密码:555
 
