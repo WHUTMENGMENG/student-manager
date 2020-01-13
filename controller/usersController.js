@@ -1,4 +1,5 @@
 const { find, registerModel, loginModel, updated } = require("../model/usersModel")
+const perModel = require("../model/permissionModel")
 const { addLog, findLog } = require("../model/logModel")
 const moment = require("moment")
 const jwt = require("jsonwebtoken")
@@ -8,6 +9,7 @@ const register = async (req, res) => {
     let cTime = moment().format("YYYY/MM/DD HH:mm:ss")
     req.body.cTime = cTime;
     let params = req.body;
+
     // console.log(cTime)
     // console.log(params)
     //2.先去数据库查询用户名是否存在 如果存在=>提示用户用户名已注册 如果没有=>正常注册流程
@@ -36,10 +38,12 @@ const register = async (req, res) => {
         }
         let uId = randomId(letter, 6) + randomId(code, 6)
         params.uId = uId
+        params.roleid = req.body['roleid'] || '200' //如果没有穿roleid那么默认是普通员工
         //3.往数据库插入注册的信息
         let regRes = await registerModel(params)
         if (regRes) {
             let info = {
+                roleid: params.roleid,
                 uId: regRes.uId,
                 username: regRes.username,
                 nickname: regRes.nickname,
@@ -65,12 +69,14 @@ const login = async (req, res) => {
         //说明数据库没有查找到(用户名或者密码错误)
         res.send({ status: 0, state: false, msg: "用户名或者密码错误" })
     } else {
-        let info = {
+        var info = {
             uId: result[0].uId,
             username: result[0].username,
             nickname: result[0].nickname,
             phone: result[0].phone,
-            avatarUrl: result[0].avatar
+            avatarUrl: result[0].avatar,
+            roleid: result[0].roleid,
+            roleName: result[0].roleName
         }
         //保持用户登入
         //1.在用户登入成功的时候 使用jwt生成一串数字签名token 返回给前端
@@ -89,7 +95,7 @@ const login = async (req, res) => {
         let findLogResult = await findLog(lastLoginQuery)
         //如果是第一次登入 让lastLogin的值设置空
         let lastLogin;
-        if (findLogResult.length!==0) {
+        if (findLogResult.length !== 0) {
             console.log(11111)
             findLogResult = findLogResult[0]
             lastLogin = {
@@ -105,7 +111,7 @@ const login = async (req, res) => {
         //获取登入ip
         let ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
         ip = ip.substr(7)
-        //创建登入事件
+        //创建登入时间
         let loginTime = moment().format("YYYY/MM/DD HH:mm:ss")
         let nowLogin = {
             ip,
@@ -117,7 +123,13 @@ const login = async (req, res) => {
             nowLogin,
         }
         let setLogResult = await addLog(log)
-        console.log(setLogResult)
+        // console.log(setLogResult)
+        //获取权限路径
+        let result2 = await perModel.find({ roleid: info.roleid })
+        console.log(result2[0])
+        let rows = result2[0].rows
+        info.rows = rows;
+        req.session.userInfo = info;
         res.send({ status: 1, state: true, msg: "登入成功", userInfo: info, token: token })
     }
 }
@@ -178,10 +190,14 @@ const updatePassword = async (req, res) => {
         res.send({ status: 0, state: false, msg: "不存在此用户" })
     }
 }
+//获取权限菜单
+getMenuList = (req, res) => {
 
+}
 module.exports = {
     register,
     login,
     uploadAvatar,
-    updatePassword
+    updatePassword,
+    getMenuList
 }

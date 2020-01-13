@@ -2,7 +2,7 @@ const express = require("express");
 
 const router = express.Router();
 
-const { register, login, uploadAvatar, updatePassword } = require("../controller/usersController")
+const { register, login, uploadAvatar, updatePassword, getMenuList } = require("../controller/usersController")
 
 const uploads = require("../middleware/multer")
 console.log(uploads)
@@ -20,4 +20,6 @@ router.post("/uploadAvatar", uploads, uploadAvatar)
 
 router.post("/updatePassword", updatePassword)
 
+//获取用户权限菜单
+router.get("/getMenuList", getMenuList)
 module.exports = router

@@ -3,22 +3,16 @@ const { mongoose } = require("../utils/mongoose");
 
 const schema = mongoose.Schema({
     roleid: String,
-    uId: { type: String, required: true },
-    username: { type: String, required: true },
-    password: { type: String, required: true },
-    phone: { type: String, required: false },
-    nickname: { type: String, required: true },
-    roles: { type: String, required: false },
-    avatar: { type: String, required: false },
-    role: String,
-    roleName: String
+    roleName: String,
+    menuList: Array,
+    rows: Array
 })
 
 //创建模型(翻译过来的意思就是 创建一个集合)
 
-let Collection = mongoose.model("users", schema)
+let Collection = mongoose.model("permissions", schema)
 
-//查重
+//查角色
 let find = (query = {}) => {
     return Collection.find(query)
         .then(res => res)
@@ -28,8 +22,9 @@ let find = (query = {}) => {
         })
 }
 
-//注册
-let registerModel = (params) => {
+//添加角色
+let addRole = (params) => {
+    console.log(params)
     let coll = new Collection(params)
     return coll.save()
         .then(res => res)
@@ -39,19 +34,10 @@ let registerModel = (params) => {
         })
 }
 
-//登入 
-let loginModel = (params) => {
-    return Collection.find(params)
-        .then(res => res)
-        .catch(err => {
-            console.log(err)
-            return false
-        })
-}
 
-//更新数据库 
+//更新角色权限
 
-const updated = (query, update) => {
+const updateRole = (query, update) => {
     console.log(query, update)
     return Collection.updateOne(query, update)
         .then(res => res)
@@ -63,7 +49,6 @@ const updated = (query, update) => {
 
 module.exports = {
     find,
-    registerModel,
-    loginModel,
-    updated
+    addRole,
+    updateRole
 }
