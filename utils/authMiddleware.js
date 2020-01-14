@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken")
 const authorizition = (req, res, next) => {
     // console.log(req.session.userInfo)
     //如果用户访问的是登入接口 或者是注册接口 就不去拦截
-    if (req.path == "/users/login" || req.path == "/students/uploadStuAvatar") {
+    if (req.path == "/users/login" || req.path == "/students/uploadStuAvatar" ||req.path=="/avatar/*") {
         next()
     } else {
         if (!req.session.userInfo) {
@@ -62,4 +62,6 @@ const authorizition = (req, res, next) => {
         })
     }
 }
+
+
 module.exports = authorizition
