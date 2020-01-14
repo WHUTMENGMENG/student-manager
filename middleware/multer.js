@@ -3,7 +3,7 @@ const path = require("path") //内置模块 专门用于解析路径
 const uploads = (req, res, next) => {
     var storage = multer.diskStorage({
         destination: function (req, file, cb) {
-            let pathStr = path.resolve("assets/avatar")
+            let pathStr = path.resolve("public/avatar")
             console.log(pathStr)
             console.log(file)
             cb(null, pathStr) //设置上传文件的存储路径
