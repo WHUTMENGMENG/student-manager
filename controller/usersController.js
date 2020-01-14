@@ -40,6 +40,7 @@ const register = async (req, res) => {
         params.uId = uId
         params.roleid = req.body['roleid'] || '200' //如果没有穿roleid那么默认是普通员工
         //3.往数据库插入注册的信息
+        console.log(params)
         let regRes = await registerModel(params)
         if (regRes) {
             let info = {
@@ -76,14 +77,14 @@ const login = async (req, res) => {
             phone: result[0].phone,
             avatarUrl: result[0].avatar,
             roleid: result[0].roleid,
-            roleName: result[0].roleName
+
         }
         //保持用户登入
         //1.在用户登入成功的时候 使用jwt生成一串数字签名token 返回给前端
         //1.1调用jsonwebtoken下面的sign方法 进行签名
         let secrect = "YOU_PLAY_BASKETBALL_LIKE_CAIXUKUN" //随机字符串用于加密
         let token = jwt.sign(info, secrect, {
-            expiresIn: 60 * 1000
+            expiresIn: 60 * 3
         })//1.payload载荷 2.secrect 加密字符串 3.{expirsIn:秒} 生效时间
         //2.在用户访问服务器的时候 必须携带token 进行校验 如果有效那么正常返回数据 ,无效返回错误信息
         //3.登入成功后记录登入日志
@@ -96,7 +97,6 @@ const login = async (req, res) => {
         //如果是第一次登入 让lastLogin的值设置空
         let lastLogin;
         if (findLogResult.length !== 0) {
-            console.log(11111)
             findLogResult = findLogResult[0]
             lastLogin = {
                 loginTime: findLogResult['nowLogin']['loginTime'],
@@ -126,10 +126,10 @@ const login = async (req, res) => {
         // console.log(setLogResult)
         //获取权限路径
         let result2 = await perModel.find({ roleid: info.roleid })
-        console.log(result2[0])
         let rows = result2[0].rows
-        info.rows = rows;
         req.session.userInfo = info;
+        info.roleName = result2[0].roleName
+        info.rows = rows
         res.send({ status: 1, state: true, msg: "登入成功", userInfo: info, token: token })
     }
 }
@@ -137,7 +137,6 @@ const login = async (req, res) => {
 //上传头像
 const uploadAvatar = async (req, res) => {
     //req.body里面由于mutler中间件已经添加了一个字段 avatarUrl 所以接下来要把值存到数据库
-    console.log(req.body)
     //一个头像需要对应一个用户 可以使用用户id来对应头像
     //实现思路
     //1.用户调用上传头像接口,传递当前用户的id和图片
@@ -169,7 +168,6 @@ const updatePassword = async (req, res) => {
         query.password = oldPassword
         //根据用户传入的旧妈妈查询是否和数据库的密码相匹配
         let matchPasswordResult = await find(query)
-        console.log(matchPasswordResult)
         if (matchPasswordResult.length !== 0) { //表示旧密码匹配成功 那么可以继续更改密码
             //说明用户名和密码匹配成功 调用updatePass方法 对数据库的密码进行修改
             let update = {
@@ -190,14 +188,24 @@ const updatePassword = async (req, res) => {
         res.send({ status: 0, state: false, msg: "不存在此用户" })
     }
 }
-//获取权限菜单
-getMenuList = (req, res) => {
-
+//获取用户
+const getAllUsers = async (req, res) => {
+    let result = await find();
+    if (result && Array.isArray(result)) {
+        let users = result.map(item => ({
+            username: item.username,
+            nickname: item.nickname,
+            roleid: item.roleid
+        }))
+        res.send({ status: 200, state: true, msg: "success", users })
+    } else {
+        res.send({ status: 403, state: false, msg: "获取出错" })
+    }
 }
 module.exports = {
     register,
     login,
     uploadAvatar,
     updatePassword,
-    getMenuList
+    getAllUsers
 }
