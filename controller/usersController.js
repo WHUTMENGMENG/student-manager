@@ -3,6 +3,7 @@ const perModel = require("../model/permissionModel")
 const { addLog, findLog } = require("../model/logModel")
 const moment = require("moment")
 const jwt = require("jsonwebtoken")
+const https = require("https")
 //注册
 const register = async (req, res) => {
     //1.接受前端传递过来的参数
