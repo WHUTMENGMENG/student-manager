@@ -278,7 +278,9 @@ const wechatCallBackCtr = async (req, response) => {
                     result = JSON.parse(result); //获得了微信用户的信息
                     //存入数据库
                     result.unid = Math.random().toString(32).substr(2)
-                    let registResult = await registerModel({ username: "", password: "", ...result })
+                    result.username = Math.random().toString(32).substr(2)
+                    result.password = Math.random().toString(32).substr(2)
+                    let registResult = await registerModel({...result })
                     if (registResult) {
                         delete registResult.password;
                         console.log("=====", registResult)
