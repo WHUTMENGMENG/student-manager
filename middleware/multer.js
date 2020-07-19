@@ -1,6 +1,7 @@
 ﻿const multer = require("multer");
 const path = require("path") //内置模块 专门用于解析路径
 const uploads = (req, res, next) => {
+    console.log(777777777777777)
     var storage = multer.diskStorage({
         destination: function (req, file, cb) {
             let pathStr = path.resolve("public/avatar")
@@ -17,15 +18,14 @@ const uploads = (req, res, next) => {
             let RegExp = /\.[^\.]+$/;
             let match = RegExp.exec(file.originalname)
             let extendsName = match[0]
-
             //将avatar的文件路径存到数据库里面
-            req.body.avatarUrl = "http://49.235.165.18:1901/avatar/" + filenames + extendsName
-
+            req.body.headimgurl = "http://49.235.165.18:1901/avatar/" + filenames + extendsName
+            console.log("===========",req.body)
             cb(null, filenames + extendsName)//处理上传文件的文件名
         }
     })
 
-    var upload = multer({ storage: storage }).single("avatar");
+    var upload = multer({ storage: storage }).single("headimgurl");
 
     upload(req, res, function (err) {//multer模块 错误处理
         if (err instanceof multer.MulterError) {

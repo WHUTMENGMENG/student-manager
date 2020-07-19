@@ -3,15 +3,20 @@ const { mongoose } = require("../utils/mongoose");
 
 const schema = mongoose.Schema({
     roleid: String,
-    uId: { type: String, required: true },
+    unid: { type: String, required: true },
     username: { type: String, required: true },
     password: { type: String, required: true },
     phone: { type: String, required: false },
-    nickname: { type: String, required: true },
+    nickname: { type: String, required: false },
     roles: { type: String, required: false },
-    avatar: { type: String, required: false },
+    headimgurl: { type: String, required: false },
     role: String,
-    roleName: String
+    roleName: String,
+    openid:String,
+    sex:String,
+    city:String,
+    province:String,
+    country:String
 })
 
 //创建模型(翻译过来的意思就是 创建一个集合)

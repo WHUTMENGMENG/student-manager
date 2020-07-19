@@ -2,7 +2,7 @@ const express = require("express");
 
 const router = express.Router();
 
-const { register, login, uploadAvatar, updatePassword, getAllUsers } = require("../controller/usersController")
+const { register, login, uploadAvatar, updatePassword, getAllUsers,wechatLoginCtr,wechatCallBackCtr } = require("../controller/usersController")
 
 const uploads = require("../middleware/multer")
 console.log(uploads)
@@ -23,4 +23,9 @@ router.post("/updatePassword", updatePassword)
 
 //获取所有用户
 router.get("/getAllUsers", getAllUsers)
+
+//微信扫码登入
+router.get("/wechatLogin", wechatLoginCtr)
+//微信回调页面参数处理
+router.get("/wechatCallBack", wechatCallBackCtr)
 module.exports = router
