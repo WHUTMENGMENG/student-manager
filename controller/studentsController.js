@@ -1,5 +1,5 @@
 ﻿const moment = require('moment')//格式化时间的插件
-const { find, add, del, update,getTotal } = require("../model/studentsModel")
+const { find, add, del, update, getTotal } = require("../model/studentsModel")
 
 //getlist 获取学员信息
 const getList = async (req, res) => {
@@ -10,7 +10,7 @@ const getList = async (req, res) => {
     let key = req.query['key'] || ""
     let query = {
         class: classes ? classes : new RegExp(".+"),
-        name:new RegExp(key)
+        name: new RegExp(key)
     }
     let counts = {
         skip: (JSON.parse(page) - 1) * count,
@@ -87,22 +87,8 @@ const addStudentsInfo = async (req, res) => {
     //通过 req.body获取 post请求传递过来的参数
     let cTime = moment().format("YYYY/MM/DD HH:mm:ss a")
     req.body.cTime = cTime
-
     //给学员生成一个sID
-    //说明可以注册 生成用户id 并且调用model层里面save的方法
-    //用户id: abcdef123456 六位字母+六位id
-    let letter = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-    let code = "1234567890"
-    const randomId = (str, len) => {
-        let randomStr = [];
-        let letterLen = str.length;
-        for (var i = 0; i < len; i++) {
-            let random = Math.floor(Math.random() * letterLen);
-            randomStr.push(str.charAt(random))
-        }
-        return randomStr.join("")
-    }
-    let sId = randomId(letter, 4) + randomId(code, 8)
+    let sId = Math.random().toString(32).substr(2)
     req.body.sId = sId
     let params = req.body;
     //判断用户没有传递参数的情况
@@ -118,13 +104,13 @@ const addStudentsInfo = async (req, res) => {
 
     //调用model增加的方法
     let result = await add(params)
-    if (result) {//表示数据插入成功
+    if (!result['errors']) {//表示数据插入成功
         res.send({ status: 1, state: true, msg: "添加成功" })
     } else {
         res.send({
             status: 0,
             state: false,
-            msg: "参数少传递了"
+            msg: result['message']
         })
     }
 
@@ -195,10 +181,10 @@ const searchStu = async (req, res) => {
     }
     let total = await getTotal(query)
     let result = await find(query, counts)
-	console.log(total)
+    console.log(total)
 
     if (result.length) {
-        res.send({ status: 200, state: true,total:total, data: result })
+        res.send({ status: 200, state: true, total: total, data: result })
     }
 }
 

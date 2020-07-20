@@ -2,9 +2,14 @@ const jwt = require("jsonwebtoken")
 const authorizition = (req, res, next) => {
     // console.log(req.session.userInfo)
     //如果用户访问的是登入接口 或者是注册接口 就不去拦截
-	let rowPath = ["/users/login","/students/uploadStuAvatar","/users/wechatLogin","/users/wechatCallBack"];
-	let matchRes = rowPath.some(item=>item===req.path)
-    if (matchRes || req.path===/\/avatar\/.*/.test(req.path)) {
+    let rowPath = [
+        "/users/login",
+        "/students/uploadStuAvatar",
+        "/users/wechatLogin",
+        "/users/wechatCallBack"
+    ];
+    let matchRes = rowPath.some(item => item === req.path)
+    if (matchRes || /\/avatar\/.*/.test(req.path)) {
         next()
     } else {
         if (!req.session.userInfo) {
@@ -27,7 +32,7 @@ const authorizition = (req, res, next) => {
                         "/getloginlog",
                         "/students/getclasses",
                         "/students/getstulist",
-                        "students/addstu",
+                        "/students/addstu",
                         "/students/delstu",
                         "/students/updatestu",
                         "/students/searchstu",

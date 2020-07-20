@@ -24,8 +24,8 @@ let add = (params) => {
     return coll.save()
         .then(res => res)
         .catch(err => {
-            console.log(err)
-            return false
+            // console.log(err)
+            return err
         })
 }
 //删

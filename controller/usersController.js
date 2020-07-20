@@ -21,9 +21,7 @@ const register = async (req, res) => {
     let result = await find(query);
     //只要result的length是0  说明数据库里不存在此用户 可以注册
     if (result.length == 0) {
-
         //说明可以注册 生成用户unid 并且调用model层里面save的方法
-
         let unid = Math.random().toString(32).substr(2)
         params.unid = unid
         params.roleid = req.body['roleid'] || '200' //如果没有传roleid那么默认是普通员工
@@ -115,10 +113,14 @@ const login = async (req, res) => {
         //获取权限路径
         let result2 = await perModel.find({ roleid: info.roleid })
         let rows = result2[0].rows
+        let buttons = result2[0].buttons
+        console.log(buttons)
+        info.rows = rows
         req.session.userInfo = info;
         info.roleName = result2[0].roleName
-        info.rows = rows
-        res.send({ status: 1, state: true, msg: "登入成功", userInfo: info, token: token })
+        let newInfo = { ...info }
+        delete newInfo.rows
+        res.send({ status: 1, state: true, msg: "登入成功", permission: { buttons }, userInfo: newInfo, token: token })
     }
 }
 
@@ -257,41 +259,44 @@ const wechatCallBackCtr = async (req, response) => {
                     // console.log("==========++++",info)
                     response.render("wechatCallBack", { headimgurl: info.headimgurl, nickname: info.nickname })
                     return
+                } else {
+                    // response.send('success')
+                    // 第四步：拉取用户信息(需scope为 snsapi_userinfo)
+                    //https://api.weixin.qq.com/sns/userinfo?access_token=ACCESS_TOKEN&openid=OPENID&lang=zh_CN
+                    https.get(`https://api.weixin.qq.com/sns/userinfo?access_token=${access_token}&openid=${openid}&lang=zh_CN`, function (res) {
+                        let datas = [];
+                        let size = 0;
+                        res.on('data', data => {
+                            datas.push(data)
+                            size += data.length;
+                        })
+                        res.on('end', async () => {
+                            console.log('获取微信用户信息响应结束')
+                            var buff = Buffer.concat(datas, size);
+                            var result = buff.toString()
+                            result = JSON.parse(result); //获得了微信用户的信息
+                            //存入数据库
+                            result.unid = Math.random().toString(32).substr(2)
+                            result.username = Math.random().toString(32).substr(2)
+                            result.password = Math.random().toString(32).substr(2)
+                            res.roleid = 200
+                            let registResult = await registerModel({ ...result })
+                            if (registResult) {
+                                delete registResult.password;
+                                console.log("=====", registResult)
+                                response.render("wechatCallBack", { nickname: registResult.nickname, headimgurl: registResult.headimgurl })
+                            } else {
+                                response.render("wechatCallBack", { state: false, status: 101, msg: "登入出错" })
+                            }
+                            console.log(result)
+                            //response.send({ url: result.headimgurl })
+                        })
+                    })
                 }
             } else {
                 response.send({ errmsg: "查询数据库出错" })
             }
-            // response.send('success')
-            // 第四步：拉取用户信息(需scope为 snsapi_userinfo)
-            //https://api.weixin.qq.com/sns/userinfo?access_token=ACCESS_TOKEN&openid=OPENID&lang=zh_CN
-            https.get(`https://api.weixin.qq.com/sns/userinfo?access_token=${access_token}&openid=${openid}&lang=zh_CN`, function (res) {
-                let datas = [];
-                let size = 0;
-                res.on('data', data => {
-                    datas.push(data)
-                    size += data.length;
-                })
-                res.on('end', async () => {
-                    console.log('获取微信用户信息响应结束')
-                    var buff = Buffer.concat(datas, size);
-                    var result = buff.toString()
-                    result = JSON.parse(result); //获得了微信用户的信息
-                    //存入数据库
-                    result.unid = Math.random().toString(32).substr(2)
-                    result.username = Math.random().toString(32).substr(2)
-                    result.password = Math.random().toString(32).substr(2)
-                    let registResult = await registerModel({...result })
-                    if (registResult) {
-                        delete registResult.password;
-                        console.log("=====", registResult)
-                        response.render("wechatCallBack", { nickname: registResult.nickname, headimgurl: registResult.headimgurl })
-                    } else {
-                        response.render("wechatCallBack", { state: false, status: 101, msg: "登入出错" })
-                    }
-                    console.log(result)
-                    //response.send({ url: result.headimgurl })
-                })
-            })
+
         })
     })
 }
