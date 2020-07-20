@@ -17,7 +17,7 @@ const authorizition = (req, res, next) => {
         let secrect = "YOU_PLAY_BASKETBALL_LIKE_CAIXUKUN"
         jwt.verify(token, secrect, (err, decode) => {
             if (err) {
-                res.send({ status: 0, state: false, msg: "校验失败" })
+                res.send({ status: 0, code:"1004",state: false, msg: "校验失败" })
             } else {
                 if (req.path !== "/verify") {
                     //首先校验路径是否合法 不合法返回404
