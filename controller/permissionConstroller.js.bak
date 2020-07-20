@@ -64,10 +64,10 @@ const getRoleCtr = async (req, res) => {//获取角色
 }
 
 const getMenuListCtr = async (req, res) => {
-   // if (!req.session.userInfo) {
-      //  res.send({ status: 403, state: false, msg: "请先登入" })
-      //  return
-   // }
+    if (!req.session.userInfo) {
+        res.send({ status: 403, state: false, msg: "请先登入" })
+        return
+    }
     let result = await find({ roleid: req.session.userInfo.roleid })
     if (result && Array.isArray) {
         console.log(result)
