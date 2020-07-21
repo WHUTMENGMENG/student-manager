@@ -96,7 +96,11 @@ const login = async (req, res) => {
         }
         //获取登入ip
         let ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-        ip = ip.substr(7)
+        // ip = ip.substr(7)
+        let regExp = /([^0-9])*((\.|\d)*)/
+        let r = regExp.exec(ip)
+        ip = r[2]
+        console.log(ip)
         //创建登入时间
         let loginTime = moment().format("YYYY/MM/DD HH:mm:ss")
         let nowLogin = {
