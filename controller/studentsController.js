@@ -152,12 +152,12 @@ const getClasses = async (req, res) => {
 }
 //上传头像
 const uploadStuAvatar = (req, res) => {
-    if (req.body["avatarUrl"]) {
+    if (req.body["headimgurl"]) {
         res.send({
             status: 200,
             state: true,
             msg: "上传成功",
-            avatarUrl: req.body["avatarUrl"]
+            headimgurl: req.body["headimgurl"]
         })
 
     } else {

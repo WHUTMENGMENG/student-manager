@@ -19,8 +19,8 @@ const uploads = (req, res, next) => {
             let match = RegExp.exec(file.originalname)
             let extendsName = match[0]
             //将avatar的文件路径存到数据库里面
-            req.body.headimgurl = "http://49.235.165.18:1901/avatar/" + filenames + extendsName
-            console.log("===========",req.body)
+            req.body.headimgurl = "http://49.235.165.18/avatar/" + filenames + extendsName
+            console.log("===========", req.body)
             cb(null, filenames + extendsName)//处理上传文件的文件名
         }
     })
@@ -30,7 +30,7 @@ const uploads = (req, res, next) => {
     upload(req, res, function (err) {//multer模块 错误处理
         if (err instanceof multer.MulterError) {
             console.log(err)
-            res.send("上传文件出错")
+            res.send({ err: err.message, msg: "上传文件出错" })
         } else {
             next() //如果上传文件没有错误 那么释放控制权给下一个中间件
         }

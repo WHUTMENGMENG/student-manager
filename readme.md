@@ -157,7 +157,7 @@ npm start
 |   degree    |    是    |        学历        |
 | productUrl  |    是    |      项目地址      |
 | description |    是    | 一句话对自己的评价 |
-|  avatarUrl  |    否    |        头像        |
+|  headimgurl  |    否    |        头像        |
 |             |          |                    |
 
 增加成返回值
@@ -206,7 +206,7 @@ npm start
 |   degree    |    否    |        学历        |
 | productUrl  |    否    |      项目地址      |
 | description |    否    | 一句话对自己的评价 |
-|  avatarUrl  |    否    |        头像        |
+|  headimgurl  |    否    |        头像        |
 
 ## 搜索学员
 | 接口详情 | 请求方式 |        地址         |
@@ -225,14 +225,14 @@ npm start
 
 |  参数  | 是否必填 |             描述             |
 | :----: | :------: | :--------------------------: |
-| avatar |    是    | 上传的文件格式 jpg\|png\|gif |
+| headimgurl |    是    | 上传的文件格式 jpg\|png\|gif |
 ```
 //成功数据
 {
     status: 200,
     state: true,
     msg: "上传成功",
-    avatarUrl:http://106.12.79.128xxxx
+    headimgurl:http://106.12.79.128xxxx
  }
 ```
 # 用户模块
