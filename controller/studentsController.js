@@ -183,9 +183,13 @@ const searchStu = async (req, res) => {
     let result = await find(query, counts)
     console.log(total)
 
-    if (result.length) {
-        res.send({ status: 200, state: true, total: total, data: result })
+    if(result){
+		 res.send({ status: 200, state: true, total: total, data: result })
+    }else {
+		 res.send({ status: 400, state: false, msg:"搜索出错" })
     }
+       
+   
 }
 
 module.exports = {
