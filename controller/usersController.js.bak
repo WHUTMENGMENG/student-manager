@@ -184,7 +184,7 @@ const updatePassword = async (req, res) => {
     }
 }
 //获取用户
-var getAllUsers = async (req, res) => {
+const getAllUsers = async (req, res) => {
     var result = await find();
     if (result && Array.isArray(result)) {
         var users = result.map(item => {

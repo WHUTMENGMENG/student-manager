@@ -37,7 +37,7 @@ const authorizition = (req, res, next) => {
                         "/students/updatestu",
                         "/students/searchstu",
                         "/students/uploadStuAvatar",
-                        "/users/getAllUers",
+                        "/users/getAllUsers",
                         "/users/register",
                         "/users/login",
                         "/users/sigout",
