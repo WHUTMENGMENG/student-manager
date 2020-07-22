@@ -90,6 +90,7 @@ const addStudentsInfo = async (req, res) => {
     //给学员生成一个sID
     let sId = Math.random().toString(32).substr(2)
     req.body.sId = sId
+		if(!req.body['headimgurl']) req.body.headimgurl=""
     let params = req.body;
     //判断用户没有传递参数的情况
     let flag = Object.keys(params)//object.keys可以获取一个对象里面素有的key 并返回一个数组
@@ -183,8 +184,12 @@ const searchStu = async (req, res) => {
     let result = await find(query, counts)
     console.log(total)
 
-    
-        res.send({ status: 200, state: true, total: total, data: result })
+    if(result){
+		 res.send({ status: 200, state: true, total: total, data: result })
+    }else {
+		 res.send({ status: 400, state: false, msg:"搜索出错" })
+    }
+       
    
 }
 

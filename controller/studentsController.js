@@ -78,7 +78,7 @@ const updateStudent = async (req, res) => {
     if (result.nModified !== 0) {
         res.send({ status: 200, state: true, msg: "更新成功" })
     } else {
-        res.send({ status: 500, state: false, msg: "更新失败" })
+        res.send({ status: 304, state: false, msg: "没有做任何修改" })
     }
 
 }
@@ -90,6 +90,7 @@ const addStudentsInfo = async (req, res) => {
     //给学员生成一个sID
     let sId = Math.random().toString(32).substr(2)
     req.body.sId = sId
+		if(!req.body['headimgurl']) req.body.headimgurl=""
     let params = req.body;
     //判断用户没有传递参数的情况
     let flag = Object.keys(params)//object.keys可以获取一个对象里面素有的key 并返回一个数组
