@@ -4,6 +4,10 @@ const { addLog, findLog } = require("../model/logModel")
 const moment = require("moment")
 const jwt = require("jsonwebtoken")
 const https = require("https")
+
+// io.on("connection",(socket)=>{
+//     socket.emit("getMsg","哈哈哈")
+// })
 //注册
 const register = async (req, res) => {
     //1.接受前端传递过来的参数
@@ -188,9 +192,9 @@ var getAllUsers = async (req, res) => {
     var result = await find();
     if (result && Array.isArray(result)) {
         var users = result.map(item => {
-			delete item.password;
-			return item
-				})
+            delete item.password;
+            return item
+        })
         res.send({ status: 200, state: true, msg: "success", users })
     } else {
         res.send({ status: 403, state: false, msg: "获取出错" })
@@ -225,20 +229,22 @@ let redirect_uri = "http://chst.vip/users/wechatCallBack"
 let scope = "snsapi_userinfo"
 let secret = '1479691513627d91af5eb9d6b8c9106e'
 let response_type = "code"
+let socket_io;;
 const wechatLoginCtr = (req, res) => {
+    socket_io = req.io;
+    req.io.emit("getMsg", {name:'123'})
     //定义一个类 用于生成URL扫码地址
     // https://open.weixin.qq.com/connect/oauth2/authorize?appid=APPID&redirect_uri=REDIRECT_URI&response_type=code&scope=SCOPE&state=STATE#wechat_redirect  
     console.log(req.query)
-
     let scanParams = new CreateScanCodeParams(appid, redirect_uri, undefined, scope)
     let scanCodeUrl = createScanCodeUrl(scanParams)
     res.send({ state: true, status: 200, scanCodeUrl })
 }
 //处理微信回调页面控制层
-const wechatCallBackCtr = async (req, response) => {
+const wechatCallBackCtr = async (req, response, io) => {
+    socket_io.emit("getMsg", "扫码成功")
     console.log(req.query)
     let { code } = req.query;//获取code之后去换access_token
-
     https.get(`https://api.weixin.qq.com/sns/oauth2/access_token?appid=${appid}&secret=${secret}&code=${code}&grant_type=authorization_code`, function (res) {
         let datas = [];
         let size = 0;

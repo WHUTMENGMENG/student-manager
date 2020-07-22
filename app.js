@@ -16,6 +16,8 @@ var session = require('express-session');
 //引入验证用户信息拦截器(权限拦截)
 var authorization = require("./utils/authMiddleware.js")
 // view engine setup
+const io = require('socket.io')()
+app.io = io;
 app.set('views', path.join(__dirname, 'views'));//设置模板的默认文件夹为当前目录下的views文件夹
 app.set('view engine', 'ejs');//设置模板引擎为ejs
 
@@ -24,7 +26,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public'))); //静态资源托管
-//练习 利用静态服务器 部署自己二阶段的项目
 app.use(express.static(path.join(__dirname, 'webServer')))
 //静态资源托管上传的文件
 app.use(express.static(path.join(__dirname, 'assets')))
@@ -53,7 +54,7 @@ app.use(authorization); //使用路由:就是服务器在匹配到不同的path�
 app.use("/permission", permissionRouter)//权限路由
 app.use('/custom', customRouter)
 app.use("/students", studentsRouter)
-app.use('/users', usersRouter);
+app.use('/users', usersRouter(io));
 app.use('/getloginlog', loginLogRouter)
 
 module.exports = app;
