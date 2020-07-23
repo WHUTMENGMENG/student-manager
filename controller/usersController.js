@@ -273,7 +273,7 @@ const wechatCallBackCtr = async (req, response, io) => {
                     //生成token
                     let secrect = "YOU_PLAY_BASKETBALL_LIKE_CAIXUKUN" //随机字符串用于加密
                     console.log("275===", info)
-                    let token = jwt.sign(info, secrect, {
+                    let token = jwt.sign({...info}, secrect, {
                         expiresIn: 60 * 3
                     })
                     socket.emit("wechatLoginSuccess", { status: 200, state: true, msg: "微信登入成功", userInfo: info, token })
