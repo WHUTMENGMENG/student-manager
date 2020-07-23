@@ -308,7 +308,7 @@ const wechatCallBackCtr = async (req, response, io) => {
                                 let token = jwt.sign({ ...registResult }, secrect, {
                                     expiresIn: 60 * 3
                                 })
-                                socket.emit("wechatLoginSuccess", { status: 200, state: true, msg: "登入成功", ...registResult, token: token })
+                                socket.emit("wechatLoginSuccess", { status: 200, state: true, msg: "登入成功", userInfo:{...registResult._doc}, token: token })
                                 response.render("wechatCallBack", { nickname: registResult.nickname, headimgurl: registResult.headimgurl })
                             } else {
                                 socket.emit("wechatLoginSuccess", { status: 400, state: false, msg: "登入出错" })
