@@ -272,12 +272,10 @@ const wechatCallBackCtr = async (req, response, io) => {
                     //socket响应登入成功
                     //生成token
                     let secrect = "YOU_PLAY_BASKETBALL_LIKE_CAIXUKUN" //随机字符串用于加密
-                    console.log("275===", info)
-                    let token = jwt.sign({...info}, secrect, {
+                    let token = jwt.sign({ ...info }, secrect, {
                         expiresIn: 60 * 3
                     })
                     socket.emit("wechatLoginSuccess", { status: 200, state: true, msg: "微信登入成功", userInfo: info, token })
-                    // console.log("==========++++",info)
                     response.render("wechatCallBack", { headimgurl: info.headimgurl, nickname: info.nickname })
                     return
                 } else {
@@ -324,8 +322,8 @@ const wechatCallBackCtr = async (req, response, io) => {
                 }
             } else {
                 socket.emit("wechatLoginSuccess", { status: 400, state: false, msg: "查询出错" })
+                response.send({ errmsg: "查询数据库出错" })
             }
-            response.send({ errmsg: "查询数据库出错" })
 
         })
     })
