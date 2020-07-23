@@ -269,8 +269,6 @@ const wechatCallBackCtr = async (req, response, io) => {
                     //说明有 不需要存储 直接响应登入成功
                     let info = isUser[0]
                     delete info.password
-                    // console.log("==========++++",info)
-                    response.render("wechatCallBack", { headimgurl: info.headimgurl, nickname: info.nickname })
                     //socket响应登入成功
                     //生成token
                     let secrect = "YOU_PLAY_BASKETBALL_LIKE_CAIXUKUN" //随机字符串用于加密
@@ -278,6 +276,8 @@ const wechatCallBackCtr = async (req, response, io) => {
                         expiresIn: 60 * 3
                     })
                     socket.emit("wechatLoginSuccess", { status: 200, state: true, msg: "微信登入成功", userInfo: info, token })
+                    // console.log("==========++++",info)
+                    response.render("wechatCallBack", { headimgurl: info.headimgurl, nickname: info.nickname })
                     return
                 } else {
                     // response.send('success')
@@ -303,17 +303,17 @@ const wechatCallBackCtr = async (req, response, io) => {
                             let registResult = await registerModel({ ...result })
                             if (registResult) {
                                 delete registResult.password;
-                                response.render("wechatCallBack", { nickname: registResult.nickname, headimgurl: registResult.headimgurl })
                                 //socket响应
                                 let secrect = "YOU_PLAY_BASKETBALL_LIKE_CAIXUKUN" //随机字符串用于加密
                                 let token = jwt.sign(info, secrect, {
                                     expiresIn: 60 * 3
                                 })
                                 socket.emit("wechatLoginSuccess", { status: 200, state: true, msg: "登入成功", ...registResult, token })
+                                response.render("wechatCallBack", { nickname: registResult.nickname, headimgurl: registResult.headimgurl })
                             } else {
+                                socket.emit("wechatLoginSuccess", { status: 400, state: false, msg: "登入出错" })
                                 response.render("wechatCallBack", { state: false, status: 101, msg: "登入出错" })
 
-                                socket.emit("wechatLoginSuccess", { status: 400, state: false, msg: "登入出错" })
                             }
                             console.log(result)
                             //response.send({ url: result.headimgurl })
@@ -321,9 +321,9 @@ const wechatCallBackCtr = async (req, response, io) => {
                     })
                 }
             } else {
-                response.send({ errmsg: "查询数据库出错" })
                 socket.emit("wechatLoginSuccess", { status: 400, state: false, msg: "查询出错" })
             }
+                response.send({ errmsg: "查询数据库出错" })
 
         })
     })
