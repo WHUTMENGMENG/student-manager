@@ -6,17 +6,17 @@ const schema = mongoose.Schema({
     unid: { type: String, required: true },
     username: { type: String, required: true },
     password: { type: String, required: true },
-    phone: { type: String, required: false },
-    nickname: { type: String, required: false },
-    roles: { type: String, required: false },
-    headimgurl: { type: String, required: false },
-    role: String,
-    roleName: String,
-    openid:String,
-    sex:String,
-    city:String,
-    province:String,
-    country:String
+    phone: { type: String, required: false, default: "" },
+    nickname: { type: String, required: false, default: "" },
+    roles: { type: String, required: false, default: ""},
+    headimgurl: { type: String, required: false, default: "" },
+    role: { type: String, required: false, default: "" },
+    roleName: { type: String, required: false, default: "" },
+    openid: { type: String, required: false, default: "" },
+    sex: { type: String, required: false, default: "" },
+    city: { type: String, required: false, default: "" },
+    province: { type: String, required: false, default: "" },
+    country: { type: String, required: false, default: "" }
 })
 
 //创建模型(翻译过来的意思就是 创建一个集合)

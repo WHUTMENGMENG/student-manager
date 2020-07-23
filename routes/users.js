@@ -26,14 +26,13 @@ module.exports = function (io) {
     //获取所有用户
     router.get("/getAllUsers", getAllUsers)
 
-    //微信扫码登入
-    let socket1;
+    //微信扫码登入 采用socketio
+    let sock;
     io.on("connection", socket => {
-        socket1 = socket
-        socket.emit("getMsg", "你成功了")
+        sock = socket
     })
     router.get("/wechatLogin", function (req, res, next) {
-        req.io = socket1
+        req.sock = sock
         next()
     }, wechatLoginCtr)
     //微信回调页面参数处理

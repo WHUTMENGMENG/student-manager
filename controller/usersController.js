@@ -42,7 +42,7 @@ const register = async (req, res) => {
             }
             res.send({ status: 1, state: true, msg: "注册成功", userInfo: info })
         } else {
-            res.send({ status: 0, state: false, msg: "注册出错" })
+            res.send({ status: 0, state: false, msg: "注册出错,缺少字段" })
         }
     } else {
         res.send({ status: 0, state: false, msg: "用户名已注册" })
@@ -60,15 +60,7 @@ const login = async (req, res) => {
         //说明数据库没有查找到(用户名或者密码错误)
         res.send({ status: 0, state: false, msg: "用户名或者密码错误" })
     } else {
-        var info = {
-            unid: result[0].unid,
-            username: result[0].username,
-            nickname: result[0].nickname,
-            phone: result[0].phone,
-            avatarUrl: result[0].avatar,
-            roleid: result[0].roleid,
-
-        }
+        var info = { ...result[0]._doc }
         //保持用户登入
         //1.在用户登入成功的时候 使用jwt生成一串数字签名token 返回给前端
         //1.1调用jsonwebtoken下面的sign方法 进行签名
@@ -119,15 +111,18 @@ const login = async (req, res) => {
         let setLogResult = await addLog(log)
         // console.log(setLogResult)
         //获取权限路径
+        console.log(info)
+        console.log(info.roleid)
         let result2 = await perModel.find({ roleid: info.roleid })
+        console.log(result2)
         let rows = result2[0].rows
         let buttons = result2[0].buttons
-        console.log(buttons)
         info.rows = rows
         req.session.userInfo = info;
         info.roleName = result2[0].roleName
         let newInfo = { ...info }
         delete newInfo.rows
+        delete newInfo.password
         res.send({ status: 1, state: true, msg: "登入成功", permission: { buttons }, userInfo: newInfo, token: token })
     }
 }
@@ -191,10 +186,20 @@ const updatePassword = async (req, res) => {
 var getAllUsers = async (req, res) => {
     var result = await find();
     if (result && Array.isArray(result)) {
-        var users = result.map(item => {
-            delete item.password;
-            return item
-        })
+        var users = result.map(item => ({
+            roleid: item.String,
+            unid: item.unid,
+            username: item.username,
+            phone: item.phone,
+            nickname: item.nickname,
+            headimgurl: item.headimgurl,
+            roleName: item.roleName,
+            openid: item.openid,
+            sex: item.sex,
+            city: item.city,
+            province: item.province,
+            country: item.country
+        }))
         res.send({ status: 200, state: true, msg: "success", users })
     } else {
         res.send({ status: 403, state: false, msg: "获取出错" })
@@ -229,10 +234,10 @@ let redirect_uri = "http://chst.vip/users/wechatCallBack"
 let scope = "snsapi_userinfo"
 let secret = '1479691513627d91af5eb9d6b8c9106e'
 let response_type = "code"
-let socket_io;;
+let socket;
 const wechatLoginCtr = (req, res) => {
-    socket_io = req.io;
-    req.io.emit("getMsg", {name:'123'})
+    socket = req.sock;
+    socket.emit("getScancode", { status:200,state:true,msg:"已切换微信登入" })
     //定义一个类 用于生成URL扫码地址
     // https://open.weixin.qq.com/connect/oauth2/authorize?appid=APPID&redirect_uri=REDIRECT_URI&response_type=code&scope=SCOPE&state=STATE#wechat_redirect  
     console.log(req.query)
@@ -242,8 +247,7 @@ const wechatLoginCtr = (req, res) => {
 }
 //处理微信回调页面控制层
 const wechatCallBackCtr = async (req, response, io) => {
-    socket_io.emit("getMsg", "扫码成功")
-    console.log(req.query)
+    socket.emit("scancodeSuccess", { status: 200, state: true, msg: "已扫码" })
     let { code } = req.query;//获取code之后去换access_token
     https.get(`https://api.weixin.qq.com/sns/oauth2/access_token?appid=${appid}&secret=${secret}&code=${code}&grant_type=authorization_code`, function (res) {
         let datas = [];
@@ -267,6 +271,13 @@ const wechatCallBackCtr = async (req, response, io) => {
                     delete info.password
                     // console.log("==========++++",info)
                     response.render("wechatCallBack", { headimgurl: info.headimgurl, nickname: info.nickname })
+                    //socket响应登入成功
+                    //生成token
+                    let secrect = "YOU_PLAY_BASKETBALL_LIKE_CAIXUKUN" //随机字符串用于加密
+                    let token = jwt.sign(info, secrect, {
+                        expiresIn: 60 * 3
+                    })
+                    socket.emit("wechatLoginSuccess", { status: 200, state: true, msg: "微信登入成功", userInfo: info, token })
                     return
                 } else {
                     // response.send('success')
@@ -288,14 +299,21 @@ const wechatCallBackCtr = async (req, response, io) => {
                             result.unid = Math.random().toString(32).substr(2)
                             result.username = Math.random().toString(32).substr(2)
                             result.password = Math.random().toString(32).substr(2)
-                            res.roleid = 200
+                            result.roleid = 200
                             let registResult = await registerModel({ ...result })
                             if (registResult) {
                                 delete registResult.password;
-                                console.log("=====", registResult)
                                 response.render("wechatCallBack", { nickname: registResult.nickname, headimgurl: registResult.headimgurl })
+                                //socket响应
+                                let secrect = "YOU_PLAY_BASKETBALL_LIKE_CAIXUKUN" //随机字符串用于加密
+                                let token = jwt.sign(info, secrect, {
+                                    expiresIn: 60 * 3
+                                })
+                                socket.emit("wechatLoginSuccess", { status: 200, state: true, msg: "登入成功", ...registResult, token })
                             } else {
                                 response.render("wechatCallBack", { state: false, status: 101, msg: "登入出错" })
+
+                                socket.emit("wechatLoginSuccess", { status: 400, state: false, msg: "登入出错" })
                             }
                             console.log(result)
                             //response.send({ url: result.headimgurl })
@@ -304,6 +322,7 @@ const wechatCallBackCtr = async (req, response, io) => {
                 }
             } else {
                 response.send({ errmsg: "查询数据库出错" })
+                socket.emit("wechatLoginSuccess", { status: 400, state: false, msg: "查询出错" })
             }
 
         })

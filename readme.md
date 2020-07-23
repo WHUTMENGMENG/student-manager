@@ -24,7 +24,7 @@ npm install
 npm start
 ```
 
-# 基础地址:http://www.chst.vip:1901
+# 基础地址:http://www.chst.vip
 
 # 测试账号:lbw 密码:555
 
@@ -116,7 +116,7 @@ npm start
 
 成功返回值
 
-```
+```javascript
 {
     "status": 1,
     "state": true,
@@ -126,6 +126,7 @@ npm start
         {
             "_id": "5cd3c534e1e75b0ea034cf83",
             "name": "谭鹏",
+            "headimgurl":"",
             "age": "21",
             "class": "H51901",
             "city": "重庆",
@@ -181,7 +182,7 @@ npm start
 | sId  |    是    | 当前学员id |
 |      |          |            |
 
-```
+```javascript
 // 删除成功
 {
   "status": 1,
@@ -217,10 +218,8 @@ npm start
 | 参数 | 是否必填 |      描述      |
 | :--: | :------: | :------------: |
 | key  |    否    | 传入学员的姓名 |
-| :--: | :------: | :------------: |
-| count  |    否    | tiaoshu |
-| :--: | :------: | :------------: |
-| page  |    否    | yema |
+| count  |    否    | 请求的条数(默认全部返回) |
+| page  |    否    | 页码 |
 
 ## 上传学员头像接口
 
@@ -231,7 +230,7 @@ npm start
 |  参数  | 是否必填 |             描述             |
 | :----: | :------: | :--------------------------: |
 | headimgurl |    是    | 上传的文件格式 jpg\|png\|gif |
-```
+```javascript
 //成功数据
 {
     status: 200,
@@ -248,7 +247,7 @@ npm start
 | :----------: | :------: | :---------------: |
 | 获取所有用户 |   get    | /users/getAllUers |
 
-```
+```javascript
 {
     "status": 200,
     "state": true,
@@ -508,5 +507,5 @@ npm start
 }
 ```
 
-1. 
+
 
