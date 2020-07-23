@@ -5,6 +5,7 @@ const { find, add, del, update, getTotal } = require("../model/studentsModel")
 const getList = async (req, res) => {
 
     let page = req.query['page'] || 1;
+	console.log("=====",page)
     let count = req.query['count'] || 0;
     let classes = req.query['class']
     let key = req.query['key'] || ""
@@ -78,7 +79,7 @@ const updateStudent = async (req, res) => {
     if (result.nModified !== 0) {
         res.send({ status: 200, state: true, msg: "更新成功" })
     } else {
-        res.send({ status: 500, state: false, msg: "更新失败" })
+        res.send({ status: 304, state: false, msg: "没有做任何修改" })
     }
 
 }
