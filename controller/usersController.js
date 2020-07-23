@@ -306,8 +306,8 @@ const wechatCallBackCtr = async (req, response, io) => {
                                 delete registResult.password;
                                 //socket响应
                                 let secrect = "YOU_PLAY_BASKETBALL_LIKE_CAIXUKUN" //随机字符串用于加密
-                                console.log("309====",registResult)
-                                let token = jwt.sign(registResult, secrect, {
+                                console.log("309====", registResult)
+                                let token = jwt.sign({ ...registResult }, secrect, {
                                     expiresIn: 60 * 3
                                 })
                                 socket.emit("wechatLoginSuccess", { status: 200, state: true, msg: "登入成功", ...registResult, token: token })
