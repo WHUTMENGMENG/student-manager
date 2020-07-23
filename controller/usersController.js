@@ -237,7 +237,7 @@ let response_type = "code"
 let socket;
 const wechatLoginCtr = (req, res) => {
     socket = req.sock;
-    socket.emit("getScancode", { status:200,state:true,msg:"已切换微信登入" })
+    socket.emit("getScancode", { status: 200, state: true, msg: "已切换微信登入" })
     //定义一个类 用于生成URL扫码地址
     // https://open.weixin.qq.com/connect/oauth2/authorize?appid=APPID&redirect_uri=REDIRECT_URI&response_type=code&scope=SCOPE&state=STATE#wechat_redirect  
     console.log(req.query)
@@ -272,6 +272,7 @@ const wechatCallBackCtr = async (req, response, io) => {
                     //socket响应登入成功
                     //生成token
                     let secrect = "YOU_PLAY_BASKETBALL_LIKE_CAIXUKUN" //随机字符串用于加密
+                    console.log("275===", info)
                     let token = jwt.sign(info, secrect, {
                         expiresIn: 60 * 3
                     })
@@ -305,10 +306,11 @@ const wechatCallBackCtr = async (req, response, io) => {
                                 delete registResult.password;
                                 //socket响应
                                 let secrect = "YOU_PLAY_BASKETBALL_LIKE_CAIXUKUN" //随机字符串用于加密
+                                console.log("309====",registResult)
                                 let token = jwt.sign(registResult, secrect, {
                                     expiresIn: 60 * 3
                                 })
-                                socket.emit("wechatLoginSuccess", { status: 200, state: true, msg: "登入成功", ...registResult, token })
+                                socket.emit("wechatLoginSuccess", { status: 200, state: true, msg: "登入成功", ...registResult, token: token })
                                 response.render("wechatCallBack", { nickname: registResult.nickname, headimgurl: registResult.headimgurl })
                             } else {
                                 socket.emit("wechatLoginSuccess", { status: 400, state: false, msg: "登入出错" })
@@ -323,7 +325,7 @@ const wechatCallBackCtr = async (req, response, io) => {
             } else {
                 socket.emit("wechatLoginSuccess", { status: 400, state: false, msg: "查询出错" })
             }
-                response.send({ errmsg: "查询数据库出错" })
+            response.send({ errmsg: "查询数据库出错" })
 
         })
     })
