@@ -236,7 +236,7 @@ let secret = '1479691513627d91af5eb9d6b8c9106e'
 let response_type = "code"
 let socket;
 const wechatLoginCtr = (req, response) => {
-    socket = req.socket;
+
     let { wechatCode } = req.query
     if (!wechatCode) {
         response.send({ errormsg: "请传入wechatCode", state: fase })
@@ -246,7 +246,7 @@ const wechatLoginCtr = (req, response) => {
     // socket.emit("getScancode", { status: 200, state: true, msg: "已切换微信登入" })
     //定义一个类 用于生成URL扫码地址
     // https://open.weixin.qq.com/connect/oauth2/authorize?appid=APPID&redirect_uri=REDIRECT_URI&response_type=code&scope=SCOPE&state=STATE#wechat_redirect  
-    let scanParams = new CreateScanCodeParams(appid, redirect_uri, undefined, scope)
+    // let scanParams = new CreateScanCodeParams(appid, redirect_uri, undefined, scope)
     // let scanCodeUrl = createScanCodeUrl(scanParams)
     // res.send({ state: true, status: 200, scanCodeUrl })
     https.get(`https://api.weixin.qq.com/sns/oauth2/access_token?appid=${appid}&secret=${secret}&code=${wechatCode}&grant_type=authorization_code`, function (res) {
@@ -343,11 +343,19 @@ const wechatLoginCtr = (req, response) => {
         })
     })
 }
+//获取微信二维码
+const getScancodeCtr = (req, res, io) => {
+    socket = req.socket;
+    let scanParams = new CreateScanCodeParams(appid, redirect_uri, undefined, scope)
+    let scanCodeUrl = createScanCodeUrl(scanParams)
+    res.send({ state: true, status: 200, scanCodeUrl })
+}
 //处理微信回调页面控制层
 const wechatCallBackCtr = async (req, res, io) => {
     let { code } = req.query;//获取code之后去换access_token
     socket.emit("scancodeSuccess", { status: 200, state: true, msg: "已扫码", wechatCode: code })
     // response.render("wechatCallBack", { nickname: registResult.nickname, headimgurl: registResult.headimgurl })
+
     res.send("登入成功")
 }
 module.exports = {
@@ -357,5 +365,6 @@ module.exports = {
     updatePassword,
     getAllUsers,
     wechatCallBackCtr,
-    wechatLoginCtr
+    wechatLoginCtr,
+    getScancodeCtr
 }

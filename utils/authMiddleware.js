@@ -6,7 +6,8 @@ const authorizition = (req, res, next) => {
         "/users/login",
         "/students/uploadStuAvatar",
         "/users/wechatLogin",
-        "/users/wechatCallBack"
+        "/users/wechatCallBack",
+        "/users/getScancode"
     ];
     let matchRes = rowPath.some(item => item === req.path)
     if (matchRes || /\/avatar\/.*/.test(req.path)) {

@@ -1,14 +1,15 @@
 
+const express = require("express");
+
+const router = express.Router();
+
+const { register, login, uploadAvatar, updatePassword, getScancodeCtr, getAllUsers, wechatLoginCtr, wechatCallBackCtr } = require("../controller/usersController")
+
+const uploads = require("../middleware/multer")
+console.log(uploads)
+//注册
 module.exports = function (io) {
-    const express = require("express");
 
-    const router = express.Router();
-
-    const { register, login, uploadAvatar, updatePassword, getAllUsers, wechatLoginCtr, wechatCallBackCtr } = require("../controller/usersController")
-
-    const uploads = require("../middleware/multer")
-    console.log(uploads)
-    //注册
     router.post("/register", register)
 
     //登入
@@ -41,5 +42,9 @@ module.exports = function (io) {
         next()
     }, wechatCallBackCtr)
 
+    router.get("getScancode", function (req, res, next) {
+        req.sock = sock
+        next()
+    }, getScancodeCtr)
     return router
 }
