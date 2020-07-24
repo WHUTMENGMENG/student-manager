@@ -239,7 +239,7 @@ const wechatLoginCtr = (req, response) => {
     socket = req.socket;
     let { wechatCode } = req.query
     if (!wechatCode) {
-        res.send({ errormsg: "请传入wechatCode", state: fase })
+        response.send({ errormsg: "请传入wechatCode", state: fase })
         return
     }
     // socket = req.sock;
@@ -344,7 +344,7 @@ const wechatLoginCtr = (req, response) => {
     })
 }
 //处理微信回调页面控制层
-const wechatCallBackCtr = async (req, response, io) => {
+const wechatCallBackCtr = async (req, res, io) => {
     let { code } = req.query;//获取code之后去换access_token
     socket.emit("scancodeSuccess", { status: 200, state: true, msg: "已扫码", wechatCode: code })
     // response.render("wechatCallBack", { nickname: registResult.nickname, headimgurl: registResult.headimgurl })
