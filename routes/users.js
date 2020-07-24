@@ -42,7 +42,7 @@ module.exports = function (io) {
         next()
     }, wechatCallBackCtr)
 
-    router.get("getScancode", function (req, res, next) {
+    router.get("/getScancode", function (req, res, next) {
         req.sock = sock
         next()
     }, getScancodeCtr)
