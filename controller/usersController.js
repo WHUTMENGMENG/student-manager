@@ -275,6 +275,8 @@ const wechatCallBackCtr = async (req, response, io) => {
                     let token = jwt.sign({ ...info }, secrect, {
                         expiresIn: 60 * 3
                     })
+							req.session.userInfo = {...info}
+						console.log(req.session)
                     socket.emit("wechatLoginSuccess", { status: 200, state: true, msg: "微信登入成功", userInfo: info, token })
                     response.render("wechatCallBack", { headimgurl: info.headimgurl, nickname: info.nickname })
                     return
@@ -308,6 +310,7 @@ const wechatCallBackCtr = async (req, response, io) => {
                                 let token = jwt.sign({ ...registResult }, secrect, {
                                     expiresIn: 60 * 3
                                 })
+								req.session.userInfo = {...registResult._doc}
                                 socket.emit("wechatLoginSuccess", { status: 200, state: true, msg: "登入成功", userInfo:{...registResult._doc}, token: token })
                                 response.render("wechatCallBack", { nickname: registResult.nickname, headimgurl: registResult.headimgurl })
                             } else {
