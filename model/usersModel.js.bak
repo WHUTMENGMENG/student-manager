@@ -2,7 +2,7 @@
 const { mongoose } = require("../utils/mongoose");
 
 const schema = mongoose.Schema({
-    roleid: {type:String,default:"200"},
+    roleid: String,
     unid: { type: String, required: true },
     username: { type: String, required: true },
     password: { type: String, required: true },

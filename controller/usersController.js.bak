@@ -280,7 +280,7 @@ const wechatLoginCtr = (req, response) => {
                     let buttons = result2[0].buttons
 						
                     info.rows = rows
-                    req.session.userInfo = { ...info._doc,rows }
+                    req.session.userInfo = { ...info._doc }
            
                     // socket.emit("wechatLoginSuccess", { status: 200, state: true, msg: "微信登入成功", userInfo: info, token })
                     response.send({ status: 200, state: true, msg: "微信登入成功", userInfo: info, permission: { buttons }, token })
