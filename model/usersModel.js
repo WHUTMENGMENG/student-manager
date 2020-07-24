@@ -8,7 +8,7 @@ const schema = mongoose.Schema({
     password: { type: String, required: true },
     phone: { type: String, required: false, default: "" },
     nickname: { type: String, required: false, default: "" },
-    roles: { type: String, required: false, default: ""},
+    roles: { type: String, required: false, default: "" },
     headimgurl: { type: String, required: false, default: "" },
     role: { type: String, required: false, default: "" },
     roleName: { type: String, required: false, default: "" },
@@ -16,7 +16,8 @@ const schema = mongoose.Schema({
     sex: { type: String, required: false, default: "" },
     city: { type: String, required: false, default: "" },
     province: { type: String, required: false, default: "" },
-    country: { type: String, required: false, default: "" }
+    country: { type: String, required: false, default: "" },
+    unionid: { type: String, default: "" }
 })
 
 //创建模型(翻译过来的意思就是 创建一个集合)

@@ -36,7 +36,10 @@ module.exports = function (io) {
         next()
     }, wechatLoginCtr)
     //微信回调页面参数处理
-    router.get("/wechatCallBack", wechatCallBackCtr)
+    router.get("/wechatCallBack", function (req, res, next) {
+        req.sock = sock
+        next()
+    }, wechatCallBackCtr)
 
     return router
 }
