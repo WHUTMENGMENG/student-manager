@@ -8,23 +8,35 @@
 </head>
 
 <body>
-
+    <div id="app"></div>
 </body>
 
 </html>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+<style>
+    svg{
+        stroke:hotpink;
+        width:100px!important
+    }
+</style>
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script> -->
 <script>
-    var socket = io("ws://chst.vip")
-    socket.on('connect', () => {
-        console.log('链接成功')
-    })
-    socket.on('getScancode', (data) => {
-        console.log(data)
-    })
-    socket.on('scancodeSuccess', (data) => {
-        console.log(data)
-    })
-    socket.on('wechatLoginSuccess', (data) => {
-        console.log(data)
-    })
+    // var socket = io("ws://chst.vip")
+    // socket.on('connect', () => {
+    //     console.log('链接成功')
+    // })
+    // socket.on('getScancode', (data) => {
+    //     console.log(data)
+    // })
+    // socket.on('scancodeSuccess', (data) => {
+    //     console.log(data)
+    // })
+    // socket.on('wechatLoginSuccess', (data) => {
+    //     console.log(data)
+    // })
+
+    fetch("http://localhost:1901/users/getCaptcha")
+        .then(res => res.json())
+        .then(res => {
+            app.innerHTML = res.img
+        })
 </script>
