@@ -6,10 +6,10 @@ var logger = require('morgan');//日志模块
 var jwt = require("jsonwebtoken")
 const io = require('socket.io')()
 global.io = io;
-//io.on("connection", socket => {
-		//global.sock = socket
-		//console.log('be socket success' + +new Date())
-//})
+io.on("connection", socket => {
+    global.sock = socket
+		console.log('be socket success'+ +new Date())
+})
 var indexRouter = require('./routes/index'); //路由
 //引入自己定义的路由
 let customRouter = require("./routes/custom")

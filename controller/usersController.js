@@ -342,13 +342,23 @@ const wechatLoginCtr = (req, response) => {
         })
     })
 }
+
+
+global.io.on("connection", sock => {
+    global.sock = socket
+	socket = sock;
+    socket.emit("scancodeSuccess", "111111")
+})
+
+
 //获取微信二维码
 const getScancodeCtr = (req, res, io) => {
-    socket = global.sock;
-    socket.emit("scancodeSuccess", "111111")
+	console.log('getScan zhixing le')
     let scanParams = new CreateScanCodeParams(appid, redirect_uri, undefined, scope)
     let scanCodeUrl = createScanCodeUrl(scanParams)
+	
     res.send({ state: true, status: 200, scanCodeUrl })
+    
 }
 //处理微信回调页面控制层
 const wechatCallBackCtr = async (req, res, io) => {
