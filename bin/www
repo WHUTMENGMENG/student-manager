@@ -19,7 +19,7 @@ app.set('port', port);
  */
 
 var server = http.createServer(app);
-const io = app.io.attach(server)
+global.io.attach(server)
 
 /**
  * Listen on provided port, on all network interfaces.

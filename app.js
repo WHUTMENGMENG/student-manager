@@ -4,6 +4,11 @@ var path = require('path'); //内置的path模块
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');//日志模块
 var jwt = require("jsonwebtoken")
+const io = require('socket.io')()
+global.io = io;
+io.on("connection", socket => {
+    global.sock = socket
+})
 var indexRouter = require('./routes/index'); //路由
 //引入自己定义的路由
 let customRouter = require("./routes/custom")
@@ -16,8 +21,6 @@ var session = require('express-session');
 //引入验证用户信息拦截器(权限拦截)
 var authorization = require("./utils/authMiddleware.js")
 // view engine setup
-const io = require('socket.io')()
-app.io = io;
 app.set('views', path.join(__dirname, 'views'));//设置模板的默认文件夹为当前目录下的views文件夹
 app.set('view engine', 'ejs');//设置模板引擎为ejs
 
@@ -54,7 +57,7 @@ app.use(authorization); //使用路由:就是服务器在匹配到不同的path�
 app.use("/permission", permissionRouter)//权限路由
 app.use('/custom', customRouter)
 app.use("/students", studentsRouter)
-app.use('/users', usersRouter(io));
+app.use('/users', usersRouter);
 app.use('/getloginlog', loginLogRouter)
 
 module.exports = app;

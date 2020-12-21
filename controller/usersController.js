@@ -30,7 +30,7 @@ const register = async (req, res) => {
         params.unid = unid
         params.roleid = req.body['roleid'] || '200' //如果没有传roleid那么默认是普通员工
         //3.往数据库插入注册的信息
-       
+
         let regRes = await registerModel(params)
         if (regRes) {
             let info = {
@@ -274,14 +274,14 @@ const wechatLoginCtr = (req, response) => {
                         expiresIn: 60 * 3
                     })
                     let result2 = await perModel.find({ roleid: info.roleid })
-							//console.log("")
-					console.log("==========278",result2)
+                    //console.log("")
+                    console.log("==========278", result2)
                     let rows = result2[0].rows
                     let buttons = result2[0].buttons
-						
+
                     info.rows = rows
-                    req.session.userInfo = { ...info._doc,rows }
-           
+                    req.session.userInfo = { ...info._doc, rows }
+
                     // socket.emit("wechatLoginSuccess", { status: 200, state: true, msg: "微信登入成功", userInfo: info, token })
                     response.send({ status: 200, state: true, msg: "微信登入成功", userInfo: info, permission: { buttons }, token })
                     // response.render("wechatCallBack", { headimgurl: info.headimgurl, nickname: info.nickname })
@@ -317,11 +317,11 @@ const wechatLoginCtr = (req, response) => {
                                 })
                                 let info = { ...registResult }
                                 let result2 = await perModel.find({ roleid: info.roleid })
-								console.log("===========320",result2)
+                                console.log("===========320", result2)
                                 let rows = result2[0].rows
                                 let buttons = result2[0].buttons
                                 info.rows = rows
-                                req.session.userInfo = { ...registResult._doc,rows }
+                                req.session.userInfo = { ...registResult._doc, rows }
                                 // socket.emit("wechatLoginSuccess", { status: 200, state: true, msg: "登入成功", userInfo: { ...registResult._doc }, token: token })
                                 // response.render("wechatCallBack", { nickname: registResult.nickname, headimgurl: registResult.headimgurl })
                                 response.send({ status: 200, state: true, msg: "微信登入成功", userInfo: { ...registResult._doc }, permission: { buttons }, token })
@@ -330,7 +330,7 @@ const wechatLoginCtr = (req, response) => {
                                 response.render("wechatCallBack", { state: false, status: 101, msg: "登入出错" })
 
                             }
-                        
+
                             //response.send({ url: result.headimgurl })
                         })
                     })
@@ -344,8 +344,8 @@ const wechatLoginCtr = (req, response) => {
 }
 //获取微信二维码
 const getScancodeCtr = (req, res, io) => {
-    socket = req.sock;
-	socket.emit("scancodeSuccess","111111")
+    socket = global.sock;
+    socket.emit("scancodeSuccess", "111111")
     let scanParams = new CreateScanCodeParams(appid, redirect_uri, undefined, scope)
     let scanCodeUrl = createScanCodeUrl(scanParams)
     res.send({ state: true, status: 200, scanCodeUrl })
@@ -354,9 +354,9 @@ const getScancodeCtr = (req, res, io) => {
 const wechatCallBackCtr = async (req, res, io) => {
     let { code } = req.query;//获取code之后去换access_token
     socket.emit("scancodeSuccess", { status: 200, state: true, msg: "已扫码", wechatCode: code })
-     res.render("wechatCallBack", { nickname: "qf", headimgurl: "/imgs/log.png" })
+    res.render("wechatCallBack", { nickname: "qf", headimgurl: "/imgs/log.png" })
 
-   // res.send("登入成功")
+    // res.send("登入成功")
 }
 module.exports = {
     register,
