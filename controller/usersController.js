@@ -260,7 +260,7 @@ const wechatLoginCtr = (req, response) => {
             result = JSON.parse(result);
             let { access_token, openid } = result
             //请求用户信息之前判断一下数据库是否有用户信息 用openid判断
-            if (!openid) { res.send({ "errmsg": "请重新扫码" }); return }
+            if (!openid) { response.send({ "errmsg": "请重新扫码" }); return }
             let isUser = await find({ openid })
             if (Array.isArray(isUser)) {
                 if (isUser.length) {
@@ -354,9 +354,9 @@ const getScancodeCtr = (req, res, io) => {
 const wechatCallBackCtr = async (req, res, io) => {
     let { code } = req.query;//获取code之后去换access_token
     socket.emit("scancodeSuccess", { status: 200, state: true, msg: "已扫码", wechatCode: code })
-    // response.render("wechatCallBack", { nickname: registResult.nickname, headimgurl: registResult.headimgurl })
+     res.render("wechatCallBack", { nickname: "qf", headimgurl: "/imgs/log.png" })
 
-    res.send("登入成功")
+   // res.send("登入成功")
 }
 module.exports = {
     register,

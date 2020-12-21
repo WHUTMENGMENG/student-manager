@@ -280,7 +280,7 @@ const wechatLoginCtr = (req, response) => {
                     let buttons = result2[0].buttons
 						
                     info.rows = rows
-                    req.session.userInfo = { ...info._doc }
+                    req.session.userInfo = { ...info._doc,rows }
            
                     // socket.emit("wechatLoginSuccess", { status: 200, state: true, msg: "微信登入成功", userInfo: info, token })
                     response.send({ status: 200, state: true, msg: "微信登入成功", userInfo: info, permission: { buttons }, token })
@@ -354,9 +354,9 @@ const getScancodeCtr = (req, res, io) => {
 const wechatCallBackCtr = async (req, res, io) => {
     let { code } = req.query;//获取code之后去换access_token
     socket.emit("scancodeSuccess", { status: 200, state: true, msg: "已扫码", wechatCode: code })
-    // response.render("wechatCallBack", { nickname: registResult.nickname, headimgurl: registResult.headimgurl })
+     res.render("wechatCallBack", { nickname: "qf", headimgurl: "/imgs/log.png" })
 
-    res.send("登入成功")
+   // res.send("登入成功")
 }
 module.exports = {
     register,
