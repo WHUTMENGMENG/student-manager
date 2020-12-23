@@ -11,6 +11,7 @@ const authorizition = (req, res, next) => {
         "/users/getCaptcha",
         "/users/verifyCaptcha",
         "/users/refreshCaptcha",
+        "/pay/wepay",
     ];
     let matchRes = rowPath.some(item => item === req.path)
     if (matchRes || /\/avatar\/.*/.test(req.path)) {

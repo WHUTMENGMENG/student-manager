@@ -6,10 +6,10 @@ var logger = require('morgan');//日志模块
 var jwt = require("jsonwebtoken")
 const io = require('socket.io')()
 global.io = io;
-//io.on("connection", socket => {
-		//global.sock = socket
-		//console.log('be socket success' + +new Date())
-//})
+io.on("connection", socket => {
+    global.sock = socket
+
+})
 var indexRouter = require('./routes/index'); //路由
 //引入自己定义的路由
 let customRouter = require("./routes/custom")
@@ -17,6 +17,7 @@ let studentsRouter = require("./routes/students")
 let usersRouter = require('./routes/users');
 let loginLogRouter = require('./routes/LoginLog')
 let permissionRouter = require('./routes/permission')
+let wepayRouter = require("./routes/wepay")
 var app = express();//通过express创建一个服务器
 var session = require('express-session');
 //引入验证用户信息拦截器(权限拦截)
@@ -60,5 +61,5 @@ app.use('/custom', customRouter)
 app.use("/students", studentsRouter)
 app.use('/users', usersRouter);
 app.use('/getloginlog', loginLogRouter)
-
+app.use("/pay", wepayRouter)
 module.exports = app;
