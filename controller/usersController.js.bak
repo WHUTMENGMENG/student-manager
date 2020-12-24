@@ -26,8 +26,8 @@ const register = async (req, res) => {
     //只要result的length是0  说明数据库里不存在此用户 可以注册
     if (result.length == 0) {
         //说明可以注册 生成用户unid 并且调用model层里面save的方法
-        let unid = Math.random().toString(32).substr(2)
-        params.unid = unid
+        let uid = Math.random().toString(32).substr(2)
+        params.uid = uid
         params.roleid = req.body['roleid'] || '200' //如果没有传roleid那么默认是普通员工
         //3.往数据库插入注册的信息
 
@@ -35,7 +35,7 @@ const register = async (req, res) => {
         if (regRes) {
             let info = {
                 roleid: params.roleid,
-                unid: regRes.unid,
+                uid: regRes.uid,
                 username: regRes.username,
                 nickname: regRes.nickname,
                 phone: regRes.phone
@@ -131,7 +131,7 @@ const uploadAvatar = async (req, res) => {
     //一个头像需要对应一个用户 可以使用用户id来对应头像
     //实现思路
     //1.用户调用上传头像接口,传递当前用户的id和图片
-    let query = { unid: req.body.unid }
+    let query = { uid: req.body.uid }
     //字段名不要要avatarUrl 不然的话mongoose无法更新
     let update = { $set: { headimgurl: req.body.headimgurl } }
     //2.根据用户id作为查询数据库的query依据 ,然后使用update方法来更新当前用户的头像
@@ -186,7 +186,7 @@ var getAllUsers = async (req, res) => {
     if (result && Array.isArray(result)) {
         var users = result.map(item => ({
             roleid: item.String,
-            unid: item.unid,
+            uid: item.uid,
             username: item.username,
             phone: item.phone,
             nickname: item.nickname,
@@ -303,7 +303,7 @@ const wechatLoginCtr = (req, response) => {
                             var result = buff.toString()
                             result = JSON.parse(result); //获得了微信用户的信息
                             //存入数据库
-                            result.unid = Math.random().toString(32).substr(2)
+                            result.uid = Math.random().toString(32).substr(2)
                             result.username = Math.random().toString(32).substr(2)
                             result.password = Math.random().toString(32).substr(2)
                             result.roleid = 200
