@@ -24,11 +24,53 @@ const schema = mongoose.Schema({
 let Collection = mongoose.model("order_masters", schema)
 
 //查询订单 接收用户uid进行查询
-let find = (query = {}) => {
+/**
+ * 
+ * @param query.unid 接受unid字段用户查询所有订单
+ * @param query.order_id 查询订单详情
+ */
+let find_order_masters = (query = {}) => {
     return Collection.find(query)
         .then(res => res)
         .catch(err => {
             console.log(err)
             return false
         })
+}
+
+//保存订单
+let save_order_masters = (params) => {
+    // 实例化集合
+    let coll = new Collection(params)
+    return coll.save()
+        .then(res => res)
+        .catch(err => {
+            // console.log(err)
+            return err
+        })
+}
+//删
+const del_order_masters = (query) => {
+    return Collection.deleteOne(query)
+        .then(res => res)
+        .catch(err => {
+            console.log(err)
+            return false
+        })
+}
+//改
+const update_order_masters = (query, updated) => {
+    return Collection.updateOne(query, updated)
+        .then(res => res)
+        .catch(err => {
+            console.log(err);
+            return false
+        })
+}
+
+module.exports = {
+    find_order_masters,
+    save_order_masters,
+    update_order_masters,
+    del_order_masters
 }
