@@ -1,10 +1,11 @@
+const { mongoose, db } = require("../utils/mongoose")
 const schema = mongoose.Schema({
-    cart_id: { type: String, required },//购物车id
-    unid: { type: String, required },//用户id
+    cart_id: { type: String, required:true },//购物车id
+    unid: { type: String, required:true },//用户id
     product_id: { type: String, required: true },//商品id
     create_time: { type: String, required: true },//创建时间
-    count: { type: Number, required, default: 1 },//商品数量
-    isChecked: { type: Boolean, required, defalut: false }//商品是否被选中
+    count: { type: Number, required:true, default: 1 },//商品数量
+    isChecked: { type: Boolean, required:true, defalut: false }//商品是否被选中
 })
 
 let Collection = mongoose.model("carts", schema)
@@ -24,7 +25,7 @@ let find_carts = (query = {}) => {
 //保存订单
 /**
  * 
- * @param params.category_id 类目id
+ * @param {object} params.category_id 类目id
  * @param params.categoryName 类目名称
  */
 let save_carts = (params) => {

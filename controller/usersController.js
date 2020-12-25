@@ -55,6 +55,10 @@ const login = async (req, res) => {
     //1.获取前端传入的用户名和密码
     //2.调用loginModel进行数据库校验 如果有返回值=>登入成功 没有=>登入失败
     let params = req.body;
+    if (!params.username || !params.password) {
+        res.send({ status: 1004, state: false, msg: "没有传递用户名或者密码" })
+        return
+    }
     let result = await loginModel(params)
     if (result.length == 0) {
         //说明数据库没有查找到(用户名或者密码错误)
@@ -112,7 +116,7 @@ const login = async (req, res) => {
         // console.log(setLogResult)
         //获取权限路径
         let result2 = await perModel.find({ roleid: info.roleid })
-        console.log(result2)
+        // console.log(result2)
         let rows = result2[0].rows
         let buttons = result2[0].buttons
         info.rows = rows
@@ -136,7 +140,7 @@ const uploadAvatar = async (req, res) => {
     let update = { $set: { headimgurl: req.body.headimgurl } }
     //2.根据用户id作为查询数据库的query依据 ,然后使用update方法来更新当前用户的头像
     let result = await updated(query, update)
-    console.log(result)
+    // console.log(result)
     if (result.n) {
         res.send({ status: 1, state: true, msg: "图片上传成功" })
     } else {
@@ -254,7 +258,7 @@ const wechatLoginCtr = (req, response) => {
             size += data.length;
         })
         res.on('end', async () => {
-            console.log('响应结束')
+            // console.log('响应结束')
             var buff = Buffer.concat(datas, size);
             var result = buff.toString()
             result = JSON.parse(result);
@@ -275,7 +279,7 @@ const wechatLoginCtr = (req, response) => {
                     })
                     let result2 = await perModel.find({ roleid: info.roleid })
                     //console.log("")
-                    console.log("==========278", result2)
+                    // console.log("==========278", result2)
                     let rows = result2[0].rows
                     let buttons = result2[0].buttons
 
@@ -298,7 +302,7 @@ const wechatLoginCtr = (req, response) => {
                             size += data.length;
                         })
                         res.on('end', async () => {
-                            console.log('获取微信用户信息响应结束')
+                            // console.log('获取微信用户信息响应结束')
                             var buff = Buffer.concat(datas, size);
                             var result = buff.toString()
                             result = JSON.parse(result); //获得了微信用户的信息
@@ -317,7 +321,7 @@ const wechatLoginCtr = (req, response) => {
                                 })
                                 let info = { ...registResult }
                                 let result2 = await perModel.find({ roleid: info.roleid })
-                                console.log("===========320", result2)
+                                // console.log("===========320", result2)
                                 let rows = result2[0].rows
                                 let buttons = result2[0].buttons
                                 info.rows = rows
@@ -346,19 +350,19 @@ const wechatLoginCtr = (req, response) => {
 
 global.io.on("connection", sock => {
     global.sock = socket
-	socket = sock;
+    socket = sock;
     socket.emit("scancodeSuccess", "111111")
 })
 
 
 //获取微信二维码
 const getScancodeCtr = (req, res, io) => {
-	console.log('getScan zhixing le')
+    // console.log('getScan zhixing le')
     let scanParams = new CreateScanCodeParams(appid, redirect_uri, undefined, scope)
     let scanCodeUrl = createScanCodeUrl(scanParams)
-	
+
     res.send({ state: true, status: 200, scanCodeUrl })
-    
+
 }
 //处理微信回调页面控制层
 const wechatCallBackCtr = async (req, res, io) => {

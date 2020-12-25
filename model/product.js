@@ -2,8 +2,8 @@
 const { mongoose } = require("../utils/mongoose");
 
 const schema = mongoose.Schema({
-    product_id: { type: String, required },//商品id
-    category_id: { type: String, required },//类目id
+    product_id: { type: String, required: true },//商品id
+    category_id: { type: String, required: true },//类目id
     productName: { type: String, required: true },//商品名称
     price: { type: String, required: true },//商品单价
     description: { type: String, required: true },//商品描述

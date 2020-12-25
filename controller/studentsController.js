@@ -182,7 +182,7 @@ const searchStu = async (req, res) => {
     }
     let total = await getTotal(query)
     let result = await find(query, counts)
-    console.log(total)
+    // console.log(total)
 
     if(result){
 		 res.send({ status: 200, state: true, total: total, data: result })

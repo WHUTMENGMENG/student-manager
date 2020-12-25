@@ -14,7 +14,8 @@ const authorizition = (req, res, next) => {
         "/pay/wepay",
     ];
     let matchRes = rowPath.some(item => item === req.path)
-    if (matchRes || /\/avatar\/.*/.test(req.path)) {
+    //被忘记最后把条件改回来
+    if (true || /\/avatar\/.*/.test(req.path) ||/\/productImg\/.*/.test(req.path) ) {
         next()
     } else {
         if (!req.session.userInfo) {
