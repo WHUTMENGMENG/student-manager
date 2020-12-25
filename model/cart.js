@@ -7,11 +7,12 @@ const schema = mongoose.Schema({
     isChecked: { type: Boolean, required, defalut: false }//商品是否被选中
 })
 
+let Collection = mongoose.model("carts", schema)
 /**
  * 
  * @param query.unid  接收一个unid用户id参数
  */
-let find_product_categorys = (query = {}) => {
+let find_carts = (query = {}) => {
     return Collection.find(query)
         .then(res => res)
         .catch(err => {
@@ -26,7 +27,7 @@ let find_product_categorys = (query = {}) => {
  * @param params.category_id 类目id
  * @param params.categoryName 类目名称
  */
-let save_product_categorys = (params) => {
+let save_carts = (params) => {
     // 实例化集合
     let coll = new Collection(params)
     return coll.save()
@@ -37,7 +38,7 @@ let save_product_categorys = (params) => {
         })
 }
 //删
-const del_product_categorys = (query) => {
+const del_carts = (query) => {
     return Collection.deleteOne(query)
         .then(res => res)
         .catch(err => {
@@ -46,7 +47,7 @@ const del_product_categorys = (query) => {
         })
 }
 //改
-const update_product_categorys = (query, updated) => {
+const update_carts = (query, updated) => {
     return Collection.updateOne(query, updated)
         .then(res => res)
         .catch(err => {
@@ -56,8 +57,8 @@ const update_product_categorys = (query, updated) => {
 }
 
 module.exports = {
-    find_product_categorys,
-    save_product_categorys,
-    update_product_categorys,
-    del_product_categorys
+    find_carts,
+    save_carts,
+    update_carts,
+    del_carts
 }

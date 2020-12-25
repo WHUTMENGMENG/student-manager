@@ -85,7 +85,7 @@ router.post("/wepay", function (req, res) {
     //8.终端IP	spbill_create_ip	是	String(64)	123.12.12.123
     //9.通知地址	notify_url	是	String(256)	http://www.weixin.qq.com/wxpay/pay.php	异步接收微信支付结果通知的回调地址，通知url必须为外网可访问的url，不能携带参数。
     //10.交易类型	trade_type	是	String(16)	JSAPI
-    let { key = 'QF1234567890qwertyuiopasdfghjklz', mch_id = '1568650321', appid = 'wxed58e834201d0894' } = req.body;
+    let { key = 'QF1234567890qwertyuiopasdfghjklz', mch_id = '1568650321', appid = 'wxed58e834201d0894', trade_type = "NATIVE" } = req.body;
 
     let data = {
         appid,
