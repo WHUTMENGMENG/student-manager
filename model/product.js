@@ -4,13 +4,16 @@ const { mongoose } = require("../utils/mongoose");
 const schema = mongoose.Schema({
     product_id: { type: String, required: true },//商品id
     category_id: { type: String, required: true },//类目id
+    shop_id: { type: String, required: false },//商户的id
     productName: { type: String, required: true },//商品名称
     price: { type: String, required: true },//商品单价
     description: { type: String, required: true },//商品描述
     inventory: { type: String, required: true },//商品库存
     imageUrl: { type: String, required: true },//商品图片
     color: { type: String, required: false },//颜色
-    size: { type: String, required: false }//尺寸
+    size: { type: String, required: false },//尺寸
+    updator: { type: String, required: false, default: null },
+    updateTime: { type: String, required: false, default: null }
 })
 
 //创建模型(翻译过来的意思就是 创建一个集合)

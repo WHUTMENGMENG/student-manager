@@ -13,7 +13,7 @@ router.get("/get_cart", cartCtr.getCarts)
 //选中购物车数据
 router.post("/check", cartCtr.checkCarts)
 //删除购物车数据
-router.get("/del_product", cartCtr.deleteCarts)
+router.get("/del_cart", cartCtr.deleteCarts)
 //更新购物车数据
 router.post("/update_cart", cartCtr.updateCarts)
 //添加数据进入购物车

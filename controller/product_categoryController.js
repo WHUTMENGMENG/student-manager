@@ -46,7 +46,7 @@ const addProductCategorys = async (req, res) => {
     if (saveRes) {
         res.send({ status: 200, state: true, msg: "添加成功" })
     } else {
-        res.send({ status: 1004, state: false, msg: "添加出错,请坚持" })
+        res.send({ status: 1004, state: false, msg: "添加出错,请检查" })
     }
     res.send("111")
 }
