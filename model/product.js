@@ -50,8 +50,8 @@ let save_products = (params) => {
     return coll.save()
         .then(res => res)
         .catch(err => {
-            // console.log(err)
-            return err
+            console.log(err)
+            return false
         })
 }
 //删

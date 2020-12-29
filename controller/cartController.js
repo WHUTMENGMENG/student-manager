@@ -27,7 +27,7 @@ const getCarts = async (req, res) => {
     if (Array.isArray(findRes)) {
         //通过id再找回商品内容
         req.session.userInfo.carts = findRes;
-        console.log(req.session.userInfo)
+        // console.log(req.session.userInfo)
         res.send({ status: 200, state: true, msg: "获取成功", data: [...findRes] })
     } else {
         res.send({ status: 1004, state: false, msg: "获取数据出错" })
@@ -54,17 +54,29 @@ const addCarts = async (req, res) => {
         res.send({ status: 1004, state: false, msg: "缺少product_id或者缺少quantity" })
         return
     }
+
+
     let unid;//获取当前用户id
     if (!req.session['userInfo']) {
         res.send({ status: 10022, msg: "未获取到unid请登入" })
         return
     }
     unid = req.session.userInfo.unid;
+    //查找当前用户购物车中是否存在该商品
+    let isCartExsist = await find_carts({ product_id, unid })
+    // console.log(isCartExsist)
+    if (Array.isArray(isCartExsist) && isCartExsist.length > 0) {
+        res.send({ status: 10010, msg: "购物车已存在该商品" })
+        return
+    } else if (!isCartExsist) {
+        res.send({ status: 1004, msg: "查询购物车出错" })
+        return
+    }
     //生成购物车id 时间戳 
     let cart_id = derivedUtil();
     //创建时间
     let create_time = derivedUtil("YYYY-MM-DD,hh:mm:ss")
-    console.log(cart_id)
+
     let prouctDetail = await find_products({ product_id })
     if (Array.isArray(prouctDetail) && prouctDetail.length) {
         prouctDetail = prouctDetail[0]
@@ -72,6 +84,12 @@ const addCarts = async (req, res) => {
         res.send({ status: 10020, state: false, msg: "err 添加购物车失败 商品已下架或者不存在" })
         return
     }
+    //添加的数量大于库存
+    if (quantity - 0 > prouctDetail.inventory) {
+        res.send({ status: 10010, state: false, msg: "err 商品库存不足" })
+        return
+    }
+
     //定义传递购物车数据的参数模型
     let { price, imageUrl, productName: title } = prouctDetail
     let paramSchma = {
@@ -114,7 +132,7 @@ const updateCarts = async (req, res) => {
         updateTime: derivedUtil("YYYY-MM-DD,hh:mm:ss") //此处不是用于生成id,用于生成时间
     }
     let updateRes = await update_carts(query, updated)
-    console.log(updateRes)
+    // console.log(updateRes)
     if (updateRes.nModified) {
         res.send({ status: 200, state: true, msg: "修改成功" })
     } else if (updateRes.n === 0) {
@@ -125,6 +143,49 @@ const updateCarts = async (req, res) => {
 }
 
 const checkCarts = async (req, res) => {
+    if (!req.session.userInfo.carts) {
+        res.send({ status: 1004, state: false, msg: "请检查是否登入或者调用获取过购物车数据接口" })
+        return
+    }
+    let carts = req.session.userInfo.carts;
+    let { cart_id } = req.body;
+    if (!cart_id) {
+        res.send({ status: 1004, state: false, msg: "请检查是否传递了cart_id" })
+        return
+    }
+    let cartIdArr = cart_id.indexOf(",") ? cart_id.split(",") : cart_id//接收的是20201229143646085,20201229143646085切割成一个数组
+    if (Array.isArray(cartIdArr) && cartIdArr.length > 0) {
+        let checkedCart = [];
+        cartIdArr.forEach(cartId => {
+            let target = carts.find(cart => {
+                return cart.cart_id == cartId
+            })
+            if (target) {
+                target.isChecked = true;
+                checkedCart.push(target)
+            }
+        })
+        if (checkCarts.length > 0) {
+            req.session.checkedCarts = checkedCart;//将选中的购物车数据挂载到session方便后续查询
+            res.send({ state: true, status: 200, msg: "选中成功", cart_id })
+            return
+            // console.log(carts)
+        } else {
+            res.send({ state: false, status: 10010, msg: "没有选中任何商品,请检查cart_id是否传递错误" })
+            return
+        }
+    } else {
+        let target = carts.find(cart => {
+            return cart.cart_id == cart_id
+        })
+        if (target) {
+            req.session.checkedCarts = [target]
+            res.send({ state: true, status: 200, msg: "选中成功", cart_id })
+            return
+        } else {
+            res.send({ state: false, status: 10010, msg: "没有选中任何商品,请检查cart_id是否传递错误" })
+        }
+    }
 
 }
 module.exports = {

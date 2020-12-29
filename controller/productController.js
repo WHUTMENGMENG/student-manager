@@ -74,7 +74,7 @@ const updateProduct = async (req, res) => {
         updateTime: derivedId("YYYY-MM-DD,hh:mm:ss") //此处不是用于生成id,用于生成时间
     }
     let updateRes = await update_products(query, updated)
-    console.log(updateRes)
+    // console.log(updateRes)
     if (updateRes.nModified) {
         res.send({ status: 200, state: true, msg: "修改成功" })
     } else if (updateRes.n === 0) {

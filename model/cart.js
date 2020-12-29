@@ -9,7 +9,7 @@ const schema = mongoose.Schema({
     title: { type: String, required: true },
     price: { type: String, required: true },
     isChecked: { type: Boolean, required: false, defalut: false },//商品是否被选中
-    updateTime: { type: String, required: true }
+    updateTime: { type: String, required: false }
 })
 
 let Collection = mongoose.model("carts", schema)
@@ -27,19 +27,15 @@ let find_carts = (query = {}) => {
 }
 
 //保存订单
-/**
- * 
- * @param {object} params.category_id 类目id
- * @param params.categoryName 类目名称
- */
+
 let save_carts = (params) => {
     // 实例化集合
     let coll = new Collection(params)
     return coll.save()
         .then(res => res)
         .catch(err => {
-            // console.log(err)
-            return err
+            console.log(err)
+            return false
         })
 }
 //删

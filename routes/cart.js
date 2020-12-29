@@ -11,7 +11,7 @@ let cartCtr = require("../controller/cartController")
 //获取购物车数据
 router.get("/get_cart", cartCtr.getCarts)
 //选中购物车数据
-router.post("/check", cartCtr.checkCarts)
+router.post("/check_cart", cartCtr.checkCarts)
 //删除购物车数据
 router.get("/del_cart", cartCtr.deleteCarts)
 //更新购物车数据
