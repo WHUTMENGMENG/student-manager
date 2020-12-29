@@ -80,11 +80,15 @@ const createOrder = async function (req, res, next, checkedCarts) {
     }
 
     let saveOrderRet = await save_order_masters(orderMasterParam)//保存订单到主表
+    if (!saveOrderRet) {
+        res.send({ status: 1004, msg: "保存order主表到数据库出错" })
+        return
+    }
     let orderDetails = isInventoryEnoughProducts.map(item => (
         {
             order_id,//关联的订单id
             product_id: item.product_id,//商品id
-            productName: item.productName,//商品名称
+            productName: item.title,//商品名称
             price: item.price,//商品单价
             quantity: item.quantity,//商品数量
             imageUrl: item.imageUrl,//商品图片
@@ -92,8 +96,12 @@ const createOrder = async function (req, res, next, checkedCarts) {
     ))
 
     let saveOrderDetail = await save_order_details(orderDetails)
-    console.log(saveOrderRet);
-    console.log(orderDetails);
+    if (!saveOrderDetail) {
+        res.send({ status: 1004, msg: "保存order详情到数据库出错" })
+        return
+    }
+    // console.log(saveOrderRet);
+    // console.log(orderDetails);
     res.send({ status: 200, state: true, order_id, msg: "订单提交成功" })
     //5.将商品id存到order_detail中,并且关联order_master主表id
 }
