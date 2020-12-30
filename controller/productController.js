@@ -30,8 +30,8 @@ const addProduct = async (req, res) => {
         category_id,
         productName,
         description,
-        price,
-        inventory,
+        price: Number(price),
+        inventory: Number(inventory),
         imageUrl
     })
     if (saveRes) {
@@ -67,7 +67,7 @@ const updateProduct = async (req, res) => {
     let query = {
         product_id
     }
-   
+
     let updated = {
         ...req.body,
         updator: username,

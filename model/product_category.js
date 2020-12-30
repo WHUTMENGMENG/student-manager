@@ -2,12 +2,14 @@
 const { mongoose } = require("../utils/mongoose");
 
 const schema = mongoose.Schema({
-    category_id: { type: String, required:true },//类目id
+    category_id: { type: String, required: true },//类目id
     categoryName: { type: String, required: true },//类目名称
     createTime: { type: String, required: true },//创建时间
     creator: { type: String, required: true },//创建者
     updateTime: { type: String, required: false, default: null },//更新时间
-    updator:{ type: String, required: false, default: null }//更改者
+    updator: { type: String, required: false, default: null }//更改者
+}, {
+    versionKey: false // You should be aware of the outcome after set to false
 })
 
 //创建模型(翻译过来的意思就是 创建一个集合)

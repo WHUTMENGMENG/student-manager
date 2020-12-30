@@ -5,9 +5,11 @@ const schema = mongoose.Schema({
     order_id: { type: String, required: true },//关联的订单id
     product_id: { type: String, required: true },//商品id
     productName: { type: String, required: true },//商品名称
-    price: { type: String, required: true },//商品单价
-    quantity: { type: String, required: true },//商品数量
+    price: { type: Number, required: true },//商品单价
+    quantity: { type: Number, required: true },//商品数量
     imageUrl: { type: String, required: true },//商品图片
+}, {
+    versionKey: false // You should be aware of the outcome after set to false
 })
 
 //创建模型(翻译过来的意思就是 创建一个集合)
@@ -30,18 +32,26 @@ let find_order_details = (query = {}) => {
 
 //保存订单
 let save_order_details = (params) => {
+    if (Array.isArray(params) || Array.length > 0) {//保存多条
+        return Collection.insertMany(params)
+            .then(res => res)
+            .catch(e => {
+                console.log(e);
+                return e.message
+            })
+    }
     // 实例化集合
     let coll = new Collection(params)
     return coll.save()
         .then(res => res)
         .catch(err => {
-            // console.log(err)
-            return err
+            console.log(err)
+            return false
         })
 }
 //删
 const del_order_details = (query) => {
-    return Collection.deleteOne(query)
+    return Collection.deleteMany(query)
         .then(res => res)
         .catch(err => {
             console.log(err)

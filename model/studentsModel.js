@@ -12,6 +12,8 @@ let Schema = mongoose.Schema({ //定义模型的作用就是规范字段名称 �
     description: { type: String, required: true },
     cTime: { type: String, required: true },
     headimgurl: { type: String, required: false }
+}, {
+    versionKey: false // You should be aware of the outcome after set to false
 })
 
 //创建集合 

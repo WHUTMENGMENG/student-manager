@@ -5,6 +5,8 @@ let Schema = mongoose.Schema({ //定义模型的作用就是规范字段名称 �
     username: { type: String, required: true },
     lastLogin: { type: Object, require: true },
     nowLogin: { type: Object, required: true }
+}, {
+    versionKey: false // You should be aware of the outcome after set to false
 })
 
 //创建集合 
