@@ -21,6 +21,7 @@ let wepayRouter = require("./routes/wepay")
 let cartRouter = require("./routes/cart")
 let productRouter = require("./routes/product")
 let productCategoryRouter = require("./routes/product_category")
+let orderRouter = require("./routes/order")
 var app = express();//通过express创建一个服务器
 var session = require('express-session');
 //引入验证用户信息拦截器(权限拦截)
@@ -68,4 +69,5 @@ app.use("/pay", wepayRouter)
 app.use("/cart", cartRouter)
 app.use("/product", productRouter)
 app.use("/category", productCategoryRouter)
+app.use("/order", orderRouter)
 module.exports = app;

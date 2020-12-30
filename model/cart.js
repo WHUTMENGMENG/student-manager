@@ -7,9 +7,11 @@ const schema = mongoose.Schema({
     quantity: { type: Number, required: true, default: 1 },//商品数量
     imageUrl: { type: String, required: true },
     title: { type: String, required: true },
-    price: { type: String, required: true },
+    price: { type: Number, required: true },
     isChecked: { type: Boolean, required: false, defalut: false },//商品是否被选中
     updateTime: { type: String, required: false }
+}, {
+    versionKey: false // You should be aware of the outcome after set to false
 })
 
 let Collection = mongoose.model("carts", schema)

@@ -5,12 +5,10 @@ let express = require("express");
 
 let router = express.Router()
 
-const { getOrder, addOrder, updateOrder, delOrder } = require("../controller/OrderController")
+const { getOrder, deleteOrder } = require("../controller/order_masterController")
 
-router.get("/confirm_order", confirmOrder)
-router.post("/find_order", addOrder)
-router.get("/del_order", delOrder)
-router.post("/update_order", updateOrder)
-
+// router.get("/confirm_order", confirmOrder)
+router.get("/get_order", getOrder)
+router.get("/del_order", deleteOrder)
 
 module.exports = router

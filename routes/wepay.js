@@ -1,14 +1,15 @@
 const express = require("express");
 const router = express.Router();
-const { wepay, preOrder } = require("../controller/wepay")
-
+const { payment, preOrder } = require("../controller/wepay")
+const xml2json = require("../utils/xml2json")
 router.post("/pre_order", preOrder)
 
-router.post("/wepay", wepay)
+router.post("/payment", payment)
 
 
-router.get('/wepayResult', function (req, res) {
+router.get('/payResult', function (req, res) {
     console.log("======")
-    console.log(res)
+    console.log(req.query)
+    res.send("999")
 })
 module.exports = router

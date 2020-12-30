@@ -16,6 +16,8 @@ const schema = mongoose.Schema({
     create_time: { type: String, required: true },//创建时间
     update_time: { type: String, required: false },//更新时间
     total_fee: { type: Number, required: true }//总价格 单位(分)
+}, {
+    versionKey: false // You should be aware of the outcome after set to false
 })
 
 //创建模型(翻译过来的意思就是 创建一个集合)
@@ -50,7 +52,7 @@ let save_order_masters = (params) => {
 }
 //删
 const del_order_masters = (query) => {
-    return Collection.deleteOne(query)
+    return Collection.deleteMany(query)
         .then(res => res)
         .catch(err => {
             console.log(err)

@@ -96,7 +96,7 @@ const addCarts = async (req, res) => {
         unid,
         cart_id,
         product_id,
-        quantity,
+        quantity: Number(quantity),
         create_time,
         title,
         price,
@@ -134,6 +134,12 @@ const updateCarts = async (req, res) => {
     let updateRes = await update_carts(query, updated)
     // console.log(updateRes)
     if (updateRes.nModified) {
+        //session中的cart也一并修改
+        let { carts } = req.session.userInfo;
+        // console.log(req.session.);
+        console.log(carts);
+        let target = carts.find(item => item.cart_id == cart_id);
+        target.quantity = quantity;
         res.send({ status: 200, state: true, msg: "修改成功" })
     } else if (updateRes.n === 0) {
         res.send({ status: 1005, state: false, msg: "没有该数据" })
@@ -153,7 +159,7 @@ const checkCarts = async (req, res) => {
         res.send({ status: 1004, state: false, msg: "请检查是否传递了cart_id" })
         return
     }
-    let cartIdArr = cart_id.indexOf(",") ? cart_id.split(",") : cart_id//接收的是20201229143646085,20201229143646085切割成一个数组
+    let cartIdArr = cart_id.indexOf(",") !== -1 ? cart_id.split(",") : cart_id//接收的是20201229143646085,20201229143646085切割成一个数组
     if (Array.isArray(cartIdArr) && cartIdArr.length > 0) {
         let checkedCart = [];
         cartIdArr.forEach(cartId => {

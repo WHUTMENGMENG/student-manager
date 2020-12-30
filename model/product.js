@@ -6,14 +6,16 @@ const schema = mongoose.Schema({
     category_id: { type: String, required: true },//类目id
     shop_id: { type: String, required: false },//商户的id
     productName: { type: String, required: true },//商品名称
-    price: { type: String, required: true },//商品单价
+    price: { type: Number, required: true },//商品单价
     description: { type: String, required: true },//商品描述
-    inventory: { type: String, required: true },//商品库存
+    inventory: { type: Number, required: true },//商品库存
     imageUrl: { type: String, required: true },//商品图片
     color: { type: String, required: false },//颜色
     size: { type: String, required: false },//尺寸
     updator: { type: String, required: false, default: null },
     updateTime: { type: String, required: false, default: null }
+}, {
+    versionKey: false // You should be aware of the outcome after set to false
 })
 
 //创建模型(翻译过来的意思就是 创建一个集合)
@@ -65,7 +67,7 @@ const del_products = (query) => {
 }
 //改
 const update_products = (query, updated) => {
-    return Collection.updateOne(query, updated)
+    return Collection.updateMany(query, updated)
         .then(res => res)
         .catch(err => {
             console.log(err);

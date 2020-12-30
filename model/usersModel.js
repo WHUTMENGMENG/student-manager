@@ -2,7 +2,7 @@
 const { mongoose } = require("../utils/mongoose");
 
 const schema = mongoose.Schema({
-    roleid: {type:String,default:"200"},
+    roleid: { type: String, default: "200" },
     unid: { type: String, required: true },
     username: { type: String, required: true },
     password: { type: String, required: true },
@@ -18,6 +18,8 @@ const schema = mongoose.Schema({
     province: { type: String, required: false, default: "" },
     country: { type: String, required: false, default: "" },
     unionid: { type: String, default: "" }
+}, {
+    versionKey: false // You should be aware of the outcome after set to false
 })
 
 //创建模型(翻译过来的意思就是 创建一个集合)

@@ -2,7 +2,11 @@ const crypto = require('crypto') //md5算法
 const https = require('https');
 const url = require("url")
 //引入创建订单的方法
-const { carateOrder, createOrder } = require("../controller/order_masterController")
+const { createOrder } = require("../controller/order_masterController");
+const { find_order_masters } = require("../model/order_master")
+const { find_order_details } = require("../model/order_detail")
+//引入xml转换的方法
+const xml2json = require("../utils/xml2json")
 //获取登入ip
 function getIp(req) {
     let ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
@@ -10,6 +14,9 @@ function getIp(req) {
     let regExp = /([^0-9])*((\.|\d)*)/
     let r = regExp.exec(ip)
     ip = r[2]
+    ip =
+        ip == 1 ? "127.0.0.1" : ip
+
     return ip
 }
 //生成随机字符串
@@ -44,6 +51,7 @@ function json2xml(data) {
 }
 
 //封装node请求方法 request模块
+
 function request(urlStr, method = "POST", data, callback = function () { }) {
     let urlData = url.parse(urlStr)
     let options = {
@@ -70,7 +78,8 @@ function request(urlStr, method = "POST", data, callback = function () { }) {
     req.write(data)
     req.end()
 }
-const wepay = function (req, res) {
+let last_order_id;
+const payment = async function (req, res) {
     //发起支付请求
     //传递参数
     //1.公众账号ID	appid	是
@@ -83,59 +92,91 @@ const wepay = function (req, res) {
     //8.终端IP	spbill_create_ip	是	String(64)	123.12.12.123
     //9.通知地址	notify_url	是	String(256)	http://www.weixin.qq.com/wxpay/pay.php	异步接收微信支付结果通知的回调地址，通知url必须为外网可访问的url，不能携带参数。
     //10.交易类型	trade_type	是	String(16)	JSAPI
-    let { key = 'QF1234567890qwertyuiopasdfghjklz', mch_id = '1568650321', appid = 'wxed58e834201d0894', trade_type = "NATIVE" } = req.body;
+    let { key = 'QF1234567890qwertyuiopasdfghjklz', mch_id = '1568650321', appid = 'wxed58e834201d0894', trade_type = "NATIVE", order_id } = req.body;
 
-    let data = {
-        appid,
-        mch_id,
-        nonce_str: "123123",
-        body: "千锋-千锋vip充值,千锋vip充可以获得价值1000000元的数码大礼包和威少24小时全天候答疑",
-        out_trade_no: 45394489,
-        total_fee: 9999999,
-        spbill_create_ip: '192.168.0.1',
-        notify_url: "http://chst.vip/pay/wepayResult",
-        trade_type: "NATIVE",
-        name: ''
+    if (!order_id) {
+        res.send({ state: false, status: 10010, msg: "err 请传入order_id" })
+        return
     }
-    //5.生成长度为32的随机字符串
-    let nonce_str = randomStr(32)
-    console.log(nonce_str.length)
-    //赋值给data
-    data['nonce_str'] = nonce_str
-    //1.将对象中的key进行字典排序
-    let keys = Object.keys(data).sort()
-    //2.转成query-string的形式
-    let string = '';
-    for (var i = 0; i < keys.length; i++) {
-        if (data[keys[i]]) {//对非空的属性进行拼接
-            string += keys[i] + "=" + data[keys[i]] + "&"
+    if (last_order_id && last_order_id == order_id) {
+        res.send({ state: false, status: 1004, msg: "err 请不要重复提交相同订单" })
+        return
+    }
+
+    //通过订单号查询获取订单价格
+    let orderInfo = await find_order_masters({ order_id });
+    if (orderInfo.length == 0) {
+        res.send({ state: false, status: 1004, msg: "err 订单不存在" })
+        return
+    }
+    // console.log(orderInfo);
+    let total_fee = (orderInfo[0].total_fee) * 100;//微信规定用分,前端用元,所以此处乘以100
+    console.log(total_fee);
+    //再获取订单商品详情取得商品名字
+    let orderDetail = await find_order_details({ order_id });
+    let productNames = orderDetail.map(item => item.productName)
+    let body = productNames.join(",")//生成支付商品描述
+    console.log(total_fee, body);
+    if (trade_type === "NATIVE") {//如果是PC NATIVE扫码方式
+        let data = {
+            appid,
+            mch_id,
+            nonce_str: "test",
+            body,
+            out_trade_no: order_id,
+            total_fee,
+            spbill_create_ip: getIp(req),
+            notify_url: "http://chst.vip/pay/payResult",
+            trade_type,
         }
+        //5.生成长度为32的随机字符串
+        let nonce_str = randomStr(32)
+        // console.log(nonce_str.length)
+        //赋值给data
+        data['nonce_str'] = nonce_str
+        //1.将对象中的key进行字典排序
+        let keys = Object.keys(data).sort()
+        //2.转成query-string的形式
+        let string = '';
+        for (var i = 0; i < keys.length; i++) {
+            if (data[keys[i]]) {//对非空的属性进行拼接
+                string += keys[i] + "=" + data[keys[i]] + "&"
+            }
+        }
+        //3.和key(微信商户提供的key)进行拼接
+        stringTemp = string + 'key=' + key;
+        console.log(stringTemp)
+        //4.对字符串进行MD5运算
+        let md5 = crypto.createHash('md5')
+        //生成签名
+        let sign;//签名
+        sign = md5.update(stringTemp).digest('hex').toUpperCase();
+
+
+        //赋值给data
+        data['sign'] = sign;
+
+
+        //2.调用统一下单接口 
+        let urlStr = 'https://api.mch.weixin.qq.com/pay/unifiedorder'
+
+        //将参数转换成xml格式
+        let xmlData = json2xml(data)
+        console.log(xmlData)
+        //发送请求
+        request(urlStr, 'POST', xmlData, function (result) {
+            console.log("====", result)
+            ret = xml2json(result)
+            if (ret.return_code === 'SUCCESS') {
+                last_order_id = order_id;
+                res.send({ status: 200, state: true, msg: "OK", prepay_id: ret.prepay_id, trade_type: ret.trade_type, code_url: ret.code_url })
+            } else {
+                res.send({ ...ret })
+            }
+        })
+
     }
-    //3.和key(微信商户提供的key)进行拼接
-    stringTemp = string + 'key=' + key;
-    console.log(stringTemp)
-    //4.对字符串进行MD5运算
-    let md5 = crypto.createHash('md5')
-    //生成签名
-    let sign;//签名
-    sign = md5.update(stringTemp).digest('hex').toUpperCase();
 
-
-    //赋值给data
-    data['sign'] = sign;
-
-
-    //2.调用统一下单接口 
-    let urlStr = 'https://api.mch.weixin.qq.com/pay/unifiedorder'
-
-    //将参数转换成xml格式
-    let xmlData = json2xml(data)
-    console.log(xmlData)
-    //发送请求
-    request(urlStr, 'POST', xmlData, function (result) {
-        console.log("====", result)
-    })
-    res.send(data)
 }
 
 
@@ -158,6 +199,6 @@ const preOrder = async (req, res, next) => {
 }
 
 module.exports = {
-    wepay,
+    payment,
     preOrder
 }
