@@ -105,8 +105,21 @@ const payment = async function (req, res) {
 
     //通过订单号查询获取订单价格
     let orderInfo = await find_order_masters({ order_id });
+    //判断订单是否能够支付
     if (orderInfo.length == 0) {
-        res.send({ state: false, status: 1004, msg: "err 订单不存在" })
+        res.send({ state: false, status: 1003, msg: "err 订单不存在" })
+        return
+    } else if (orderInfo[0].order_status === 4) {
+        res.send({ state: false, status: 1004, msg: "err 订单已经关闭" })
+        return
+    } else if (orderInfo[0].order_status === 2) {
+        res.send({ state: false, status: 1002, msg: "err 订单已取消" })
+        return
+    } else if (orderInfo[0].order_status === 2) {
+        res.send({ state: false, status: 1004, msg: "err 订单不已关闭" })
+        return
+    } else if (orderInfo[0].pay_status === 1) {
+        res.send({ state: false, status: 1001, msg: "err 订单已经支付" })
         return
     }
     // console.log(orderInfo);
@@ -165,9 +178,9 @@ const payment = async function (req, res) {
         console.log(xmlData)
         //发送请求
         request(urlStr, 'POST', xmlData, function (result) {
-            console.log("====", result)
             ret = xml2json(result)
-            if (ret.return_code === 'SUCCESS') {
+            console.log("====", ret)
+            if (ret.result_code === 'SUCCESS') {
                 last_order_id = order_id;
                 res.send({ status: 200, state: true, msg: "OK", prepay_id: ret.prepay_id, trade_type: ret.trade_type, code_url: ret.code_url })
             } else {
@@ -198,7 +211,27 @@ const preOrder = async (req, res, next) => {
     }
 }
 
+const payResult = function (req, res) {
+    let xmlRes = "";
+    req.on('data', function (chunk) {
+        xmlRes += chunk
+    })
+    req.on('end', function () {
+        let wepayResult = xml2json(xmlRes);
+        console.log(wepayResult);
+    })
+    console.log("======")
+    console.log(req.body)
+    console.log(req)
+    //从llt订单倒计时队列中移除该队列,清除定时器
+    //将订单状态修改为已支付或者未支付
+    //socket通知客户端
+    console.log(global.LLTqueue);
+    res.send("999")
+}
+
 module.exports = {
     payment,
-    preOrder
+    preOrder,
+    payResult
 }

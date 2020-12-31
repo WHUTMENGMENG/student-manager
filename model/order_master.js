@@ -5,7 +5,7 @@ const schema = mongoose.Schema({
     order_id: { type: String, required: true },//订单id
     unid: { type: String, required: true },//用户id
     //订单状态
-    order_status: { type: Number, required: true, default: 0 },// 0未提交 1提交成功 2已经取消 3无效订单 4退货
+    order_status: { type: Number, required: true, default: 0 },// 0未提交 1提交成功 2已经取消 3无效订单 4.交易关闭 5退货
     //配送状态
     shiping_status: { type: Number, required: true, default: 0 },//配送状态 0未发货 1已发货 2已收货 3备货中
     //支付状态
