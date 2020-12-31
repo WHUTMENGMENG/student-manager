@@ -7,9 +7,9 @@ router.post("/pre_order", preOrder)
 router.post("/payment", payment)
 
 
-router.get('/payResult', function (req, res) {
+router.post('/payResult', function (req, res) {
     console.log("======")
-    console.log(req.query)
+    console.log(req.body)
     res.send("999")
 })
 module.exports = router
