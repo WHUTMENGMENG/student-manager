@@ -277,7 +277,7 @@ const payResult = function (req, res) {
             }
         }
     })
-    res.send("999")
+    res.send({ code: "SUCCESS", message: "支付成功" })
 }
 
 module.exports = {
