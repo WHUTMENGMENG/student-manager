@@ -121,11 +121,14 @@ const payment = async function (req, res) {
         res.send({ state: false, status: 1004, msg: "err 请不要重复提交相同订单" })
         return
     }
-    //发起支付的时候避免支付延迟 先将订单时间延长 避免再最后一秒支付的时候订单关闭了
-    let targetOrder = global.LLTqueue.find(item => item.order_id == order_id);
-    clearTimeout(targetOrder.timer)//清除上一个定时器,重新设置定时器倒计时;
-    targetOrder.rollBack()
-    // console.log(orderInfo);
+    try {
+        //发起支付的时候避免支付延迟 先将订单时间延长 避免再最后一秒支付的时候订单关闭了
+        let targetOrder = global.LLTqueue.find(item => item.order_id == order_id);
+        console.log(targetOrder.timer);
+        clearTimeout(targetOrder.timer)//清除上一个定时器,重新设置定时器倒计时;
+        targetOrder.rollBack(1000 * 60 * 2)
+        // console.log(orderInfo);
+    } catch (e) { }
     let total_fee = (orderInfo[0].total_fee) * 100;//微信规定用分,前端用元,所以此处乘以100
     console.log(total_fee);
     //再获取订单商品详情取得商品名字
@@ -237,30 +240,33 @@ const payResult = function (req, res) {
         //   total_fee: '1',
         //   trade_type: 'NATIVE',
         //   transaction_id: '4200000835202012310782173102' }
-        wepayResult = xml2json(xmlRes);//将xml转换为json
-        // console.log(wepayResult);
+        if (xmlRes) {//接收了xml
+            wepayResult = xml2json(xmlRes);//将xml转换为json
+        }
+        console.log(wepayResult);
         if (wepayResult.result_code == 'SUCCESS') {
             //支付成功 使用socket.io通知客户端
             let { total_fee, trade_type, out_trade_no, cash_fee, bank_type, fee_type } = wepayResult;
             let finalPayRes = { state: true, result: "支付成功", total_fee: total_fee / 100, trade_type, out_trade_no, cash_fee, bank_type, fee_type }
-
             global.finalPayRes = finalPayRes;
-            let query = {
-                order_id: out_trade_no
-            }
-            let updated = {
-                $set: {
-                    pay_status: 1
+            try {
+                let query = {
+                    order_id: out_trade_no
                 }
-            }
-            //更新订单支付状态 将订单状态修改为已支付
-            await update_order_masters(query, updated)
-            //从llt订单倒计时队列中移除该队列
-            let targetQue = global.LLTqueue.find(item => item.order_id == out_trade_no);
-            //清除定时器
-            clearTimeout(targetQue.timer);
-            //移除该队列
-            global.LLTqueue = global.LLTqueue.filter(item => item.order_id !== out_trade_no);
+                let updated = {
+                    $set: {
+                        pay_status: 1
+                    }
+                }
+                //更新订单支付状态 将订单状态修改为已支付
+                await update_order_masters(query, updated)
+                //从llt订单倒计时队列中移除该队列
+                let targetQue = global.LLTqueue.find(item => item.order_id == out_trade_no);
+                //清除定时器
+                clearTimeout(targetQue.timer)
+                //移除该队列
+                global.LLTqueue = global.LLTqueue.filter(item => item.order_id !== out_trade_no);
+            } catch (e) { }
             if (global.sock) {
                 //socket通知客户端支付成功
                 global.sock.emit("wepaySuccess", finalPayRes)
