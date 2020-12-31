@@ -93,16 +93,11 @@ const payment = async function (req, res) {
     //9.通知地址	notify_url	是	String(256)	http://www.weixin.qq.com/wxpay/pay.php	异步接收微信支付结果通知的回调地址，通知url必须为外网可访问的url，不能携带参数。
     //10.交易类型	trade_type	是	String(16)	JSAPI
     let { key = 'QF1234567890qwertyuiopasdfghjklz', mch_id = '1568650321', appid = 'wxed58e834201d0894', trade_type = "NATIVE", order_id } = req.body;
-
+    
     if (!order_id) {
         res.send({ state: false, status: 10010, msg: "err 请传入order_id" })
         return
     }
-    if (last_order_id && last_order_id == order_id) {
-        res.send({ state: false, status: 1004, msg: "err 请不要重复提交相同订单" })
-        return
-    }
-
     //通过订单号查询获取订单价格
     let orderInfo = await find_order_masters({ order_id });
     //判断订单是否能够支付
@@ -120,6 +115,10 @@ const payment = async function (req, res) {
         return
     } else if (orderInfo[0].pay_status === 1) {
         res.send({ state: false, status: 1001, msg: "err 订单已经支付" })
+        return
+    }
+    if (last_order_id && last_order_id == order_id) {//避免重复提交订单
+        res.send({ state: false, status: 1004, msg: "err 请不要重复提交相同订单" })
         return
     }
     //发起支付的时候避免支付延迟 先将订单时间延长 避免再最后一秒支付的时候订单关闭了
