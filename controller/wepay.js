@@ -93,7 +93,7 @@ const payment = async function (req, res) {
     //9.通知地址	notify_url	是	String(256)	http://www.weixin.qq.com/wxpay/pay.php	异步接收微信支付结果通知的回调地址，通知url必须为外网可访问的url，不能携带参数。
     //10.交易类型	trade_type	是	String(16)	JSAPI
     let { key = 'QF1234567890qwertyuiopasdfghjklz', mch_id = '1568650321', appid = 'wxed58e834201d0894', trade_type = "NATIVE", order_id } = req.body;
-    
+
     if (!order_id) {
         res.send({ state: false, status: 10010, msg: "err 请传入order_id" })
         return
@@ -214,7 +214,7 @@ const preOrder = async (req, res, next) => {
     }
 }
 
-const payResult =  function (req, res) {
+const payResult = function (req, res) {
     let xmlRes = "";
     let wepayResult;
     req.on('data', function (chunk) {//接收xml
@@ -242,9 +242,8 @@ const payResult =  function (req, res) {
         if (wepayResult.result_code == 'SUCCESS') {
             //支付成功 使用socket.io通知客户端
             let { total_fee, trade_type, out_trade_no, cash_fee, bank_type, fee_type } = wepayResult;
-            let finalPayRes = { state: true, result: "Ok", total_fee: total_fee / 100, trade_type, out_trade_no, cash_fee, bank_type, fee_type }
-            //socket通知客户端支付成功
-            global.sock.emit("wepaySuccess", finalPayRes)
+            let finalPayRes = { state: true, result: "支付成功", total_fee: total_fee / 100, trade_type, out_trade_no, cash_fee, bank_type, fee_type }
+
             global.finalPayRes = finalPayRes;
             let query = {
                 order_id: out_trade_no
@@ -262,8 +261,14 @@ const payResult =  function (req, res) {
             clearTimeout(targetQue.timer);
             //移除该队列
             global.LLTqueue = global.LLTqueue.filter(item => item.order_id !== out_trade_no);
+            if (global.sock) {
+                //socket通知客户端支付成功
+                global.sock.emit("wepaySuccess", finalPayRes)
+            }
         } else {//支付失败
-            global.sock.emit("wepayFail", { ...wepayResult })
+            if (global.sock) {
+                global.sock.emit("wepayFail", { ...wepayResult })
+            }
         }
     })
     res.send("999")
