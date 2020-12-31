@@ -712,3 +712,164 @@ axios.post({
 ```
 
 前端通code_url生成支付二维码即可
+
+### 7.2 通过订单查询支付状态
+
+#### 接口说明
+
+**适用对象：** 直连商户（直连模式）
+
+**请求URL：** https://api.mch.weixin.qq.com/v3/pay/transactions/out-trade-no/{out_trade_no}
+
+**请求方式：**GET
+
+
+
+path指该参数为路径参数
+
+query指该参数需在请求URL传参
+
+body指该参数需在请求JSON传参
+
+#### 请求参数
+
+| 参数名     | 变量         | 类型[长度限制] | 必填 | 描述                                         |
+| :--------- | :----------- | :------------- | :--- | :------------------------------------------- |
+| 直连商户号 | mchid        | string[1,32]   | 是   | query 直连商户的商户号，由微信支付生成并下发 |
+| 商户订单号 | out_trade_no | string[1,32]   | 是   | path 商户系统内部订单号                      |
+
+#### 请求示例
+
+- [URL](javascript:;)
+
+```
+https://api.mch.weixin.qq.com/v3/pay/transactions/out-trade-no/1217752501201407033233368018?mchid=1230000109
+```
+
+#### 返回参数
+
+| 参数名         | 变量             | 类型[长度限制] | 必填 | 描述                                                         |
+| :------------- | :--------------- | :------------- | :--- | :----------------------------------------------------------- |
+| 应用ID         | appid            | string[1,32]   | 是   | 直连商户申请的公众号或移动应用appid。 示例值：wxd678efh567hg6787 |
+| 直连商户号     | mchid            | string[1,32]   | 是   | 直连商户的商户号，由微信支付生成并下发。 示例值：1230000109  |
+| 商户订单号     | out_trade_no     | string[6,32]   | 是   | 商户系统内部订单号，只能是数字、大小写字母_-*且在同一个商户号下唯一，详见【商户订单号】。 示例值：1217752501201407033233368018 |
+| 微信支付订单号 | transaction_id   | string[1,32]   | 否   | 微信支付系统生成的订单号。 示例值：1217752501201407033233368018 |
+| 交易类型       | trade_type       | string[1,16]   | 否   | 交易类型，枚举值： JSAPI：公众号支付 NATIVE：扫码支付 APP：APP支付 MICROPAY：付款码支付 MWEB：H5支付 FACEPAY：刷脸支付 示例值：MICROPAY |
+| 交易状态       | trade_state      | string[1,32]   | 是   | 交易状态，枚举值： SUCCESS：支付成功 REFUND：转入退款 NOTPAY：未支付 CLOSED：已关闭 REVOKED：已撤销（付款码支付） USERPAYING：用户支付中（付款码支付） PAYERROR：支付失败(其他原因，如银行返回失败) 示例值：SUCCESS |
+| 交易状态描述   | trade_state_desc | string[1,256]  | 是   | 交易状态描述 示例值：支付失败，请重新下单支付                |
+| 付款银行       | bank_type        | string[1,16]   | 否   | 银行类型，采用字符串类型的银行标识。 示例值：CMC             |
+| 附加数据       | attach           | string[1,128]  | 否   | 附加数据，在查询API和支付通知中原样返回，可作为自定义参数使用 示例值：自定义数据 |
+| 支付完成时间   | success_time     | string[1,64]   | 否   | 支付完成时间，遵循[rfc3339](https://tools.ietf.org/html/rfc3339)标准格式，格式为YYYY-MM-DDTHH:mm:ss+TIMEZONE，YYYY-MM-DD表示年月日，T出现在字符串中，表示time元素的开头，HH:mm:ss表示时分秒，TIMEZONE表示时区（+08:00表示东八区时间，领先UTC 8小时，即北京时间）。例如：2015-05-20T13:29:35+08:00表示，北京时间2015年5月20日 13点29分35秒。 示例值：2018-06-08T10:34:56+08:00 |
+| +支付者        | payer            | object         | 是   | 支付者信息                                                   |
+|                |                  |                |      |                                                              |
+| +订单金额      | amount           | object         | 否   | 订单金额信息，当支付成功时返回该字段。                       |
+|                |                  |                |      |                                                              |
+| +场景信息      | scene_info       | object         | 否   | 支付场景描述                                                 |
+|                |                  |                |      |                                                              |
+| +优惠功能      | promotion_detail | array          | 否   | 优惠功能，享受优惠时返回该字段。                             |
+|                |                  |                |      |                                                              |
+
+#### 返回示例
+
+- [正常示例](javascript:;)
+
+```
+{
+	"transaction_id": "1217752501201407033233368018",
+	"amount": {
+		"payer_total": 100,
+		"total": 100,
+		"currency": "CNY",
+		"payer_currency": "CNY"
+	},
+	"mchid": "1230000109",
+	"trade_state": "SUCCESS",
+	"bank_type": "CMC",
+	"promotion_detail": [{
+		"amount": 100,
+		"wechatpay_contribute": 0,
+		"coupon_id": "109519",
+		"scope": "GLOBALSINGLE",
+		"merchant_contribute": 0,
+		"name": "单品惠-6",
+		"other_contribute": 0,
+		"currency": "CNY",
+		"type": "CASHNOCASH",
+		"stock_id": "931386",
+		"goods_detail": [{
+			"goods_remark": "商品备注信息",
+			"quantity": 1,
+			"discount_amount": 1,
+			"goods_id": "M1006",
+			"unit_price": 100
+		}, {
+			"goods_remark": "商品备注信息",
+			"quantity": 1,
+			"discount_amount": 1,
+			"goods_id": "M1006",
+			"unit_price": 100
+		}]
+	}, {
+		"amount": 100,
+		"wechatpay_contribute": 0,
+		"coupon_id": "109519",
+		"scope": "GLOBALSINGLE",
+		"merchant_contribute": 0,
+		"name": "单品惠-6",
+		"other_contribute": 0,
+		"currency": "CNY",
+		"type": "CASHNOCASH",
+		"stock_id": "931386",
+		"goods_detail": [{
+			"goods_remark": "商品备注信息",
+			"quantity": 1,
+			"discount_amount": 1,
+			"goods_id": "M1006",
+			"unit_price": 100
+		}, {
+			"goods_remark": "商品备注信息",
+			"quantity": 1,
+			"discount_amount": 1,
+			"goods_id": "M1006",
+			"unit_price": 100
+		}]
+	}],
+	"success_time": "2018-06-08T10:34:56+08:00",
+	"payer": {
+		"openid": "oUpF8uMuAJO_M2pxb1Q9zNjWeS6o"
+	},
+	"out_trade_no": "1217752501201407033233368018",
+	"appid": "wxd678efh567hg6787",
+	"trade_state_desc": "支付失败，请重新下单支付",
+	"trade_type": "MICROPAY",
+	"attach": "自定义数据",
+	"scene_info": {
+		"device_id": "013467007045764"
+	}
+}
+                                
+```
+
+### 错误码[公共错误码](https://pay.weixin.qq.com/wiki/doc/apiv3/wxpay/Share/error_code.shtml)
+
+| 状态码 | 错误码                | 描述                     | 解决方案                                                     |
+| :----- | :-------------------- | :----------------------- | :----------------------------------------------------------- |
+| 202    | USERPAYING            | 用户支付中，需要输入密码 | 等待5秒，然后调用被扫订单结果查询API，查询当前订单的不同状态，决定下一步的操作 |
+| 403    | TRADE_ERROR           | 交易错误                 | 因业务原因交易失败，请查看接口返回的详细信息                 |
+| 500    | SYSTEMERROR           | 系统错误                 | 系统异常，请用相同参数重新调用                               |
+| 401    | SIGN_ERROR            | 签名错误                 | 请检查签名参数和方法是否都符合签名算法要求                   |
+| 403    | RULELIMIT             | 业务规则限制             | 因业务规则限制请求频率，请查看接口返回的详细信息             |
+| 400    | PARAM_ERROR           | 参数错误                 | 请根据接口返回的详细信息检查请求参数                         |
+| 403    | OUT_TRADE_NO_USED     | 商户订单号重复           | 请核实商户订单号是否重复提交                                 |
+| 404    | ORDERNOTEXIST         | 订单不存在               | 请检查订单是否发起过交易                                     |
+| 400    | ORDER_CLOSED          | 订单已关闭               | 当前订单已关闭，请重新下单                                   |
+| 500    | OPENID_MISMATCH       | openid和appid不匹配      | 请确认openid和appid是否匹配                                  |
+| 403    | NOTENOUGH             | 余额不足                 | 用户帐号余额不足，请用户充值或更换支付卡后再支付             |
+| 403    | NOAUTH                | 商户无权限               | 请商户前往申请此接口相关权限                                 |
+| 400    | MCH_NOT_EXISTS        | 商户号不存在             | 请检查商户号是否正确                                         |
+| 500    | INVALID_TRANSACTIONID | 订单号非法               | 请检查微信支付订单号是否正确                                 |
+| 400    | INVALID_REQUEST       | 无效请求                 | 请根据接口返回的详细信息检查                                 |
+| 429    | FREQUENCY_LIMITED     | 频率超限                 | 请降低请求接口频率                                           |
+| 500    | BANKERROR             | 银行系统异常             | 银行系统异常，请用相同参数重新调用                           |
+| 400    | APPID_MCHID_NOT_MATCH | appid和mch_id不匹配      | 请确认appid和mch_id是否匹配                                  |
+| 403    | ACCOUNTERROR          | 账号异常                 | 用户账号异常，无需更多操作                                   |
