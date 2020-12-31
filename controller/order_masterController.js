@@ -83,7 +83,7 @@ const createOrder = async function (req, res, next, checkedCarts) {
                             order_id,//订单id
                             unid,//用户id
                             //订单状态
-                            order_status: 1,// 0未提交 1提交成功 2已经取消 3无效订单 4退货
+                            order_status: 1,// 0未提交 1提交成功 2已经取消 3无效订单 4.交易关闭 5退货
                             //配送状态
                             shiping_status: 0,//配送状态 0未发货 1已发货 2已收货 3备货中
                             //支付状态
@@ -165,7 +165,7 @@ const createOrder = async function (req, res, next, checkedCarts) {
                                                 order_id: this.order_id
                                             }
                                             let updated = {
-                                                $set: { order_status: 2 }
+                                                $set: { order_status: 4 }
                                             }
                                             update_order_masters(query, updated)
                                         } else {
@@ -179,6 +179,7 @@ const createOrder = async function (req, res, next, checkedCarts) {
                         let queue = new lltqueue(order_id, 1000 * 60) //默认30秒回滚
                         queue.rollBack()
                         tarskQueue.push(queue)
+                        global.LLTqueue = tarskQueue;
                     } else {
                         res.send({ status: 10010, state: false, msg: "商品锁定失败,可能商品已经下架或者不存在" })
                         return
