@@ -118,17 +118,16 @@ const createOrder = async function (req, res, next, checkedCarts) {
                         }
                         // console.log(saveOrderRet);
                         // console.log(orderDetails);
-
                         res.send({ status: 200, state: true, order_id, msg: "订单提交成功" })
                         //5.订单锁定30分钟
                         //声明一个llt的类
                         class lltqueue {
-                            constructor(order_id, delay = 1000 * 30) {
+                            constructor(order_id) {
                                 //默认30秒
                                 this.order_id = order_id;
-                                this.delay = delay;
+                                
                             }
-                            rollBack() {
+                            rollBack(delay = 1000 * 30) {
                                 this.timer = setTimeout(async () => {
                                     //数据回滚
                                     //通过订单号查找到商品详情
@@ -173,11 +172,11 @@ const createOrder = async function (req, res, next, checkedCarts) {
                                             console.log(this.order_id + "商品详情已经被删除");
                                         }
                                     }
-                                }, this.delay)
+                                }, delay)
                             }
                         }
-                        let queue = new lltqueue(order_id, 1000 * 60) //默认30秒回滚
-                        queue.rollBack()
+                        let queue = new lltqueue(order_id) //默认30秒回滚
+                        queue.rollBack(1000 * 60 * 2)
                         tarskQueue.push(queue)
                         global.LLTqueue = tarskQueue;
                     } else {
