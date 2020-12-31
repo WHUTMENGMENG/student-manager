@@ -42,13 +42,14 @@ const addProductCategorys = async (req, res) => {
         creator,
         createTime
     })
-    console.log(saveRes)
+    // console.log(saveRes)
     if (saveRes) {
         res.send({ status: 200, state: true, msg: "添加成功" })
+        return
     } else {
         res.send({ status: 1004, state: false, msg: "添加出错,请检查" })
+        return
     }
-    res.send("111")
 }
 const delProductCategorys = async (req, res) => {
     let { category_id } = req.query;
@@ -59,8 +60,10 @@ const delProductCategorys = async (req, res) => {
     let delRes = await del_product_categorys({ category_id });
     if (delRes.n) {
         res.send({ status: 200, state: true, msg: "删除成功" })
+        return
     } else {
         res.send({ status: 1004, state: false, msg: "err 该数据不存在" })
+        return
     }
 }
 const updateProductCategorys = async (req, res) => {
@@ -88,7 +91,7 @@ const updateProductCategorys = async (req, res) => {
         res.send({ status: 200, state: true, msg: "修改成功" })
     } else if (updateRes.n === 0) {
         res.send({ status: 1005, state: false, msg: "没有该数据" })
-    }else {
+    } else {
         res.send({ status: 1006, state: false, msg: "没有做任何修改" })
     }
 }

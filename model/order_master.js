@@ -24,7 +24,7 @@ const schema = mongoose.Schema({
 
 let Collection = mongoose.model("order_masters", schema)
 
-//查询订单 接收用户uid进行查询
+//查询订单 接收用户unid进行查询
 /**
  * 
  * @param query.unid 接受unid字段用户查询所有订单
