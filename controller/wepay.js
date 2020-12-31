@@ -3,7 +3,7 @@ const https = require('https');
 const url = require("url")
 //引入创建订单的方法
 const { createOrder } = require("../controller/order_masterController");
-const { find_order_masters } = require("../model/order_master")
+const { find_order_masters, update_order_masters } = require("../model/order_master")
 const { find_order_details } = require("../model/order_detail")
 //引入xml转换的方法
 const xml2json = require("../utils/xml2json")
@@ -115,13 +115,17 @@ const payment = async function (req, res) {
     } else if (orderInfo[0].order_status === 2) {
         res.send({ state: false, status: 1002, msg: "err 订单已取消" })
         return
-    } else if (orderInfo[0].order_status === 2) {
-        res.send({ state: false, status: 1004, msg: "err 订单不已关闭" })
+    } else if (orderInfo[0].order_status === 3) {
+        res.send({ state: false, status: 1004, msg: "err 无效订单" })
         return
     } else if (orderInfo[0].pay_status === 1) {
         res.send({ state: false, status: 1001, msg: "err 订单已经支付" })
         return
     }
+    //发起支付的时候避免支付延迟 先将订单时间延长 避免再最后一秒支付的时候订单关闭了
+    let targetOrder = global.LLTqueue.find(item => item.order_id == order_id);
+    clearTimeout(targetOrder.timer)//清除上一个定时器,重新设置定时器倒计时;
+    targetOrder.rollBack()
     // console.log(orderInfo);
     let total_fee = (orderInfo[0].total_fee) * 100;//微信规定用分,前端用元,所以此处乘以100
     console.log(total_fee);
@@ -129,7 +133,7 @@ const payment = async function (req, res) {
     let orderDetail = await find_order_details({ order_id });
     let productNames = orderDetail.map(item => item.productName)
     let body = productNames.join(",")//生成支付商品描述
-    console.log(total_fee, body);
+    // console.log(total_fee, body);
     if (trade_type === "NATIVE") {//如果是PC NATIVE扫码方式
         let data = {
             appid,
@@ -211,22 +215,58 @@ const preOrder = async (req, res, next) => {
     }
 }
 
-const payResult = function (req, res) {
+const payResult =  function (req, res) {
     let xmlRes = "";
-    req.on('data', function (chunk) {
+    let wepayResult;
+    req.on('data', function (chunk) {//接收xml
         xmlRes += chunk
     })
-    req.on('end', function () {
-        let wepayResult = xml2json(xmlRes);
-        console.log(wepayResult);
+    req.on('end', async function () {
+        //         { appid: 'wxed58e834201d0894',
+        //   bank_type: 'OTHERS',
+        //   cash_fee: '1',
+        //   fee_type: 'CNY',
+        //   is_subscribe: 'Y',
+        //   mch_id: '1568650321',商户号
+        //   nonce_str: 't9uz5howdy7xal2an1sog7wim3jcrair',
+        //   openid: 'oMSdy5ho1ZdjOycWHAPmYU8cdGho',
+        //   out_trade_no: '20201231103338122jnvk4na61h',订单号
+        //   result_code: 'SUCCESS',
+        //   return_code: 'SUCCESS',
+        //   sign: '02186A9458A3C9F06FCFF64B2B0A8731',
+        //   time_end: '20201231103454',
+        //   total_fee: '1',
+        //   trade_type: 'NATIVE',
+        //   transaction_id: '4200000835202012310782173102' }
+        wepayResult = xml2json(xmlRes);//将xml转换为json
+        // console.log(wepayResult);
+        if (wepayResult.result_code == 'SUCCESS') {
+            //支付成功 使用socket.io通知客户端
+            let { total_fee, trade_type, out_trade_no, cash_fee, bank_type, fee_type } = wepayResult;
+            let finalPayRes = { state: true, result: "Ok", total_fee: total_fee / 100, trade_type, out_trade_no, cash_fee, bank_type, fee_type }
+            //socket通知客户端支付成功
+            global.sock.emit("wepaySuccess", finalPayRes)
+            global.finalPayRes = finalPayRes;
+            let query = {
+                order_id: out_trade_no
+            }
+            let updated = {
+                $set: {
+                    pay_status: 1
+                }
+            }
+            //更新订单支付状态 将订单状态修改为已支付
+            await update_order_masters(query, updated)
+            //从llt订单倒计时队列中移除该队列
+            let targetQue = global.LLTqueue.find(item => item.order_id == out_trade_no);
+            //清除定时器
+            clearTimeout(targetQue.timer);
+            //移除该队列
+            global.LLTqueue = global.LLTqueue.filter(item => item.order_id !== out_trade_no);
+        } else {//支付失败
+            global.sock.emit("wepayFail", { ...wepayResult })
+        }
     })
-    console.log("======")
-    console.log(req.body)
-    console.log(req)
-    //从llt订单倒计时队列中移除该队列,清除定时器
-    //将订单状态修改为已支付或者未支付
-    //socket通知客户端
-    console.log(global.LLTqueue);
     res.send("999")
 }
 
