@@ -27,17 +27,23 @@
             console.log('链接成功')
 
         })
-        fetch("http://chst.vip/users/getScancode")
-            .then(res => res.json())
-            .then(res => {
-                console.log(res);
-            })
-        socket.on('scancodeSuccess', (data) => {
-            console.log(data)
+        socket.on("wepaySuccess", data => {
+            console.log(data);
         })
-        socket.on('qrcode', (data) => {
-            console.log(data)
+        socket.on("wepayFail", data => {
+            console.log(data);
         })
+        // fetch("http://chst.vip/users/getScancode")
+        //     .then(res => res.json())
+        //     .then(res => {
+        //         console.log(res);
+        //     })
+        // socket.on('scancodeSuccess', (data) => {
+        //     console.log(data)
+        // })
+        // socket.on('qrcode', (data) => {
+        //     console.log(data)
+        // })
         // socket.on('wechatLoginSuccess', (data) => {
         //     console.log(data)
         // })
