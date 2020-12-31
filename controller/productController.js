@@ -84,7 +84,14 @@ const updateProduct = async (req, res) => {
     }
 }
 const getProduct = async (req, res) => {
-    let findRes = await find_products();
+    let param;
+    let { product_id } = req.query;
+    if (product_id) {
+        param = { product_id }
+    } else {
+        param = {}
+    }
+    let findRes = await find_products(param);
     if (Array.isArray(findRes)) {
         res.send({ status: 200, state: true, msg: "获取成功", data: [...findRes] })
     } else {
