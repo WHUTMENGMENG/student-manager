@@ -277,6 +277,8 @@ const payResult = function (req, res) {
             }
         }
     })
+    console.log("微信回调了");
+    res.status(200)
     res.send({ code: "SUCCESS", message: "支付成功" })
 }
 
