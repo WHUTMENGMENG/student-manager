@@ -4,6 +4,12 @@ var path = require('path'); //内置的path模块
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');//日志模块
 var jwt = require("jsonwebtoken")
+const io = require('socket.io')()
+global.io = io;
+io.on("connection", socket => {
+    global.sock = socket
+
+})
 var indexRouter = require('./routes/index'); //路由
 //引入自己定义的路由
 let customRouter = require("./routes/custom")
@@ -11,6 +17,11 @@ let studentsRouter = require("./routes/students")
 let usersRouter = require('./routes/users');
 let loginLogRouter = require('./routes/LoginLog')
 let permissionRouter = require('./routes/permission')
+let wepayRouter = require("./routes/wepay")
+let cartRouter = require("./routes/cart")
+let productRouter = require("./routes/product")
+let productCategoryRouter = require("./routes/product_category")
+let orderRouter = require("./routes/order")
 var app = express();//通过express创建一个服务器
 var session = require('express-session');
 //引入验证用户信息拦截器(权限拦截)
@@ -24,7 +35,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public'))); //静态资源托管
-//练习 利用静态服务器 部署自己二阶段的项目
 app.use(express.static(path.join(__dirname, 'webServer')))
 //静态资源托管上传的文件
 app.use(express.static(path.join(__dirname, 'assets')))
@@ -36,7 +46,7 @@ app.all('*', function (req, res, next) {
     res.header("Access-Control-Allow-Headers", "authorization,Content-Type");
     res.header("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS");
     res.header("X-Powered-By", ' 3.2.1')
-    res.header("Content-Type", "application/json;charset=utf-8");
+    // res.header("Content-Type", "application/json;charset=utf-8");
     next();
 });
 //session模块
@@ -55,5 +65,9 @@ app.use('/custom', customRouter)
 app.use("/students", studentsRouter)
 app.use('/users', usersRouter);
 app.use('/getloginlog', loginLogRouter)
-
+app.use("/pay", wepayRouter)
+app.use("/cart", cartRouter)
+app.use("/product", productRouter)
+app.use("/category", productCategoryRouter)
+app.use("/order", orderRouter)
 module.exports = app;

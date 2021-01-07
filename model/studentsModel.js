@@ -11,7 +11,9 @@ let Schema = mongoose.Schema({ //定义模型的作用就是规范字段名称 �
     productUrl: { type: String, required: true },
     description: { type: String, required: true },
     cTime: { type: String, required: true },
-    avatarUrl: { type: String, required: false }
+    headimgurl: { type: String, required: false }
+}, {
+    versionKey: false // You should be aware of the outcome after set to false
 })
 
 //创建集合 
@@ -24,8 +26,8 @@ let add = (params) => {
     return coll.save()
         .then(res => res)
         .catch(err => {
-            console.log(err)
-            return false
+            // console.log(err)
+            return err
         })
 }
 //删

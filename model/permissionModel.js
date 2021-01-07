@@ -5,7 +5,10 @@ const schema = mongoose.Schema({
     roleid: String,
     roleName: String,
     menuList: Array,
-    rows: Array
+    rows: Array,
+    buttons: Array
+}, {
+    versionKey: false // You should be aware of the outcome after set to false
 })
 
 //创建模型(翻译过来的意思就是 创建一个集合)

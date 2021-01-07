@@ -52,7 +52,7 @@ const addRoleCtr = async (req, res) => { //添加角色
 const getRoleCtr = async (req, res) => {//获取角色
     const result = await find({})
     if (result && Array.isArray) {
-        console.log(result)
+        // console.log(result)
         let roles = result.map(item => ({
             roleid: item.roleid,
             roleName: item.roleName
@@ -64,13 +64,13 @@ const getRoleCtr = async (req, res) => {//获取角色
 }
 
 const getMenuListCtr = async (req, res) => {
-    if (!req.session.userInfo) {
-        res.send({ status: 403, state: false, msg: "请先登入" })
-        return
-    }
+   // if (!req.session.userInfo) {
+      //  res.send({ status: 403, state: false, msg: "请先登入" })
+      //  return
+   // }
     let result = await find({ roleid: req.session.userInfo.roleid })
     if (result && Array.isArray) {
-        console.log(result)
+        // console.log(result)
         let menuList = result[0].menuList
         res.send({ status: 200, state: true, msg: "success", code: "10086", roleName: result[0].roleName, menuList })
     } else {

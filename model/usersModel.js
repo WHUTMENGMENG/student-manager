@@ -2,16 +2,24 @@
 const { mongoose } = require("../utils/mongoose");
 
 const schema = mongoose.Schema({
-    roleid: String,
-    uId: { type: String, required: true },
+    roleid: { type: String, default: "200" },
+    unid: { type: String, required: true },
     username: { type: String, required: true },
     password: { type: String, required: true },
-    phone: { type: String, required: false },
-    nickname: { type: String, required: true },
-    roles: { type: String, required: false },
-    avatar: { type: String, required: false },
-    role: String,
-    roleName: String
+    phone: { type: String, required: false, default: "" },
+    nickname: { type: String, required: false, default: "" },
+    roles: { type: String, required: false, default: "" },
+    headimgurl: { type: String, required: false, default: "" },
+    role: { type: String, required: false, default: "" },
+    roleName: { type: String, required: false, default: "" },
+    openid: { type: String, required: false, default: "" },
+    sex: { type: String, required: false, default: "" },
+    city: { type: String, required: false, default: "" },
+    province: { type: String, required: false, default: "" },
+    country: { type: String, required: false, default: "" },
+    unionid: { type: String, default: "" }
+}, {
+    versionKey: false // You should be aware of the outcome after set to false
 })
 
 //创建模型(翻译过来的意思就是 创建一个集合)

@@ -3,6 +3,11 @@ const perModel = require("../model/permissionModel")
 const { addLog, findLog } = require("../model/logModel")
 const moment = require("moment")
 const jwt = require("jsonwebtoken")
+const https = require("https")
+
+// io.on("connection",(socket)=>{
+//     socket.emit("getMsg","哈哈哈")
+// })
 //注册
 const register = async (req, res) => {
     //1.接受前端传递过来的参数
@@ -20,39 +25,24 @@ const register = async (req, res) => {
     let result = await find(query);
     //只要result的length是0  说明数据库里不存在此用户 可以注册
     if (result.length == 0) {
-
-        //说明可以注册 生成用户id 并且调用model层里面save的方法
-        //用户id: abcdef123456 六位字母+六位id
-        let letter = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-        let code = "1234567890"
-
-        //首先生成6位随机字母
-        const randomId = (str, len) => {
-            let randomStr = [];
-            let letterLen = str.length;
-            for (var i = 0; i < len; i++) {
-                let random = Math.floor(Math.random() * letterLen);
-                randomStr.push(str.charAt(random))
-            }
-            return randomStr.join("")
-        }
-        let uId = randomId(letter, 6) + randomId(code, 6)
-        params.uId = uId
-        params.roleid = req.body['roleid'] || '200' //如果没有穿roleid那么默认是普通员工
+        //说明可以注册 生成用户unid 并且调用model层里面save的方法
+        let unid = Math.random().toString(32).substr(2)
+        params.unid = unid
+        params.roleid = req.body['roleid'] || '200' //如果没有传roleid那么默认是普通员工
         //3.往数据库插入注册的信息
-        console.log(params)
+
         let regRes = await registerModel(params)
         if (regRes) {
             let info = {
                 roleid: params.roleid,
-                uId: regRes.uId,
+                unid: regRes.unid,
                 username: regRes.username,
                 nickname: regRes.nickname,
                 phone: regRes.phone
             }
             res.send({ status: 1, state: true, msg: "注册成功", userInfo: info })
         } else {
-            res.send({ status: 0, state: false, msg: "注册出错" })
+            res.send({ status: 0, state: false, msg: "注册出错,缺少字段" })
         }
     } else {
         res.send({ status: 0, state: false, msg: "用户名已注册" })
@@ -65,20 +55,16 @@ const login = async (req, res) => {
     //1.获取前端传入的用户名和密码
     //2.调用loginModel进行数据库校验 如果有返回值=>登入成功 没有=>登入失败
     let params = req.body;
+    if (!params.username || !params.password) {
+        res.send({ status: 1004, state: false, msg: "没有传递用户名或者密码" })
+        return
+    }
     let result = await loginModel(params)
     if (result.length == 0) {
         //说明数据库没有查找到(用户名或者密码错误)
         res.send({ status: 0, state: false, msg: "用户名或者密码错误" })
     } else {
-        var info = {
-            uId: result[0].uId,
-            username: result[0].username,
-            nickname: result[0].nickname,
-            phone: result[0].phone,
-            avatarUrl: result[0].avatar,
-            roleid: result[0].roleid,
-
-        }
+        var info = { ...result[0]._doc }
         //保持用户登入
         //1.在用户登入成功的时候 使用jwt生成一串数字签名token 返回给前端
         //1.1调用jsonwebtoken下面的sign方法 进行签名
@@ -110,7 +96,11 @@ const login = async (req, res) => {
         }
         //获取登入ip
         let ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-        ip = ip.substr(7)
+        // ip = ip.substr(7)
+        let regExp = /([^0-9])*((\.|\d)*)/
+        let r = regExp.exec(ip)
+        ip = r[2]
+        console.log(ip)
         //创建登入时间
         let loginTime = moment().format("YYYY/MM/DD HH:mm:ss")
         let nowLogin = {
@@ -126,11 +116,16 @@ const login = async (req, res) => {
         // console.log(setLogResult)
         //获取权限路径
         let result2 = await perModel.find({ roleid: info.roleid })
+        // console.log(result2)
         let rows = result2[0].rows
+        let buttons = result2[0].buttons
+        info.rows = rows
         req.session.userInfo = info;
         info.roleName = result2[0].roleName
-        info.rows = rows
-        res.send({ status: 1, state: true, msg: "登入成功", userInfo: info, token: token })
+        let newInfo = { ...info }
+        delete newInfo.rows
+        delete newInfo.password
+        res.send({ status: 1, state: true, msg: "登入成功", permission: { buttons }, userInfo: newInfo, token: token })
     }
 }
 
@@ -140,11 +135,12 @@ const uploadAvatar = async (req, res) => {
     //一个头像需要对应一个用户 可以使用用户id来对应头像
     //实现思路
     //1.用户调用上传头像接口,传递当前用户的id和图片
-    let query = { uId: req.body.uId }
+    let query = { unid: req.body.unid }
     //字段名不要要avatarUrl 不然的话mongoose无法更新
-    let update = { $set: { avatar: req.body.avatarUrl } }
+    let update = { $set: { headimgurl: req.body.headimgurl } }
     //2.根据用户id作为查询数据库的query依据 ,然后使用update方法来更新当前用户的头像
     let result = await updated(query, update)
+    // console.log(result)
     if (result.n) {
         res.send({ status: 1, state: true, msg: "图片上传成功" })
     } else {
@@ -189,23 +185,200 @@ const updatePassword = async (req, res) => {
     }
 }
 //获取用户
-const getAllUsers = async (req, res) => {
-    let result = await find();
+var getAllUsers = async (req, res) => {
+    var result = await find();
     if (result && Array.isArray(result)) {
-        let users = result.map(item => ({
+        var users = result.map(item => ({
+            roleid: item.String,
+            unid: item.unid,
             username: item.username,
+            phone: item.phone,
             nickname: item.nickname,
-            roleid: item.roleid
+            headimgurl: item.headimgurl,
+            roleName: item.roleName,
+            openid: item.openid,
+            sex: item.sex,
+            city: item.city,
+            province: item.province,
+            country: item.country
         }))
         res.send({ status: 200, state: true, msg: "success", users })
     } else {
         res.send({ status: 403, state: false, msg: "获取出错" })
     }
 }
+
+//定义一个 用于生成微信扫参数对象
+class CreateScanCodeParams {
+    /**
+     * 
+     * @param {String} appid 公众号的唯一标识
+     * @param {String} redirect_uri 授权后重定向的回调链接地址， 请使用 urlEncode 对链接进行处理
+     * @param {String} response_type 返回类型，请填写code
+     * @param {String} scope 应用授权作用域，snsapi_base （不弹出授权页面，直接跳转，只能获取用户openid），snsapi_userinfo （弹出授权页面，可通过openid拿到昵称、性别、所在地。并且， 即使在未关注的情况下，只要用户授权，也能获取其信息 ）
+     * @param {String} state 重定向后会带上state参数，开发者可以填写a-zA-Z0-9的参数值，最多128字节
+     */
+    constructor(appid = "%", redirect_uri = "%", response_type = "code", scope = "snsapi_base", state = "1730255954") {
+        this.appid = appid;
+        this.redirect_uri = redirect_uri;
+        this.response_type = response_type;
+        this.scope = scope;
+        this.state = "99998888"
+    }
+}
+//创建一个方法 生成url
+function createScanCodeUrl({ appid, redirect_uri, response_type, scope, state }) {
+    return `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${appid}&redirect_uri=${redirect_uri}&response_type=${response_type}&scope=${scope}&state=${state}#wechat_redirect`
+}
+//微信扫码登入
+let appid = "wxed58e834201d0894";
+let redirect_uri = "http://chst.vip/users/wechatCallBack"
+let scope = "snsapi_userinfo"
+let secret = '1479691513627d91af5eb9d6b8c9106e'
+let response_type = "code"
+let socket;
+const wechatLoginCtr = (req, response) => {
+    let { wechatCode } = req.query
+    if (!wechatCode) {
+        response.send({ errormsg: "请传入wechatCode", state: false })
+        return
+    }
+    // socket = req.sock;
+    // socket.emit("getScancode", { status: 200, state: true, msg: "已切换微信登入" })
+    //定义一个类 用于生成URL扫码地址
+    // https://open.weixin.qq.com/connect/oauth2/authorize?appid=APPID&redirect_uri=REDIRECT_URI&response_type=code&scope=SCOPE&state=STATE#wechat_redirect  
+    // let scanParams = new CreateScanCodeParams(appid, redirect_uri, undefined, scope)
+    // let scanCodeUrl = createScanCodeUrl(scanParams)
+    // res.send({ state: true, status: 200, scanCodeUrl })
+    https.get(`https://api.weixin.qq.com/sns/oauth2/access_token?appid=${appid}&secret=${secret}&code=${wechatCode}&grant_type=authorization_code`, function (res) {
+        let datas = [];
+        let size = 0;
+        res.on('data', data => {
+            datas.push(data)
+            size += data.length;
+        })
+        res.on('end', async () => {
+            // console.log('响应结束')
+            var buff = Buffer.concat(datas, size);
+            var result = buff.toString()
+            result = JSON.parse(result);
+            let { access_token, openid } = result
+            //请求用户信息之前判断一下数据库是否有用户信息 用openid判断
+            if (!openid) { response.send({ "errmsg": "请重新扫码" }); return }
+            let isUser = await find({ openid })
+            if (Array.isArray(isUser)) {
+                if (isUser.length) {
+                    //说明有 不需要存储 直接响应登入成功
+                    let info = isUser[0]
+                    delete info.password
+                    //socket响应登入成功
+                    //生成token
+                    let secrect = "YOU_PLAY_BASKETBALL_LIKE_CAIXUKUN" //随机字符串用于加密
+                    let token = jwt.sign({ ...info }, secrect, {
+                        expiresIn: 60 * 3
+                    })
+                    let result2 = await perModel.find({ roleid: info.roleid })
+                    //console.log("")
+                    // console.log("==========278", result2)
+                    let rows = result2[0].rows
+                    let buttons = result2[0].buttons
+
+                    info.rows = rows
+                    req.session.userInfo = { ...info._doc, rows }
+
+                    // socket.emit("wechatLoginSuccess", { status: 200, state: true, msg: "微信登入成功", userInfo: info, token })
+                    response.send({ status: 200, state: true, msg: "微信登入成功", userInfo: info, permission: { buttons }, token })
+                    // response.render("wechatCallBack", { headimgurl: info.headimgurl, nickname: info.nickname })
+                    return
+                } else {
+                    // response.send('success')
+                    // 第四步：拉取用户信息(需scope为 snsapi_userinfo)
+                    //https://api.weixin.qq.com/sns/userinfo?access_token=ACCESS_TOKEN&openid=OPENID&lang=zh_CN
+                    https.get(`https://api.weixin.qq.com/sns/userinfo?access_token=${access_token}&openid=${openid}&lang=zh_CN`, function (res) {
+                        let datas = [];
+                        let size = 0;
+                        res.on('data', data => {
+                            datas.push(data)
+                            size += data.length;
+                        })
+                        res.on('end', async () => {
+                            // console.log('获取微信用户信息响应结束')
+                            var buff = Buffer.concat(datas, size);
+                            var result = buff.toString()
+                            result = JSON.parse(result); //获得了微信用户的信息
+                            //存入数据库
+                            result.unid = Math.random().toString(32).substr(2)
+                            result.username = Math.random().toString(32).substr(2)
+                            result.password = Math.random().toString(32).substr(2)
+                            result.roleid = 200
+                            let registResult = await registerModel({ ...result })
+                            if (registResult) {
+                                delete registResult.password;
+                                //socket响应
+                                let secrect = "YOU_PLAY_BASKETBALL_LIKE_CAIXUKUN" //随机字符串用于加密
+                                let token = jwt.sign({ ...registResult }, secrect, {
+                                    expiresIn: 60 * 3
+                                })
+                                let info = { ...registResult }
+                                let result2 = await perModel.find({ roleid: info.roleid })
+                                // console.log("===========320", result2)
+                                let rows = result2[0].rows
+                                let buttons = result2[0].buttons
+                                info.rows = rows
+                                req.session.userInfo = { ...registResult._doc, rows }
+                                // socket.emit("wechatLoginSuccess", { status: 200, state: true, msg: "登入成功", userInfo: { ...registResult._doc }, token: token })
+                                // response.render("wechatCallBack", { nickname: registResult.nickname, headimgurl: registResult.headimgurl })
+                                response.send({ status: 200, state: true, msg: "微信登入成功", userInfo: { ...registResult._doc }, permission: { buttons }, token })
+                            } else {
+                                socket.emit("wechatLoginSuccess", { status: 400, state: false, msg: "登入出错" })
+                                response.render("wechatCallBack", { state: false, status: 101, msg: "登入出错" })
+
+                            }
+
+                            //response.send({ url: result.headimgurl })
+                        })
+                    })
+                }
+            } else {
+                socket.emit("wechatLoginSuccess", { status: 400, state: false, msg: "查询出错" })
+                response.send({ errmsg: "查询数据库出错" })
+            }
+        })
+    })
+}
+
+
+global.io.on("connection", sock => {
+    global.sock = socket
+    socket = sock;
+    socket.emit("scancodeSuccess", "111111")
+})
+
+
+//获取微信二维码
+const getScancodeCtr = (req, res, io) => {
+    // console.log('getScan zhixing le')
+    let scanParams = new CreateScanCodeParams(appid, redirect_uri, undefined, scope)
+    let scanCodeUrl = createScanCodeUrl(scanParams)
+
+    res.send({ state: true, status: 200, scanCodeUrl })
+
+}
+//处理微信回调页面控制层
+const wechatCallBackCtr = async (req, res, io) => {
+    let { code } = req.query;//获取code之后去换access_token
+    socket.emit("scancodeSuccess", { status: 200, state: true, msg: "已扫码", wechatCode: code })
+    res.render("wechatCallBack", { nickname: "qf", headimgurl: "/imgs/log.png" })
+
+    // res.send("登入成功")
+}
 module.exports = {
     register,
     login,
     uploadAvatar,
     updatePassword,
-    getAllUsers
+    getAllUsers,
+    wechatCallBackCtr,
+    wechatLoginCtr,
+    getScancodeCtr
 }
