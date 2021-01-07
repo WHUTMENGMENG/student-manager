@@ -49,7 +49,7 @@ npm start
 
 成功返回值
 
-```
+```json
 {
     "status": 200,
     "state": true,
@@ -95,7 +95,7 @@ npm start
 
 成功返回值
 
-```
+```json
 {
     "status": 200,
     "state": true,
@@ -169,7 +169,7 @@ npm start
 
 增加成返回值
 
-```
+```json
 {
     "status": 1,
     "state": true,
@@ -323,7 +323,7 @@ npm start
 | nickname |  是   |  昵称  |
 |  roles   |  否   |  权限  |
 
-```
+```json
 注册成功返回值
 {
 	"status": 1,
@@ -354,7 +354,7 @@ npm start
 | username | 是    | 账户   |
 | password | 是    | 密码   |
 
-```
+```json
 登入成功返回值
 {
 	"status": 1,
@@ -393,7 +393,7 @@ npm start
 |  uId   |  是   | 当前用户的id |
 | token  |  是   | token值  |
 
-```
+```json
 //成功数据
 {
   "status": 1,
@@ -421,7 +421,7 @@ npm start
 | newPassword |  是   | 需要修改的新密码 |
 |    token    |  是   |  token值  |
 
-```
+```json
 //修改成功值
 {
   "status": 1,
@@ -466,7 +466,7 @@ npm start
 | roleid |    否    | 查询的角色id |
 | token  |    是    |    token     |
 
-```
+```json
 结果
 {
     "status": 200,
@@ -496,7 +496,7 @@ npm start
 | :----------: | :------: | :---------------------: |
 | 获取权限菜单 |   get    | /permission/getMenuList |
 
-```
+```json
 {
     "status": 200,
     "msg": "success",
@@ -801,7 +801,7 @@ npm start
 
 #### e.g
 
-```
+```js
 axios.get("/order/ship?action=1")
 ```
 
@@ -915,7 +915,7 @@ https://api.mch.weixin.qq.com/v3/pay/transactions/out-trade-no/12177525012014070
 
 - [正常示例](javascript:;)
 
-```
+```json
 {
 	"transaction_id": "1217752501201407033233368018",
 	"amount": {
