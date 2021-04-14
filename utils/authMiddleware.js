@@ -11,11 +11,13 @@ const authorizition = (req, res, next) => {
         "/users/getCaptcha",
         "/users/verifyCaptcha",
         "/users/refreshCaptcha",
+        "/weather/getWeather",
+        "/weather/updateWeather",
         "/pay/wepay",
     ];
     let matchRes = rowPath.some(item => item === req.path)
     //被忘记最后把条件改回来
-    if (true || /\/avatar\/.*/.test(req.path) ||/\/productPic\/.*/.test(req.path) ) {
+    if (matchRes || /\/avatar\/.*/.test(req.path) || /\/productPic\/.*/.test(req.path)) {
         next()
     } else {
         if (!req.session.userInfo) {
