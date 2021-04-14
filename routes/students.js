@@ -20,7 +20,7 @@ router.post("/updatestu", updateStudent)
 
 router.get('/getclasses', getClasses)
 //上传学员头像
-router.post("/uploadStuAvatar", upload, uploadStuAvatar)
+router.post("/uploadStuAvatar", upload("headimgurl", "avatar"), uploadStuAvatar)
 
 //搜索接口
 router.get('/searchstu', searchStu)
