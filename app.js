@@ -21,6 +21,7 @@ let wepayRouter = require("./routes/wepay")
 let cartRouter = require("./routes/cart")
 let productRouter = require("./routes/product")
 let productCategoryRouter = require("./routes/product_category")
+let weather = require("./routes/weather")
 let orderRouter = require("./routes/order")
 var app = express();//通过express创建一个服务器
 var session = require('express-session');
@@ -70,4 +71,5 @@ app.use("/cart", cartRouter)
 app.use("/product", productRouter)
 app.use("/category", productCategoryRouter)
 app.use("/order", orderRouter)
+app.use("/weather", weather)
 module.exports = app;

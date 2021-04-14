@@ -1,0 +1,101 @@
+let model = require("../model/weather");
+let axios = require("axios")
+let version = "v61";
+let appid = '64821666';
+let appsecret = '3rFHu1Li';
+let city = "南京";
+let count = 0;
+const getWeather = async (req, res, next) => {//传递all获取全部的天气情况
+    let { key } = req.query;
+    let data;
+    let query;
+    if (req.query.city) {
+        if (count === 0) {
+            count++
+            city = req.query.city;
+            await addWeather(city);
+            setTimeout(() => { count = 0 }, 1000 * 60)//一分钟后重置
+        } else {
+            res.send({ state: false, status: 100, msg: "您查询的次数太频繁,一分钟查询一次" })
+        }
+
+    }
+    let result = await model.find_weather(query = {});
+    if (Array.isArray(result)) {
+        if (key !== "all") {
+            data = [result[result.length - 1]]
+        } else {
+            data = result
+        }
+        res.send({ state: true, status: 200, message: '获取成功', data })
+    } else {
+        res.send({ state: false, status: 500, message: '获取出错' })
+    }
+}
+
+const updateWeather = async (req, res, next) => {
+    let result = await model.find_weather(query = {});
+    if (Array.isArray(result)) {
+        if (result.length === 0) {
+            //里面没有就插入一条,有就更新 预留
+        }
+    }
+}
+
+const updateWeatherCount = (req, res, next) => { //修改天气账户接口 只有root有权限
+    if (req.session['userInfo']) {
+        if (req.session.userInfo.username === 'root') {
+            if (!req.query.version || !req.query.appid || !rq.appsecret) {
+                res.send({ state: false, msg: "参数少传递了" })
+                return
+            }
+            version = req.query.version
+            appid = req.query.appid
+            appsecret = req.query.appsecret
+            res.send({ state: true, msg: "修改成功" })
+        }
+    } else {
+        res.send({ state: false, msg: "你没有权限" })
+    }
+
+}
+
+const addWeather = async (city) => {
+    let url = `https://v0.yiketianqi.com/api?version=${version}&appid=${appid}&appsecret=${appsecret}&city=${encodeURI(city)}`
+    let weather = await axios.get(url)
+    // console.log(weather)
+    if (weather.data.errmsg) {
+        res.send({ state: false, status: weather.data.errcode, msg: weather.data.errmsg })
+        return
+    }
+    let result = await model.save_weather(weather.data);
+    if (!result) {
+        console.log('保存失败')
+    } else {
+        console.log('保存成功')
+    }
+    let oldTime = new Date();
+    setInterval(function () { //每隔8小时更新一次,每天0点后必定更新
+        let currentTime = new Date;
+        //获取小时进行运算
+        let oldHours = oldTime.getHours();
+        let currentHours = currentTime.getHours();
+        if (currentHours === 0) {
+            //调用函数更新
+            addWeather(city)
+        }
+        if (currentHours - oldHours === 8) {
+            //8小时候更新
+            addWeather(city)
+        }
+
+    }, 1000 * 10)
+}
+addWeather(city)
+
+module.exports = {
+    updateWeather,
+    getWeather,
+    addWeather,
+    updateWeatherCount
+}

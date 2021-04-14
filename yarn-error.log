@@ -1,8 +1,8 @@
 Arguments: 
-  D:\nodejs\node.exe D:\nodejs\node_modules\yarn\bin\yarn.js add node-xml2js
+  D:\nodejs\node.exe D:\nodejs\node_modules\yarn\bin\yarn.js add axios
 
 PATH: 
-  C:\ProgramData\Oracle\Java\javapath;C:\Program Files (x86)\Java\jdk1.8.0_73\bin;C:\Program Files (x86)\Java\jdk1.8.0_73\jre\bin;D:\nvm;D:\nodejs;D:\Android\android-sdk\platform-tools;D:\Android\android-sdk\tools;C:\Python27;D:\Microsoft VS Code\;C:\Program Files\Git\bin;C:\Windows\System32;C:\Program Files\MongoDB\Server\3.4\bin;C:\Windows;C:\Users\My\AppData\Local\Yarn\bin;D:\mysql\mysql-8.0.20-winx64\bin;C:\Windows\System32\WindowsPowerShell\v1.0;;D:\Microsoft VS Code\bin;C:\Users\My\AppData\Local\Programs\Fiddler
+  C:\ProgramData\Oracle\Java\javapath;C:\Program Files (x86)\Java\jdk1.8.0_73\bin;C:\Program Files (x86)\Java\jdk1.8.0_73\jre\bin;D:\nvm;D:\nodejs;D:\Android\android-sdk\platform-tools;D:\Android\android-sdk\tools;C:\Python27;D:\Microsoft VS Code\;C:\Program Files\Git\bin;C:\Windows\System32;C:\Program Files\MongoDB\Server\3.4\bin;C:\Windows;C:\Users\My\AppData\Local\Yarn\bin;D:\mysql\mysql-8.0.20-winx64\bin;C:\Windows\System32\WindowsPowerShell\v1.0;D:\Apache24\bin;D:\QQ\Bin;;D:\Microsoft VS Code\bin;C:\Users\My\AppData\Local\Programs\Fiddler
 
 Yarn version: 
   1.15.2
@@ -14,17 +14,8 @@ Platform:
   win32 x64
 
 Trace: 
-  Error: https://registry.npm.taobao.org/node-xml2js: Not found
-      at Request.params.callback [as _callback] (D:\nvm\v10.15.3\node_modules\yarn\lib\cli.js:66058:18)
-      at Request.self.callback (D:\nvm\v10.15.3\node_modules\yarn\lib\cli.js:129541:22)
-      at Request.emit (events.js:189:13)
-      at Request.<anonymous> (D:\nvm\v10.15.3\node_modules\yarn\lib\cli.js:130513:10)
-      at Request.emit (events.js:189:13)
-      at IncomingMessage.<anonymous> (D:\nvm\v10.15.3\node_modules\yarn\lib\cli.js:130435:12)
-      at Object.onceWrapper (events.js:277:13)
-      at IncomingMessage.emit (events.js:194:15)
-      at endReadableNT (_stream_readable.js:1125:12)
-      at process._tickCallback (internal/process/next_tick.js:63:19)
+  Error: connect ETIMEDOUT 104.16.21.35:443
+      at TCPConnectWrap.afterConnect [as oncomplete] (net.js:1097:14)
 
 npm manifest: 
   {
@@ -49,7 +40,8 @@ npm manifest:
       "morgan": "~1.9.0",
       "multer": "^1.4.1",
       "socket.io": "^2.3.0",
-      "svg-captcha": "^1.4.0"
+      "svg-captcha": "^1.4.0",
+      "xml2js": "^0.4.23"
     }
   }
 
@@ -1138,6 +1130,11 @@ Lockfile:
     dependencies:
       sparse-bitfield "^3.0.3"
   
+  sax@>=0.6.0:
+    version "1.2.4"
+    resolved "https://registry.npm.taobao.org/sax/download/sax-1.2.4.tgz?cache=0&sync_timestamp=1608181219722&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fsax%2Fdownload%2Fsax-1.2.4.tgz#2816234e2378bddc4e5354fab5caa895df7100d9"
+    integrity sha1-KBYjTiN4vdxOU1T6tcqold9xANk=
+  
   semver@^5.1.0, semver@^5.6.0:
     version "5.7.0"
     resolved "http://registry.npm.taobao.org/semver/download/semver-5.7.0.tgz#790a7cf6fea5459bac96110b29b60412dc8ff96b"
@@ -1436,6 +1433,19 @@ Lockfile:
     integrity sha1-W1yIAK+rkl6UzLKdFTyNAsF3bvk=
     dependencies:
       async-limiter "~1.0.0"
+  
+  xml2js@^0.4.23:
+    version "0.4.23"
+    resolved "https://registry.npm.taobao.org/xml2js/download/xml2js-0.4.23.tgz#a0c69516752421eb2ac758ee4d4ccf58843eac66"
+    integrity sha1-oMaVFnUkIesqx1juTUzPWIQ+rGY=
+    dependencies:
+      sax ">=0.6.0"
+      xmlbuilder "~11.0.0"
+  
+  xmlbuilder@~11.0.0:
+    version "11.0.1"
+    resolved "https://registry.npm.taobao.org/xmlbuilder/download/xmlbuilder-11.0.1.tgz?cache=0&sync_timestamp=1600349105009&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fxmlbuilder%2Fdownload%2Fxmlbuilder-11.0.1.tgz#be9bae1c8a046e76b31127726347d0ad7002beb3"
+    integrity sha1-vpuuHIoEbnazESdyY0fQrXACvrM=
   
   xmlhttprequest-ssl@~1.5.4:
     version "1.5.5"
