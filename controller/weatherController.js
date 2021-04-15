@@ -1,8 +1,8 @@
 let model = require("../model/weather");
 let axios = require("axios")
 let version = "v61";
-let appid = '64821666';
-let appsecret = '3rFHu1Li';
+let appid = '57117797';
+let appsecret = '4tfaaJTF';
 let city = "南京";
 let count = 0;
 const getWeather = async (req, res, next) => {//传递all获取全部的天气情况
@@ -52,6 +52,7 @@ const updateWeatherCount = (req, res, next) => { //修改天气账户接口 只�
             version = req.query.version
             appid = req.query.appid
             appsecret = req.query.appsecret
+            addWeather(city)
             res.send({ state: true, msg: "修改成功" })
         }
     } else {
@@ -85,11 +86,7 @@ const addWeather = async (city) => {
         if (currentHours === 0 && currentDay !== oldDay) {
             //调用函数更新
             addWeather(city)
-            if (currentDay === 1) {
-                oldDay = 1;
-            } else {
-                oldDay++
-            }
+            oldDay = currentDay;
         }
         if (currentHours - oldHours === 8) {
             //8小时候更新
