@@ -75,14 +75,21 @@ const addWeather = async (city) => {
         console.log('保存成功')
     }
     let oldTime = new Date();
+    let oldDay = oldTime.getDate()//获取几日 29
     setInterval(function () { //每隔8小时更新一次,每天0点后必定更新
-        let currentTime = new Date;
+        let currentTime = new Date();
+        let currentDay = currentTime().getDate() //获取当前的日期
         //获取小时进行运算
-        let oldHours = oldTime.getHours();
+        let oldHours = oldTime.getHours();//1
         let currentHours = currentTime.getHours();
-        if (currentHours === 0) {
+        if (currentHours === 0 && currentDay !== oldDay) {
             //调用函数更新
             addWeather(city)
+            if (currentDay === 1) {
+                oldDay = 1;
+            } else {
+                oldDay++
+            }
         }
         if (currentHours - oldHours === 8) {
             //8小时候更新
