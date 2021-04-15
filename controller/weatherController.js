@@ -79,7 +79,7 @@ const addWeather = async (city) => {
     let oldDay = oldTime.getDate()//获取几日 29
     setInterval(function () { //每隔8小时更新一次,每天0点后必定更新
         let currentTime = new Date();
-        let currentDay = currentTime().getDate() //获取当前的日期
+        let currentDay = currentTime.getDate() //获取当前的日期
         //获取小时进行运算
         let oldHours = oldTime.getHours();//1
         let currentHours = currentTime.getHours();
