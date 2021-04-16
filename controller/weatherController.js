@@ -1,10 +1,14 @@
 let model = require("../model/weather");
 let axios = require("axios")
 let version = "v61";
-let appid = '57117797';
-let appsecret = '4tfaaJTF';
+let appid = '81673491';
+let appsecret = 'fwu2or4w';
 let city = "南京";
 let count = 0;
+let oldTime = new Date();
+let oldDay = oldTime.getDate()//获取几日 29
+//获取小时进行运算
+let oldHours = oldTime.getHours();//1
 const getWeather = async (req, res, next) => {//传递all获取全部的天气情况
     let { key } = req.query;
     let data;
@@ -66,30 +70,32 @@ const addWeather = async (city) => {
     let weather = await axios.get(url)
     // console.log(weather)
     if (weather.data.errmsg) {
-        res.send({ state: false, status: weather.data.errcode, msg: weather.data.errmsg })
+        // res.send({ state: false, status: weather.data.errcode, msg: weather.data.errmsg })
+        console.log(weather.data.errmsg)
         return
     }
     let result = await model.save_weather(weather.data);
+ 
     if (!result) {
         console.log('保存失败')
     } else {
         console.log('保存成功')
     }
-    let oldTime = new Date();
-    let oldDay = oldTime.getDate()//获取几日 29
+
     setInterval(function () { //每隔8小时更新一次,每天0点后必定更新
         let currentTime = new Date();
         let currentDay = currentTime.getDate() //获取当前的日期
-        //获取小时进行运算
-        let oldHours = oldTime.getHours();//1
+
         let currentHours = currentTime.getHours();
         if (currentHours === 0 && currentDay !== oldDay) {
             //调用函数更新
+            console.log("更新")
             addWeather(city)
             oldDay = currentDay;
         }
-        if (currentHours - oldHours === 8) {
+        if (currentHours - oldHours >= 8) {
             //8小时候更新
+            oldHours = currentHours;
             addWeather(city)
         }
 
