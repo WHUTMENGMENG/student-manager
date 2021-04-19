@@ -93,13 +93,13 @@ const addWeather = async (city) => {
             addWeather(city)
             oldDay = currentDay;
         }
-        if (Math.abs(currentHours - oldHours) >= 8) {
+        if (currentHours - oldHours >= 8) {
             //8小时候更新
             oldHours = currentHours;
             addWeather(city)
         }
 
-    }, 1000*10)
+    }, 1000)
 }
 addWeather(city)
 
