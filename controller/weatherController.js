@@ -85,17 +85,22 @@ const addWeather = async (city) => {
     setInterval(function () { //每隔8小时更新一次,每天0点后必定更新
         let currentTime = new Date();
         let currentDay = currentTime.getDate() //获取当前的日期
-
+		
         let currentHours = currentTime.getHours();
+	
         if (currentHours === 0 && currentDay !== oldDay) {
             //调用函数更新
             console.log("更新")
             addWeather(city)
             oldDay = currentDay;
         }
-        if (Math.abs(currentHours - oldHours) >= 8) {
+		let oneHours = 1000*60*60
+		let timeDistance = (oldTime.getTime()-currentTime.getTime())/oneHours
+			console.log("time-distance:"+Math.abs(timeDistance).toFixed(3))
+        if (Math.abs(timeDistance)>=8) {
             //8小时候更新
-            oldHours = currentHours;
+			
+            oldTime = currentTime;
             addWeather(city)
         }
 
