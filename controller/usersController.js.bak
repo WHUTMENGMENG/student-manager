@@ -276,7 +276,7 @@ const wechatLoginCtr = (req, response) => {
                     //生成token
                     let secrect = "YOU_PLAY_BASKETBALL_LIKE_CAIXUKUN" //随机字符串用于加密
                     let token = jwt.sign({ ...info }, secrect, {
-                        expiresIn: 60 * 1
+                        expiresIn: 60 * 3
                     })
                     let result2 = await perModel.find({ roleid: info.roleid })
                     //console.log("")
