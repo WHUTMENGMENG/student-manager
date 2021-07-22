@@ -403,6 +403,35 @@ npm start
 }
 ```
 
+## 微信扫码登入(new)
+
+微信扫码登入建议客户端使用socket.io-client@2.3.0这个依赖
+
+首先安装
+
+```js
+npm i socket.io-client
+```
+
+也可以使用普通的websocket
+
+### socket.io事件
+
+1. `connection` 建立连接事件
+2. `scancodeSuccess`事件 扫码成功后的事件,通过socket.on来进行监听,这个事件会回传一个`wechatCode`,然后请求`wechatLogin`这个接口,传递给后台即可
+
+|        接口        | 请求方式 |   接口描述   |
+| :----------------: | :------: | :----------: |
+| /users/wechatLogin |   get    | 请求微信登入 |
+
+|    参数    | 是否必填 |             参数描述             |
+| :--------: | :------: | :------------------------------: |
+| wechatCode |    是    | 扫码成功后微信传回来的wechatCode |
+
+### 流程图
+
+<img src="./wechatLogin-flow.jpg" width="1000px" />
+
 ## 退出登入接口
 
 | 接口详情 | 请求方式 |     接口地址      |
