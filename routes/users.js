@@ -1,15 +1,24 @@
-let io = global.io
 const express = require("express");
 const router = express.Router();
 var svgCaptcha = require('svg-captcha');
 const { register, login, uploadAvatar, updatePassword, getScancodeCtr, getAllUsers, wechatLoginCtr, wechatCallBackCtr } = require("../controller/usersController")
+const io = require("socket.io")();
+io.on("connection", socket => {
+    let { wechatCallBackCtr } = require("../controller/usersController");
+    socket.emit("connectSuccess", "已经和你建立连接");
+    // console.log(999999999999)
+    console.log(socket)
+        // router.get("/getScancode", getScancodeCtr(socket))
+        //微信回调页面参数处理
+    router.get("/wechatCallBack", wechatCallBackCtr(socket))
+})
 
 const uploads = require("../middleware/multer")
-// console.log(uploads)
-//注册
+    // console.log(uploads)
+    //注册
 function createCaptcha(req, res) {
     var codeConfig = {
-        size: 5,// 验证码长度
+        size: 5, // 验证码长度
         ignoreChars: '0o1i', // 验证码字符中排除 0o1i
         noise: 2, // 干扰线条的数量
         height: 44
@@ -60,9 +69,11 @@ router.post("/updatePassword", updatePassword)
 //获取所有用户
 router.get("/getAllUsers", getAllUsers)
 router.get("/wechatLogin", wechatLoginCtr)
-//微信回调页面参数处理
-router.get("/wechatCallBack", wechatCallBackCtr)
 
-router.get("/getScancode", getScancodeCtr)
 
-module.exports = router
+// router.get("/getScancode", getScancodeCtr)
+
+module.exports = {
+    router,
+    io
+}

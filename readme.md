@@ -418,7 +418,12 @@ npm i socket.io-client
 ### socket.io事件
 
 1. `connection` 建立连接事件
-2. `scancodeSuccess`事件 扫码成功后的事件,通过socket.on来进行监听,这个事件会回传一个`wechatCode`,然后请求`wechatLogin`这个接口,传递给后台即可
+2. 获取微信二维码地址
+3. `scancodeSuccess`事件 扫码成功后的事件,通过socket.on来进行监听,这个事件会回传一个`wechatCode`,然后请求`wechatLogin`这个接口,传递给后台即可
+
+|        接口        | 请求方式 |      接口描述      |
+| :----------------: | :------: | :----------------: |
+| /users/getScancode |   get    | 请求微信二维码地址 |
 
 |        接口        | 请求方式 |   接口描述   |
 | :----------------: | :------: | :----------: |
