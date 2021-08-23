@@ -368,9 +368,11 @@ const getScancodeCtr = (req, res) => {
     }
     //处理微信回调页面控制层
 const wechatCallBackCtr = socket => async(req, res) => {
-    let { code } = req.query; //获取code之后去换access_token
-    socket.emit("scancodeSuccess", { status: 200, state: true, msg: "已扫码", wechatCode: code })
-    res.render("wechatCallBack", { nickname: "qf", headimgurl: "/imgs/log.png" })
+    let { code,state } = req.query; //获取code之后去换access_token
+	
+    socket.emit("scancodeSuccess", { status: 200, state: true, msg: "已扫码",state, wechatCode: code })
+    //res.render("wechatCallBack", { nickname: "qf", headimgurl: "/imgs/log.png" })
+	res.send({code,state})
         //res.send('<script src="http://res.wx.qq.com/open/js/jweixin-1.6.0.js"></script><script>window.onload=function(){wx.closeWindow()}</script>')
 }
 module.exports = {

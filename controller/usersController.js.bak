@@ -271,13 +271,9 @@ const wechatLoginCtr = (req, response) => {
                         //socket响应登入成功
                         //生成token
                     let secrect = "YOU_PLAY_BASKETBALL_LIKE_CAIXUKUN" //随机字符串用于加密
-<<<<<<< HEAD
+
                     let token = jwt.sign({ ...info }, secrect, {
                         expiresIn: 60 * 3
-=======
-                    let token = jwt.sign({...info }, secrect, {
-                        expiresIn: 60 * 1
->>>>>>> 1e07ada0764332be0cc70e2fa8b099f0b2c56164
                     })
                     let result2 = await perModel.find({ roleid: info.roleid })
                         //console.log("")
@@ -372,8 +368,8 @@ const getScancodeCtr = (req, res) => {
     }
     //处理微信回调页面控制层
 const wechatCallBackCtr = socket => async(req, res) => {
-    let { code } = req.query; //获取code之后去换access_token
-    socket.emit("scancodeSuccess", { status: 200, state: true, msg: "已扫码", wechatCode: code })
+    let { code,state } = req.query; //获取code之后去换access_token
+    socket.emit("scancodeSuccess", { status: 200, state: true, msg: "已扫码",state, wechatCode: code })
     res.render("wechatCallBack", { nickname: "qf", headimgurl: "/imgs/log.png" })
         //res.send('<script src="http://res.wx.qq.com/open/js/jweixin-1.6.0.js"></script><script>window.onload=function(){wx.closeWindow()}</script>')
 }

@@ -71,7 +71,7 @@ router.get("/getAllUsers", getAllUsers)
 router.get("/wechatLogin", wechatLoginCtr)
 
 
-router.get("/getScancode", getScancodeCtr)
+// router.get("/getScancode", getScancodeCtr)
 
 module.exports = {
     router,
