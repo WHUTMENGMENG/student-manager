@@ -1,15 +1,15 @@
 let model = require("../model/weather");
 let axios = require("axios")
 let version = "v61";
-let appid = '81673491';
-let appsecret = 'fwu2or4w';
+let appid = '48921321';
+let appsecret = 'g0Lb79uW';
 let city = "南京";
 let count = 0;
 let oldTime = new Date();
-let oldDay = oldTime.getDate()//获取几日 29
-//获取小时进行运算
-let oldHours = oldTime.getHours();//1
-const getWeather = async (req, res, next) => {//传递all获取全部的天气情况
+let oldDay = oldTime.getDate() //获取几日 29
+    //获取小时进行运算
+let oldHours = oldTime.getHours(); //1
+const getWeather = async(req, res, next) => { //传递all获取全部的天气情况
     let { key } = req.query;
     let data;
     let query;
@@ -18,7 +18,7 @@ const getWeather = async (req, res, next) => {//传递all获取全部的天气�
             count++
             city = req.query.city;
             await addWeather(city);
-            setTimeout(() => { count = 0 }, 1000 * 60)//一分钟后重置
+            setTimeout(() => { count = 0 }, 1000 * 60) //一分钟后重置
         } else {
             res.send({ state: false, status: 100, msg: "您查询的次数太频繁,一分钟查询一次" })
         }
@@ -37,7 +37,7 @@ const getWeather = async (req, res, next) => {//传递all获取全部的天气�
     }
 }
 
-const updateWeather = async (req, res, next) => {
+const updateWeather = async(req, res, next) => {
     let result = await model.find_weather(query = {});
     if (Array.isArray(result)) {
         if (result.length === 0) {
@@ -65,46 +65,46 @@ const updateWeatherCount = (req, res, next) => { //修改天气账户接口 只�
 
 }
 
-const addWeather = async (city) => {
+const addWeather = async(city) => {
     let url = `https://v0.yiketianqi.com/api?version=${version}&appid=${appid}&appsecret=${appsecret}&city=${encodeURI(city)}`
     let weather = await axios.get(url)
-    // console.log(weather)
+        // console.log(weather)
     if (weather.data.errmsg) {
         // res.send({ state: false, status: weather.data.errcode, msg: weather.data.errmsg })
         console.log(weather.data.errmsg)
         return
     }
     let result = await model.save_weather(weather.data);
- 
+
     if (!result) {
         console.log('保存失败')
     } else {
         console.log('保存成功')
     }
 
-    setInterval(function () { //每隔8小时更新一次,每天0点后必定更新
+    setInterval(function() { //每隔8小时更新一次,每天0点后必定更新
         let currentTime = new Date();
         let currentDay = currentTime.getDate() //获取当前的日期
-		
+
         let currentHours = currentTime.getHours();
-	
+
         if (currentHours === 0 && currentDay !== oldDay) {
             //调用函数更新
             console.log("更新")
             addWeather(city)
             oldDay = currentDay;
         }
-		let oneHours = 1000*60*60
-		let timeDistance = (oldTime.getTime()-currentTime.getTime())/oneHours
-			console.log("time-distance:"+Math.abs(timeDistance).toFixed(3))
-        if (Math.abs(timeDistance)>=8) {
+        let oneHours = 1000 * 60 * 60
+        let timeDistance = (oldTime.getTime() - currentTime.getTime()) / oneHours
+            // console.log("time-distance:"+Math.abs(timeDistance).toFixed(3))
+        if (Math.abs(timeDistance) >= 8) {
             //8小时候更新
-			
+
             oldTime = currentTime;
             addWeather(city)
         }
 
-    }, 1000*10)
+    }, 1000 * 10)
 }
 addWeather(city)
 

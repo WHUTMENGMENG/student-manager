@@ -10,6 +10,7 @@
 <body>
     <div id="app"></div>
     <button id="btn">点击建立socket连接</button>
+    <button id="btn2">点击发送请求</button>
 </body>
 
 </html>
@@ -22,22 +23,18 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
 <script>
     btn.onclick = function () {
-        var socket = io("ws://chst.vip")
+        var socket = io("ws://localhost:1901")
         socket.on('connect', () => {
             console.log('链接成功')
 
         })
-        socket.on("wepaySuccess", data => {
+        socket.on("connectSuccess", data => {
             console.log(data);
         })
-        socket.on("wepayFail", data => {
+        socket.on("t", data => {
             console.log(data);
         })
-        // fetch("http://chst.vip/users/getScancode")
-        //     .then(res => res.json())
-        //     .then(res => {
-        //         console.log(res);
-        //     })
+       
         // socket.on('scancodeSuccess', (data) => {
         //     console.log(data)
         // })
@@ -48,5 +45,14 @@
         //     console.log(data)
         // })
 
+    }
+    btn2.onclick= function(){
+        fetch("http://localhost:1901/users/getScancode",{
+            withCredentials:true,
+        })
+            .then(res => res.json())
+            .then(res => {
+                console.log(res);
+            })
     }
 </script>
