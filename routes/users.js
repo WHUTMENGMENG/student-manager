@@ -4,7 +4,7 @@ var svgCaptcha = require('svg-captcha');
 const { register, login, uploadAvatar, updatePassword, getScancodeCtr, getAllUsers, wechatLoginCtr, wechatCallBackCtr } = require("../controller/usersController")
 const io = require("socket.io")();
 io.on("connection", socket => {
-    let { wechatCallBackCtr, getScancodeCtr } = require("../controller/usersController");
+    // let { wechatCallBackCtr, getScancodeCtr } = require("../controller/usersController");
     socket.emit("connectSuccess", { state: true, status: 200, sid: socket.id, msg: "连接成功" });
     // console.log(io.sockets)
     global.io = io;
@@ -72,7 +72,7 @@ router.get("/wechatLogin", wechatLoginCtr)
 router.get("/wechatCallBack", wechatCallBackCtr)
 
 
-router.get("/getScancode", getScancodeCtr)
+router.get("/getQrcode", getScancodeCtr)
 
 module.exports = {
     router,

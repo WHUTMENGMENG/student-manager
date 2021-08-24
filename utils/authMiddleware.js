@@ -8,6 +8,7 @@ const authorizition = (req, res, next) => {
         "/users/wechatLogin",
         "/users/wechatCallBack",
         "/users/getScancode",
+        "/users/getQrcode",
         "/users/getCaptcha",
         "/users/verifyCaptcha",
         "/users/refreshCaptcha",
@@ -16,8 +17,8 @@ const authorizition = (req, res, next) => {
         "/pay/wepay",
     ];
     let matchRes = rowPath.some(item => item === req.path)
-        //被忘记最后把条件改回来
-        // matchRes || /\/avatar\/.*/.test(req.path) || /\/productPic\/.*/.test(req.path)
+    //被忘记最后把条件改回来
+    // matchRes || /\/avatar\/.*/.test(req.path) || /\/productPic\/.*/.test(req.path)
     if (matchRes || /\/avatar\/.*/.test(req.path) || /\/productPic\/.*/.test(req.path)) {
         next()
     } else {
@@ -36,28 +37,28 @@ const authorizition = (req, res, next) => {
                 if (req.path !== "/verify") {
                     //首先校验路径是否合法 不合法返回404
                     let allRoutes = [
-                            "/users/wechatCallBack",
-                            "/users/wechatLogin",
-                            "/getloginlog",
-                            "/students/getclasses",
-                            "/students/getstulist",
-                            "/students/addstu",
-                            "/students/delstu",
-                            "/students/updatestu",
-                            "/students/searchstu",
-                            "/students/uploadStuAvatar",
-                            "/users/getAllUsers",
-                            "/users/register",
-                            "/users/login",
-                            "/users/sigout",
-                            "/users/uploadAvatar",
-                            "/verify",
-                            "/users/updatePassword",
-                            "/permission/addrole",
-                            "/permission/getrole",
-                            "/permission/getMenuList"
-                        ]
-                        //校验访问的路径是否合法(是否有权限)
+                        "/users/wechatCallBack",
+                        "/users/wechatLogin",
+                        "/getloginlog",
+                        "/students/getclasses",
+                        "/students/getstulist",
+                        "/students/addstu",
+                        "/students/delstu",
+                        "/students/updatestu",
+                        "/students/searchstu",
+                        "/students/uploadStuAvatar",
+                        "/users/getAllUsers",
+                        "/users/register",
+                        "/users/login",
+                        "/users/sigout",
+                        "/users/uploadAvatar",
+                        "/verify",
+                        "/users/updatePassword",
+                        "/permission/addrole",
+                        "/permission/getrole",
+                        "/permission/getMenuList"
+                    ]
+                    //校验访问的路径是否合法(是否有权限)
                     let isAccessRoutes = allRoutes.some(routes => req.path === routes)
                     if (isAccessRoutes) { //路径合法则进行权限路径校验和当前用户的权限路径作对比
                         console.log(req.session.userInfo, "222222")

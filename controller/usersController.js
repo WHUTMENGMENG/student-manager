@@ -334,7 +334,7 @@ const wechatLoginCtr = (req, response) => {
                                 // response.render("wechatCallBack", { nickname: registResult.nickname, headimgurl: registResult.headimgurl })
                                 response.send({ status: 200, state: true, msg: "微信登入成功", userInfo: { ...registResult._doc }, permission: { buttons }, token })
                             } else {
-                           
+
                                 response.render("wechatCallBack", { state: false, status: 101, msg: "登入出错" })
 
                             }
@@ -344,7 +344,7 @@ const wechatLoginCtr = (req, response) => {
                     })
                 }
             } else {
-                
+
                 response.send({ errmsg: "查询数据库出错" })
             }
         })
@@ -358,11 +358,38 @@ const wechatLoginCtr = (req, response) => {
 //     socket.emit("connectSuccess", "111111")
 // })
 
-
+let randomState = {};
+let qrCodeDelayObj = {};
+let scanCodeCount = {};//保存通过state映射sid,相当于存储扫码的次数,1让二维码失效
 //获取微信二维码
 const getScancodeCtr = (req, res) => {
+    //生成随机状态
+    let state = Math.random().toString(32).substr(2);
+    //获取客户端传来的sid就是socketid
     let { sid = "" } = req.query;
-    let scanParams = new CreateScanCodeParams(appid, redirect_uri, undefined, scope, sid)
+    if (!sid) {
+        res.send({ state: false, code: 10022, error: "没有传递sid" });
+        return
+    }
+    randomState[state] = sid;//通过随机状态和socket的sid建立映射关系;
+    // console.log(randomState)
+    let socketid = randomState[state];
+    if (!global.io) {
+        res.send({ state: false, errmsg: "没有连接socket.io" })
+        return
+    }
+    if (!global.io.sockets.sockets[socketid]) {
+        res.send({ state: false, errmsg: "socket指定sid错误" })
+        return
+    }
+    qrCodeDelayObj[state] = setTimeout(() => {
+        scanCodeCount[state] = 1; //10秒 把这个属性设为1 让二维码失效
+        //通知客户端
+        global.io.sockets.sockets[randomState[state]].emit('invalidCode', { state: false, msg: "无效的二维码", status: 10004 })
+        //清除randomState中的映射
+        delete randomState[state]
+    }, 1000 * 10)
+    let scanParams = new CreateScanCodeParams(appid, redirect_uri, undefined, scope, state)
     let scanCodeUrl = createScanCodeUrl(scanParams)
     // console.log(sockets)
     res.send({ state: true, status: 200, scanCodeUrl: scanCodeUrl })
@@ -370,18 +397,27 @@ const getScancodeCtr = (req, res) => {
 //处理微信回调页面控制层
 const wechatCallBackCtr = async (req, res) => {
     let { code, state } = req.query; //获取code之后去换access_token]
-	console.log("---------",req.query)
+    // console.log("---------",req.query)
     if (!state) {
         res.send({ state: false, errmsg: '没有传递state' })
         return
     }
-    // console.log(state)
-    // console.log(global.io)
     if (global.io) {
-        console.log(global.io.sockets)
-        if (global.io.sockets.sockets[state]) {
-            global.io.sockets.sockets[state].emit("scancodeSuccess", { status: 200, state: true, msg: "已扫码", wechatCode: code });
-			res.render("wechatCallBack", { nickname: "qf", headimgurl: "/imgs/log.png" })
+        // console.log(global.io.sockets)
+        //扫码之后
+        let socketid = randomState[state];//保存sid的值
+        if (global.io.sockets.sockets[socketid]) {
+            if (scanCodeCount[state]) {
+                //如果已扫码次数中已经存在这个属性,表示已经被扫码了,或者失效了,需要通知客户端,并且让二维码失效
+                global.io.sockets.sockets[socketid].emit('invalidCode', { state: false, msg: "无效的二维码", status: 10004 })//响应客户端
+                delete randomState[state];//删除state映射的socketid
+                res.send({ state: false, msg: "无效的二维码", status: 10004 })//响应微信客户端
+                return
+            }
+            scanCodeCount[state] = 1; //已扫的码存到这个对象中
+            clearTimeout(qrCodeDelayObj[state]) //同时清除qrCodeDelay中映射的过期时间计时器
+            global.io.sockets.sockets[socketid].emit("scancodeSuccess", { status: 200, state: true, msg: "已扫码", wechatCode: code });
+            res.render("wechatCallBack", { nickname: "qf", headimgurl: "/imgs/log.png" })
         } else {
             res.send({ state: false, errmsg: "socket指定sid错误" })
             return
@@ -390,6 +426,10 @@ const wechatCallBackCtr = async (req, res) => {
         res.send({ state: false, errmsg: "没有连接socket.io" })
         return
     }
+
+    // console.log(state)
+    // console.log(global.io)
+
 }
 
 module.exports = {
