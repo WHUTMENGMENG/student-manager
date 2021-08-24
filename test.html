@@ -22,7 +22,7 @@
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
 <script>
-    btn.onclick = function () {
+    btn.onclick = function() {
         var socket = io("ws://localhost:1901")
         socket.on('connect', () => {
             console.log('链接成功')
@@ -31,10 +31,10 @@
         socket.on("connectSuccess", data => {
             console.log(data);
         })
-        socket.on("t", data => {
+        socket.on("scancodeSuccess", data => {
             console.log(data);
         })
-       
+
         // socket.on('scancodeSuccess', (data) => {
         //     console.log(data)
         // })
@@ -46,13 +46,13 @@
         // })
 
     }
-    btn2.onclick= function(){
-        fetch("http://localhost:1901/users/getScancode",{
-            withCredentials:true,
-        })
-            .then(res => res.json())
+    btn2.onclick = function() {
+        fetch("http://localhost:1901/users/wechatCallBack", {
+                withCredentials: true,
+            })
+            .then(body => body.text())
             .then(res => {
-                console.log(res);
+                // console.log(res);
             })
     }
 </script>
