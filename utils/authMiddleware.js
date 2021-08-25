@@ -61,7 +61,7 @@ const authorizition = (req, res, next) => {
                     ]
                     //校验访问的路径是否合法(是否有权限)
                     let isAccessRoutes = allRoutes.some(routes => req.path === routes)
-
+                        if(isAccessRoutes){
                        // console.log(req.session.userInfo, "222222")
 
                         let isAuth = req.session.userInfo.rows.some(item => item === req.path)
