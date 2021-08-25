@@ -413,7 +413,7 @@ const wechatCallBackCtr = async (req, res) => {
         if (global.io.sockets.sockets[socketid]) {
             if (scanCodeCount[state]) {
                 //如果已扫码次数中已经存在这个属性,表示已经被扫码了,或者失效了,需要通知客户端,并且让二维码失效
-                global.io.sockets.sockets[socketid].emit('invalidCode', { state: false, msg: "无效的二维码", status: 10004 })//响应客户端
+                // global.io.sockets.sockets[socketid].emit('invalidCode', { state: false, msg: "无效的二维码", status: 10004 })//响应客户端
                 delete randomState[state];//删除state映射的socketid
                 res.send({ state: false, msg: "无效的二维码", status: 10004 })//响应微信客户端
                 return
