@@ -8,16 +8,19 @@ const authorizition = (req, res, next) => {
         "/users/wechatLogin",
         "/users/wechatCallBack",
         "/users/getScancode",
+        "/users/getQrcode",
         "/users/getCaptcha",
         "/users/verifyCaptcha",
         "/users/refreshCaptcha",
         "/weather/getWeather",
         "/weather/updateWeather",
         "/pay/wepay",
+        "/upload/uploadImg"
     ];
     let matchRes = rowPath.some(item => item === req.path)
     //被忘记最后把条件改回来
-    if (true || /\/avatar\/.*/.test(req.path) || /\/productPic\/.*/.test(req.path)) {
+    // matchRes || /\/avatar\/.*/.test(req.path) || /\/productPic\/.*/.test(req.path)
+    if (matchRes || /\/avatar\/.*/.test(req.path) || /\/productPic\/.*/.test(req.path)) {
         next()
     } else {
         if (!req.session.userInfo) {
@@ -58,8 +61,12 @@ const authorizition = (req, res, next) => {
                     ]
                     //校验访问的路径是否合法(是否有权限)
                     let isAccessRoutes = allRoutes.some(routes => req.path === routes)
-                    if (isAccessRoutes) {//路径合法则进行权限路径校验和当前用户的权限路径作对比
-                        console.log(req.session.userInfo, "222222")
+                    if (isAccessRoutes) { //路径合法则进行权限路径校验和当前用户的权限路径作对比
+<<<<<<< HEAD
+                       // console.log(req.session.userInfo, "222222")
+=======
+                        // console.log(req.session.userInfo, "222222")
+>>>>>>> 386460f38a5a70dc98ea3b1f40dda9756fc96871
                         let isAuth = req.session.userInfo.rows.some(item => item === req.path)
                         if (isAuth) {
                             next()
