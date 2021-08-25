@@ -406,6 +406,10 @@ const wechatCallBackCtr = async (req, res) => {
         // console.log(global.io.sockets)
         //扫码之后
         let socketid = randomState[state];//保存sid的值
+        if(!socketid){
+            res.send({ state: false, errmsg: "无效的二维码" })
+            return
+        }
         if (global.io.sockets.sockets[socketid]) {
             if (scanCodeCount[state]) {
                 //如果已扫码次数中已经存在这个属性,表示已经被扫码了,或者失效了,需要通知客户端,并且让二维码失效
