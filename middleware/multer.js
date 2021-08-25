@@ -1,14 +1,19 @@
 ﻿const multer = require("multer");
-const path = require("path") //内置模块 专门用于解析路径
+const path = require("path"); //内置模块 专门用于解析路径
+const fs = require("fs");
 /**
  * 
  * @param {string} params 传入的图片字段 
  * @param {string} staticPath 保存的静态资源的路径 
  */
 const uploads = (params, staticPath) => (req, res, next) => {
-    console.log(777777777777777)
+    // console.log(777777777777777)
     var storage = multer.diskStorage({
         destination: function (req, file, cb) {
+            let isExists = fs.existsSync("/public/" + staticPath);
+            if (!isExists) {
+                fs.mkdirSync(path.resolve("public",staticPath))
+            }
             let pathStr = path.resolve("public/" + staticPath)
             // console.log(pathStr)
             console.log(file + "=----")

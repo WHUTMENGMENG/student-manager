@@ -22,6 +22,7 @@ let productRouter = require("./routes/product")
 let productCategoryRouter = require("./routes/product_category")
 let weather = require("./routes/weather")
 let orderRouter = require("./routes/order")
+let upload = require("./routes/upload")
 var app = express(); //通过express创建一个服务器
 var session = require('express-session');
 //引入验证用户信息拦截器(权限拦截)
@@ -82,4 +83,5 @@ app.use("/product", productRouter)
 app.use("/category", productCategoryRouter)
 app.use("/order", orderRouter)
 app.use("/weather", weather)
+app.use("/upload",upload)
 module.exports = app

@@ -20,7 +20,7 @@ const addProductCategorys = async (req, res) => {
         return
     }
     let { username } = req.session.userInfo;
-    let { categoryName } = req.body;
+    let { categoryName,categoryImgurl } = req.body;
 
     //查询是否已经有该类目
     let findRes = await find_product_categorys({ categoryName })
@@ -39,6 +39,7 @@ const addProductCategorys = async (req, res) => {
     let saveRes = await save_product_categorys({
         category_id,
         categoryName,
+        categoryImgurl,
         creator,
         createTime
     })

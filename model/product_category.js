@@ -4,6 +4,7 @@ const { mongoose } = require("../utils/mongoose");
 const schema = mongoose.Schema({
     category_id: { type: String, required: true },//类目id
     categoryName: { type: String, required: true },//类目名称
+    categoryImgurl:{type:String,required:false,default:""},//类目图片
     createTime: { type: String, required: true },//创建时间
     creator: { type: String, required: true },//创建者
     updateTime: { type: String, required: false, default: null },//更新时间
