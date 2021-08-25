@@ -51,7 +51,7 @@ app.use(session({
 }));
 
 app.all('*', function(req, res, next) {
-    console.log(req.cookies)
+    // console.log(req.cookies)
     res.header("Access-Control-Allow-Credentials", "true")
     res.header("Access-Control-Allow-Origin", "*")
     res.header("Access-Control-Allow-Headers", "authorization,Content-Type");

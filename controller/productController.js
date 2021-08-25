@@ -11,7 +11,7 @@ const derivedId = require("../utils/derivedIdFromMoment")
 //  size: { type: String, required: false }//尺寸
 const addProduct = async (req, res) => {
     let { category_id, productName, price, description, inventory, imageUrl, color, size } = req.body;
-    console.log(req.body)
+    // console.log(req.body)
     //如果用户没有有传入id
     if (!category_id) {
         res.send({ status: 1005, state: false, msg: "请传入category_id" })

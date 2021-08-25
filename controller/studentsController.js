@@ -141,7 +141,7 @@ const getClasses = async (req, res) => {
         let obj = {}, newArr = []
         array.forEach(item => {
             if (!obj[item]) {
-                console.log(obj[item])
+                // console.log(obj[item])
                 newArr.push(item)
                 obj[item] = 1;
             }

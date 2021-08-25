@@ -96,7 +96,7 @@ const login = async (req, res) => {
         let regExp = /([^0-9])*((\.|\d)*)/
         let r = regExp.exec(ip)
         ip = r[2]
-        console.log(ip)
+        // console.log(ip)
         //创建登入时间
         let loginTime = moment().format("YYYY/MM/DD HH:mm:ss")
         let nowLogin = {
@@ -259,7 +259,7 @@ const wechatLoginCtr = (req, response) => {
             var result = buff.toString()
             result = JSON.parse(result);
             let { access_token, openid } = result
-            console.log(result)
+            // console.log(result)
             //请求用户信息之前判断一下数据库是否有用户信息 用openid判断
             if (!openid) { response.send({ "errmsg": "请重新扫码" }); return }
             let isUser = await find({ openid })
@@ -312,7 +312,7 @@ const wechatLoginCtr = (req, response) => {
                             result.password = Math.random().toString(32).substr(2)
                             result.roleid = 200
                             let registResult = await registerModel({ ...result })
-                            console.log(registResult)
+                            // console.log(registResult)
                             if (registResult) {
                                 delete registResult.password;
                                 //socket响应
