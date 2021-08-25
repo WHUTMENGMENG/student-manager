@@ -385,6 +385,10 @@ const getScancodeCtr = (req, res) => {
     qrCodeDelayObj[state] = setTimeout(() => {
         scanCodeCount[state] = 1; //10秒 把这个属性设为1 让二维码失效
         //通知客户端
+        if (!global.io.sockets.sockets[socketid]) {
+            console.log('异常断开socket连接')
+            return
+        }
         global.io.sockets.sockets[randomState[state]].emit('invalidCode', { state: false, msg: "无效的二维码", status: 10004 })
         //清除randomState中的映射
         delete randomState[state]
@@ -406,8 +410,8 @@ const wechatCallBackCtr = async (req, res) => {
         // console.log(global.io.sockets)
         //扫码之后
         let socketid = randomState[state];//保存sid的值
-        if(!socketid){
-            res.send({ state: false, errmsg: "无效的二维码" })
+        if (!socketid) {
+            res.send({ state: false, msg: "无效的二维码", status: 10004 })
             return
         }
         if (global.io.sockets.sockets[socketid]) {
@@ -415,7 +419,7 @@ const wechatCallBackCtr = async (req, res) => {
                 //如果已扫码次数中已经存在这个属性,表示已经被扫码了,或者失效了,需要通知客户端,并且让二维码失效
                 // global.io.sockets.sockets[socketid].emit('invalidCode', { state: false, msg: "无效的二维码", status: 10004 })//响应客户端1
                 delete randomState[state];//删除state映射的socketid
-                clearTimeout(qrCodeDelayObj[state]) //同时清除qrCodeDelay中映射的过期时间计时器
+                // clearTimeout(qrCodeDelayObj[state]) //同时清除qrCodeDelay中映射的过期时间计时器
                 res.send({ state: false, msg: "无效的二维码", status: 10004 })//响应微信客户端
                 return
             }
