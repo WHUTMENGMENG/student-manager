@@ -10,7 +10,7 @@ const uploads = (params, staticPath) => (req, res, next) => {
     // console.log(777777777777777)
     var storage = multer.diskStorage({
         destination: function (req, file, cb) {
-            let isExists = fs.existsSync("/public/" + staticPath);
+            let isExists = fs.existsSync(path.resolve("public",staticPath));
             if (!isExists) {
                 fs.mkdirSync(path.resolve("public",staticPath))
             }
