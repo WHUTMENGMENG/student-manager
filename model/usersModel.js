@@ -7,6 +7,7 @@ const schema = mongoose.Schema({
     username: { type: String, required: true },
     password: { type: String, required: true },
     phone: { type: String, required: false, default: "" },
+    vipLevel: { type: Number, required: false, default: 1 },
     nickname: { type: String, required: false, default: "" },
     roles: { type: String, required: false, default: "" },
     headimgurl: { type: String, required: false, default: "" },

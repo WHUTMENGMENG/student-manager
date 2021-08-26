@@ -9,7 +9,7 @@ const { getProduct, addProduct, updateProduct, delProduct } = require("../contro
 
 const uploads = require("../middleware/multer")
 router.get("/get_product", getProduct)
-router.post("/add_product",uploads('imageUrl',"productPic"), addProduct)
+router.post("/add_product",addProduct)
 router.get("/del_product", delProduct)
 router.post("/update_product", updateProduct)
 

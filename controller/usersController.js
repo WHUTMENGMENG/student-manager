@@ -66,7 +66,7 @@ const login = async (req, res) => {
         //1.1调用jsonwebtoken下面的sign方法 进行签名
         let secrect = "YOU_PLAY_BASKETBALL_LIKE_CAIXUKUN" //随机字符串用于加密
         let token = jwt.sign(info, secrect, {
-            expiresIn: 60 * 3
+            expiresIn: 60 * 20
         }) //1.payload载荷 2.secrect 加密字符串 3.{expirsIn:秒} 生效时间
         //2.在用户访问服务器的时候 必须携带token 进行校验 如果有效那么正常返回数据 ,无效返回错误信息
         //3.登入成功后记录登入日志
@@ -387,6 +387,7 @@ const getScancodeCtr = (req, res) => {
         //通知客户端
         if (!global.io.sockets.sockets[socketid]) {
             console.log('异常断开socket连接')
+            delete randomState[state]//辣鸡回收
             return
         }
         global.io.sockets.sockets[randomState[state]].emit('invalidCode', { state: false, msg: "无效的二维码", status: 10004 })

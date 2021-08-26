@@ -5,10 +5,14 @@ let express = require("express");
 
 let router = express.Router()
 
-const { getOrder, deleteOrder } = require("../controller/order_masterController")
+const { getOrder, deleteOrder,createOrder } = require("../controller/order_masterController")
 
 // router.get("/confirm_order", confirmOrder)
-router.get("/get_order", getOrder)
+router.post("/pre_order",function(req,res){
+    // console.log(createOrder)
+    createOrder(req,res)
+})
+router.post("/get_order", getOrder)
 router.get("/del_order", deleteOrder)
 
 module.exports = router

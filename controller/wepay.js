@@ -269,11 +269,11 @@ const payResult = function (req, res) {
             } catch (e) { }
             if (global.sock) {
                 //socket通知客户端支付成功
-                global.sock.emit("wepaySuccess", finalPayRes)
+                // global.sock.emit("wepaySuccess", finalPayRes)
             }
         } else {//支付失败
             if (global.sock) {
-                global.sock.emit("wepayFail", { ...wepayResult })
+                // global.sock.emit("wepayFail", { ...wepayResult })
             }
         }
     })
