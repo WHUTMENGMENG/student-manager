@@ -292,7 +292,7 @@ const payResult = function async(req, res) {
                     //更新用户vip等级
                     let updateRes = await updatedUser({ unid }, { $set: { vipLevel: level, vipStamp } })
                 }
-                console.log("-----",masterOrder)
+                console.log("-----",masterOrder[0].pay_status)
                 //vip充值
                 if (masterOrder[0].pay_status === 0) {
                     //vip
