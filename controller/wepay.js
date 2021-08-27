@@ -250,7 +250,7 @@ const payResult = function async(req, res) {
         if (xmlRes) {//接收了xml
             wepayResult = xml2json(xmlRes);//将xml转换为json
         }
-        console.log(wepayResult);
+        console.log("999999999999999999999-------",wepayResult);
         if (wepayResult.result_code == 'SUCCESS') {
             //支付成功 使用socket.io通知客户端
             let { total_fee, trade_type, out_trade_no, cash_fee, bank_type, fee_type } = wepayResult;
@@ -308,7 +308,9 @@ const payResult = function async(req, res) {
                 clearTimeout(targetQue.timer)
                 //移除该队列
                 global.LLTqueue = global.LLTqueue.filter(item => item.order_id !== out_trade_no);
-            } catch (e) { }
+            } catch (e) { 
+                console.log(e)
+            }
             if (global.sock) {
                 //socket通知客户端支付成功
                 // global.sock.emit("wepaySuccess", finalPayRes)
