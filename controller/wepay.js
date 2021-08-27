@@ -292,7 +292,7 @@ const payResult = function async(req, res) {
                  */
                 let masterOrder = await find_order_masters({ order_id });
                 console.log("masterorder", masterOrder)
-                masterOrder[0].pay_status = 0;
+                // masterOrder[0].pay_status = 0;
                 async function vipCharge(level) {
                     //查找主表订单
 
