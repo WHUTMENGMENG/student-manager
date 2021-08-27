@@ -85,10 +85,12 @@ const updateProduct = async (req, res) => {
 }
 const getProduct = async (req, res) => {
     let param;
-    let { product_id } = req.query;
+    let { product_id, category_id } = req.query;
     if (product_id) {
         param = { product_id }
-    } else {
+    } else if (category_id) {
+        param = { category_id }
+    }else {
         param = {}
     }
     let findRes = await find_products(param);
