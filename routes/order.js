@@ -5,7 +5,7 @@ let express = require("express");
 
 let router = express.Router()
 
-const { getOrder, deleteOrder,createOrder } = require("../controller/order_masterController")
+const { getOrder, deleteOrder,createOrder ,queryOrderStatus} = require("../controller/order_masterController")
 
 // router.get("/confirm_order", confirmOrder)
 router.post("/pre_order",function(req,res){
@@ -14,5 +14,12 @@ router.post("/pre_order",function(req,res){
 })
 router.post("/get_order", getOrder)
 router.get("/del_order", deleteOrder)
+router.get("/query_order_status",function(req,res){
+    queryOrderStatus(req,res)
+    .catch(e=>{
+        console.log(e)
+    })
+
+})
 
 module.exports = router

@@ -20,7 +20,7 @@ let { del_carts } = require("../model/cart")
 let tarskQueue = [];//将定时回滚的定时器都存到这个数组
 
 const createOrder = async function (req, res, next, checkedCarts) {
-    let { phone, address, product_id } = req.body;
+    let { phone, address, product_id, quantity = 1 } = req.body;
 
     if (checkedCarts && (!phone || !address)) {
         res.send({ status: 10010, state: false, msg: "err 请传入收货地址或者收货电话" })
@@ -31,7 +31,10 @@ const createOrder = async function (req, res, next, checkedCarts) {
         res.send({ status: 10010, state: false, msg: "err 请传入商品id" })
         return
     }
-  
+    if (quantity && isNaN(quantity)) {
+        res.send({ status: 10010, state: false, msg: "err 传递的quantity必须是数字" })
+        return
+    }
     //创建订单
     //1.通过购物车中商品id查询商品库存
     //1.1获取被选中购物车中的商品的数量和id,数组形式
@@ -49,9 +52,9 @@ const createOrder = async function (req, res, next, checkedCarts) {
     let isInventoryEnoughProducts = [];//库存充足的购物车商品将储存在这个数组
     if (Array.isArray(productTargets)) {
         if (productTargets.length > 0) {//数据库存在该商品
-            if(product_id){//如果传的是product_id 直接下单的 没有通过购物车
+            if (product_id) {//如果传的是product_id 直接下单的 没有通过购物车
                 checkedCarts = [...productTargets];
-                checkedCarts[0].quantity =1;
+                checkedCarts[0].quantity = quantity;
             }
             for (var i = 0; i < checkedCarts.length; i++) {//循环购物车,查找出产品进行对比
                 let cartItem = checkedCarts[i];
@@ -102,8 +105,8 @@ const createOrder = async function (req, res, next, checkedCarts) {
                             //支付状态
                             pay_status: 0,//0未支付 1已支付
                             user_nickname: nickname,//买家名称
-                            user_phone: phone ||520,//买家电话
-                            address: address||520,//买家地址
+                            user_phone: phone || 520,//买家电话
+                            address: address || 520,//买家地址
                             create_time: derived("YYYY-MM-DD,hh:mm:ss"),//创建时间
                             total_fee//总价格 单位(分)
                         }
@@ -119,7 +122,8 @@ const createOrder = async function (req, res, next, checkedCarts) {
                             {
                                 order_id,//关联的订单id
                                 product_id: item.product_id,//商品id
-                                productName: item.title||item.productName,//商品名称
+                                productName: item.title || item.productName,//商品名称
+                                description: item.description || "",
                                 price: item.price,//商品单价
                                 quantity: item.quantity,//商品数量
                                 imageUrl: item.imageUrl,//商品图片
@@ -222,7 +226,7 @@ const getOrder = async (req, res) => {
     }
     let { unid } = req.session.userInfo;
     let queryParam;
-    let { order_id } = req.query;
+    let { order_id } = req.body;
     if (!order_id) { //获取用户全部订单
         queryParam = {
             unid
@@ -274,9 +278,31 @@ const deleteOrder = async (req, res) => {
         res.send({ status: 1004, state: false, msg: "err 该数据不存在" })
     }
 }
+//查询订单支付状态
+const queryOrderStatus = async(req,res)=>{
+    let {order_id} = req.query;
+    if(!order_id){
+        res.send({ status: 1004, state: false, msg: "err 没有传入order_id" })
+        return
+    }
+    let result = await find_order_masters({order_id})
+    if(Array.isArray(result)&&result.length>0){
+        if(result[0].pay_status===1){
+           res.send({ status: 200, state: true, msg: "支付成功" })
+            return
+        }else {
+            res.send({ status: 3004, state: false, msg: "该订单尚未支付" })
+            return
+        }
+    }else {
+        res.send({ status: 1004, state: false, msg: "err 该数据不存在" })
+        return
+    }
+}
 
 module.exports = {
     createOrder,
     getOrder,
-    deleteOrder
+    deleteOrder,
+    queryOrderStatus
 }

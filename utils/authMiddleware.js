@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken")
+const { updated } = require("../model/usersModel")//引入用户模块
 const authorizition = (req, res, next) => {
     // console.log(req.session.userInfo)
     //如果用户访问的是登入接口 或者是注册接口 就不去拦截
@@ -60,15 +61,26 @@ const authorizition = (req, res, next) => {
                         "/permission/getMenuList"
                     ]
                     //校验访问的路径是否合法(是否有权限)
-                    let newPath = ["/category/addCategory","/category/getCategory","/order/get_order","/order/pre_order","/product/add_product","/product/get_product","/pay/payment"]
+                    let newPath = ["/category/addCategory", "/category/getCategory", "/order/get_order", "/order/pre_order", "/product/add_product","/order/query_order_status", "/product/get_product", "/pay/payment"]
                     let isAccessRoutes = allRoutes.concat(newPath).some(routes => req.path === routes)
-                        if(isAccessRoutes){
-                       // console.log(req.session.userInfo, "222222")
-                        
-                        req.session.userInfo.rows = [...req.session.userInfo.rows,...newPath]
-                        
+                    if (isAccessRoutes) {
+                        // console.log(req.session.userInfo, "222222")
+
+                        req.session.userInfo.rows = [...req.session.userInfo.rows, ...newPath]
+
                         let isAuth = req.session.userInfo.rows.some(item => item === req.path)
                         if (isAuth) {
+                            //检查当前的vip是否过期
+                            // console.log(req.session.userInfo)
+                            let { vipStamp, unid, vipLevel } = req.session.userInfo;
+                            let currentStamp = +new Date();
+
+                            if (vipStamp - currentStamp <= 0 && vipLevel > 0) {
+                                updated({ unid }, { $set: { vipLevel: 0 } })
+                                    .then(() => {
+                                        req.session.userInfo.vipLevel = 0;//session的临时数据vip也为0
+                                    })
+                            }
                             next()
                         } else {
                             res.send({ status: '403', code: "10026", state: false, msg: "not permitted 没有权限" })

@@ -5,6 +5,7 @@ const url = require("url")
 const { createOrder } = require("../controller/order_masterController");
 const { find_order_masters, update_order_masters } = require("../model/order_master")
 const { find_order_details } = require("../model/order_detail")
+const { updated: updatedUser, find } = require("../model/usersModel")
 //引入xml转换的方法
 const xml2json = require("../utils/xml2json")
 //获取登入ip
@@ -133,7 +134,13 @@ const payment = async function (req, res) {
     console.log(total_fee);
     //再获取订单商品详情取得商品名字
     let orderDetail = await find_order_details({ order_id });
-    let productNames = orderDetail.map(item => item.productName)
+    let productNames = orderDetail.map(item => {
+        if (item.description) {
+            return item.description
+        } else {
+            return item.productName
+        }
+    })
     let body = productNames.join(",")//生成支付商品描述
     // console.log(total_fee, body);
     if (trade_type === "NATIVE") {//如果是PC NATIVE扫码方式
@@ -217,7 +224,7 @@ const preOrder = async (req, res, next) => {
     }
 }
 
-const payResult = function (req, res) {
+const payResult = function async(req, res) {
     let xmlRes = "";
     let wepayResult;
     req.on('data', function (chunk) {//接收xml
@@ -258,6 +265,41 @@ const payResult = function (req, res) {
                         pay_status: 1
                     }
                 }
+                //充值
+                let order_id = out_trade_no;
+
+                //通过order_id找到订单详情,判断productName是不是vip充值
+                let orderDetail = await find_order_details({ order_id });
+                /**
+                 * 
+                 * @param {String} stamp vip过期时间
+                 * @param {*} level vip等级
+                 */
+                async function vipCharge(level) {
+                    //查找主表订单
+                    let masterOrder = await find_order_masters({ order_id });
+                    let unid = masterOrder[0].unid;
+                    let users = await find({ unid });
+                    //vip一次充值1分钟
+                    let timeStamp = 1000 * 60;
+                    let currentTime = +new Date();
+                    //vip过期时间
+                    let vipStamp = currentTime + orderDetail[0].quantity * timeStamp;
+                    //更新用户vip等级
+                    let updateRes = await updatedUser({ unid }, { $set: { vipLevel: level, vipStamp } })
+                }
+
+                //vip充值
+                if (orderDetail.productName === "vip充值") {
+                    vipCharge("1")
+                }
+                if (orderDetail.productName === "vip2充值") {
+                    vipCharge("2")
+                }
+                if (orderDetail.productName === "vip3充值") {
+                    vipCharge("3")
+                }
+
                 //更新订单支付状态 将订单状态修改为已支付
                 await update_order_masters(query, updated)
                 //从llt订单倒计时队列中移除该队列

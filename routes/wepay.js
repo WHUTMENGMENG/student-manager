@@ -7,5 +7,7 @@ router.post("/pre_order", preOrder)
 //支付
 router.post("/payment", payment)
 //支付结果
-router.post('/payResult', payResult)
+router.post('/payResult', function(req,res){
+    payResult(req,res)
+})
 module.exports = router
