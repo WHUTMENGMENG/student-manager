@@ -227,8 +227,10 @@ const preOrder = async (req, res, next) => {
 const payResult = function async(req, res) {
     let xmlRes = "";
     let wepayResult;
+    console.log("---???----")
     req.on('data', function (chunk) {//接收xml
         xmlRes += chunk
+        console.log('chunking')
     })
     req.on('end', async function () {
         //         { appid: 'wxed58e834201d0894',
