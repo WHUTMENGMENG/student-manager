@@ -133,18 +133,18 @@ const payment = async function (req, res) {
     } catch (e) { }
     let total_fee = (orderInfo[0].total_fee) * 100;//微信规定用分,前端用元,所以此处乘以100
     console.log(total_fee);
-    //再获取订单商品详情取得商品名字
-    let orderDetail = await find_order_details({ order_id });
-    let vipLevel = orderDetail[0].productName.slice(3);
-    vipLevel = vipLevel?parseInt(vipLevel):0;
-    if(req.session.userInfo){
-        let {vipLevel:userLevel} = req.session.userInfo;
-        if(vipLevel<userLevel){
-            res.send({state:false,status:10004,msg:"不能充值低等级的vip"})
-        }
-    }else {
-        res.send({state:false,status:10022,msg:"请登入"})
-    }
+    // //再获取订单商品详情取得商品名字
+    // let orderDetail = await find_order_details({ order_id });
+    // let vipLevel = orderDetail[0].productName.slice(3);
+    // vipLevel = vipLevel?parseInt(vipLevel):0;
+    // if(req.session.userInfo){
+    //     let {vipLevel:userLevel} = req.session.userInfo;
+    //     if(vipLevel<userLevel){
+    //         res.send({state:false,status:10004,msg:"不能充值低等级的vip"})
+    //     }
+    // }else {
+    //     res.send({state:false,status:10022,msg:"请登入"})
+    // }
  
     let productNames = orderDetail.map(item => {
         if (item.description) {

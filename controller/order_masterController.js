@@ -46,7 +46,7 @@ const createOrder = async function (req, res, next, checkedCarts) {
     let productTargets = await find_products({ product_id: { $in: checkedCartsProductIds } })
     console.log(productTargets)
     //再获取订单商品详情取得商品名字
-    let vipLevel = productTargets.productName.slice(3);
+    let vipLevel = productTargets[0].productName.slice(3);
     vipLevel = vipLevel ? parseInt(vipLevel) : 0;
     console.log("vip==lv",vipLevel)
     if (req.session.userInfo) {
