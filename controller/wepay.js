@@ -250,7 +250,7 @@ const payResult = function async(req, res) {
         //   trade_type: 'NATIVE',
         //   transaction_id: '4200000835202012310782173102' }
         if (xmlRes) {//接收了xml
-            console.log(xmlRes)
+            // console.log(xmlRes)
             wepayResult = xml2json(xmlRes);//将xml转换为json
         }
         console.log("999999999999999999999-------", wepayResult);
@@ -279,6 +279,7 @@ const payResult = function async(req, res) {
                  * @param {*} level vip等级
                  */
                 let masterOrder = await find_order_masters({ order_id });
+                console.log(masterOrder)
                 async function vipCharge(level) {
                     //查找主表订单
 
@@ -320,8 +321,11 @@ const payResult = function async(req, res) {
                 if (targetQue) {
                     clearTimeout(targetQue.timer)
                 }
-                //移除该队列
-                global.LLTqueue = global.LLTqueue.filter(item => item.order_id !== out_trade_no);
+                if (Array.isArray(global.LLTqueue)) {
+                    //移除该队列
+                    global.LLTqueue = global.LLTqueue.filter(item => item.order_id !== out_trade_no);
+                }
+
             } catch (e) {
                 console.log(e)
             }
