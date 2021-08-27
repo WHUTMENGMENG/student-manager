@@ -5,7 +5,8 @@ const url = require("url")
 const { createOrder } = require("../controller/order_masterController");
 const { find_order_masters, update_order_masters } = require("../model/order_master")
 const { find_order_details } = require("../model/order_detail")
-const { updated: updatedUser, find } = require("../model/usersModel")
+const { updated: updatedUser, find: findUser } = require("../model/usersModel")
+let moment = require('moment')
 //引入xml转换的方法
 const xml2json = require("../utils/xml2json")
 //获取登入ip
@@ -134,6 +135,17 @@ const payment = async function (req, res) {
     console.log(total_fee);
     //再获取订单商品详情取得商品名字
     let orderDetail = await find_order_details({ order_id });
+    let vipLevel = orderDetail[0].productName.slice(3);
+    vipLevel = vipLevel?parseInt(vipLevel):0;
+    if(req.session.userInfo){
+        let {vipLevel:userLevel} = req.session.userInfo;
+        if(vipLevel<userLevel){
+            res.send({state:false,status:10004,msg:"不能充值低等级的vip"})
+        }
+    }else {
+        res.send({state:false,status:10022,msg:"请登入"})
+    }
+ 
     let productNames = orderDetail.map(item => {
         if (item.description) {
             return item.description
@@ -253,7 +265,7 @@ const payResult = function async(req, res) {
             // console.log(xmlRes)
             wepayResult = xml2json(xmlRes);//将xml转换为json
         }
-        console.log("999999999999999999999-------", wepayResult);
+        // console.log("999999999999999999999-------", wepayResult);
         if (wepayResult.result_code == 'SUCCESS') {
             //支付成功 使用socket.io通知客户端
             let { total_fee, trade_type, out_trade_no, cash_fee, bank_type, fee_type } = wepayResult;
@@ -279,20 +291,33 @@ const payResult = function async(req, res) {
                  * @param {*} level vip等级
                  */
                 let masterOrder = await find_order_masters({ order_id });
-                console.log(masterOrder)
+                console.log("masterorder", masterOrder)
+                masterOrder[0].pay_status = 0;
                 async function vipCharge(level) {
                     //查找主表订单
 
                     let unid = masterOrder[0].unid;
-                    console.log('unid====', unid)
-                    let users = await find({ unid });
+                    let user = await findUser({ unid });
+                    //获取用户的vip到期时间
+                    let userVipStamp = { ...user[0]._doc }
+                    userVipStamp = userVipStamp.vipStamp
                     //vip一次充值1分钟
                     let timeStamp = 1000 * 60;
                     let currentTime = +new Date();
+                    //用当前时间减去用户的vip时间,是否大于0,大于0表示过期了
+                    userVipStamp = userVipStamp - currentTime > 0 ? userVipStamp - currentTime : 0
+                    //
+                    console.log('curr',currentTime)
+                    console.log('vip',userVipStamp)
                     //vip过期时间
-                    let vipStamp = currentTime + orderDetail[0].quantity * timeStamp;
+                    // console.log(userVipStamp)
+                    let vipStamp =userVipStamp + currentTime + orderDetail[0].quantity * timeStamp;
+                    // console.log(vipStamp)
+                    let vipExpires = moment(vipStamp).format("YYYY-MM-DD hh:mm:ss")
+                    console.log(vipExpires)
+                    console.log(vipStamp)
                     //更新用户vip等级
-                    updatedUser({ unid }, { $set: { vipLevel: level, vipStamp } })
+                    await updatedUser({ unid }, { $set: { vipLevel: level, vipStamp,vipExpires } })
                 }
                 console.log("-----", masterOrder[0].pay_status)
                 //vip充值
@@ -301,29 +326,29 @@ const payResult = function async(req, res) {
                     console.log('正在充值')
                     console.log(orderDetail[0])
                     if (orderDetail[0].productName === "vip充值") {
-                        vipCharge("1")
+                        await vipCharge("1")
                     }
                     if (orderDetail[0].productName === "vip2充值") {
-                        vipCharge("2")
+                        await vipCharge("2")
                     }
                     if (orderDetail[0].productName === "vip3充值") {
-                        vipCharge("3")
+                        await vipCharge("3")
                     }
                     //更新订单支付状态 将订单状态修改为已支付
                     update_order_masters(query, updated)
                 }
 
 
-                //从llt订单倒计时队列中移除该队列
-                let targetQue = global.LLTqueue.find(item => item.order_id == out_trade_no);
-                console.log(targetQue)
-                //清除定时器
-                if (targetQue) {
-                    clearTimeout(targetQue.timer)
-                }
                 if (Array.isArray(global.LLTqueue)) {
+                    //从llt订单倒计时队列中移除该队列
+                    let targetQue = global.LLTqueue.find(item => item.order_id == out_trade_no);
+                    console.log("???", targetQue)
+                    //清除定时器
                     //移除该队列
                     global.LLTqueue = global.LLTqueue.filter(item => item.order_id !== out_trade_no);
+                    if (targetQue) {
+                        clearTimeout(targetQue.timer)
+                    }
                 }
 
             } catch (e) {

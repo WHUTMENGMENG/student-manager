@@ -61,12 +61,19 @@ const login = async (req, res) => {
         res.send({ status: 0, state: false, msg: "用户名或者密码错误" })
     } else {
         var info = { ...result[0]._doc }
+        let { vipStamp, unid } = info;
+        let currentTime = +new Date()
+        if (currentTime - vipStamp >= 0) {
+            //过期 vip等级降维0
+            await updated({ unid }, { $set: { vipLevel: 0 } })
+            info.vipLevel = 0;
+        }
         //保持用户登入
         //1.在用户登入成功的时候 使用jwt生成一串数字签名token 返回给前端
         //1.1调用jsonwebtoken下面的sign方法 进行签名
         let secrect = "YOU_PLAY_BASKETBALL_LIKE_CAIXUKUN" //随机字符串用于加密
         let token = jwt.sign(info, secrect, {
-            expiresIn: 60 * 20
+            expiresIn: 60 * 60 * 3
         }) //1.payload载荷 2.secrect 加密字符串 3.{expirsIn:秒} 生效时间
         //2.在用户访问服务器的时候 必须携带token 进行校验 如果有效那么正常返回数据 ,无效返回错误信息
         //3.登入成功后记录登入日志
