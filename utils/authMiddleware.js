@@ -16,7 +16,8 @@ const authorizition = (req, res, next) => {
         "/weather/getWeather",
         "/weather/updateWeather",
         "/pay/wepay",
-        "/upload/uploadImg"
+        "/upload/uploadImg",
+        "/pay/payResult"
     ];
     let matchRes = rowPath.some(item => item === req.path)
     //被忘记最后把条件改回来
