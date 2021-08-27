@@ -292,7 +292,7 @@ const payResult = function async(req, res) {
                     //更新用户vip等级
                     let updateRes = await updatedUser({ unid }, { $set: { vipLevel: level, vipStamp } })
                 }
-                console.log("-----",masterOrder[0].pay_status)
+                console.log("-----", masterOrder[0].pay_status)
                 //vip充值
                 if (masterOrder[0].pay_status === 0) {
                     //vip
@@ -306,10 +306,11 @@ const payResult = function async(req, res) {
                     if (orderDetail.productName === "vip3充值") {
                         vipCharge("3")
                     }
+                    //更新订单支付状态 将订单状态修改为已支付
+                    await update_order_masters(query, updated)
                 }
 
-                //更新订单支付状态 将订单状态修改为已支付
-                await update_order_masters(query, updated)
+
                 //从llt订单倒计时队列中移除该队列
                 let targetQue = global.LLTqueue.find(item => item.order_id == out_trade_no);
                 console.log(targetQue)
