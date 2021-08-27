@@ -250,6 +250,7 @@ const payResult = function async(req, res) {
         //   trade_type: 'NATIVE',
         //   transaction_id: '4200000835202012310782173102' }
         if (xmlRes) {//接收了xml
+            console.log(xmlRes)
             wepayResult = xml2json(xmlRes);//将xml转换为json
         }
         console.log("999999999999999999999-------", wepayResult);
@@ -290,7 +291,7 @@ const payResult = function async(req, res) {
                     //vip过期时间
                     let vipStamp = currentTime + orderDetail[0].quantity * timeStamp;
                     //更新用户vip等级
-                    let updateRes = await updatedUser({ unid }, { $set: { vipLevel: level, vipStamp } })
+                    updatedUser({ unid }, { $set: { vipLevel: level, vipStamp } })
                 }
                 console.log("-----", masterOrder[0].pay_status)
                 //vip充值
@@ -308,7 +309,7 @@ const payResult = function async(req, res) {
                         vipCharge("3")
                     }
                     //更新订单支付状态 将订单状态修改为已支付
-                    await update_order_masters(query, updated)
+                    update_order_masters(query, updated)
                 }
 
 
