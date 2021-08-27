@@ -45,6 +45,20 @@ const createOrder = async function (req, res, next, checkedCarts) {
     console.log(checkedCartsProductIds)
     let productTargets = await find_products({ product_id: { $in: checkedCartsProductIds } })
     console.log(productTargets)
+    //再获取订单商品详情取得商品名字
+    let vipLevel = productTargets.productName.slice(3);
+    vipLevel = vipLevel ? parseInt(vipLevel) : 0;
+    console.log("vip==lv",vipLevel)
+    if (req.session.userInfo) {
+        let { vipLevel: userLevel } = req.session.userInfo;
+        if (vipLevel < userLevel) {
+            res.send({ state: false, status: 10004, msg: "不能充值低等级的vip" })
+            return
+        }
+    } else {
+        res.send({ state: false, status: 10022, msg: "请登入" })
+        return
+    }
     // console.log("=================", productTargets);
 
     //1.3 通过购物车中的数量和查找出来的数据库存做对比,看库存是否充足
@@ -279,22 +293,22 @@ const deleteOrder = async (req, res) => {
     }
 }
 //查询订单支付状态
-const queryOrderStatus = async(req,res)=>{
-    let {order_id} = req.query;
-    if(!order_id){
+const queryOrderStatus = async (req, res) => {
+    let { order_id } = req.query;
+    if (!order_id) {
         res.send({ status: 1004, state: false, msg: "err 没有传入order_id" })
         return
     }
-    let result = await find_order_masters({order_id})
-    if(Array.isArray(result)&&result.length>0){
-        if(result[0].pay_status===1){
-           res.send({ status: 200, state: true, msg: "支付成功" })
+    let result = await find_order_masters({ order_id })
+    if (Array.isArray(result) && result.length > 0) {
+        if (result[0].pay_status === 1) {
+            res.send({ status: 200, state: true, msg: "支付成功" })
             return
-        }else {
+        } else {
             res.send({ status: 3004, state: false, msg: "该订单尚未支付" })
             return
         }
-    }else {
+    } else {
         res.send({ status: 1004, state: false, msg: "err 该数据不存在" })
         return
     }
