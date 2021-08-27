@@ -297,13 +297,14 @@ const payResult = function async(req, res) {
                 if (masterOrder[0].pay_status === 0) {
                     //vip
                     console.log('正在充值')
-                    if (orderDetail.productName === "vip充值") {
+                    console.log(orderDetail[0])
+                    if (orderDetail[0].productName === "vip充值") {
                         vipCharge("1")
                     }
-                    if (orderDetail.productName === "vip2充值") {
+                    if (orderDetail[0].productName === "vip2充值") {
                         vipCharge("2")
                     }
-                    if (orderDetail.productName === "vip3充值") {
+                    if (orderDetail[0].productName === "vip3充值") {
                         vipCharge("3")
                     }
                     //更新订单支付状态 将订单状态修改为已支付
