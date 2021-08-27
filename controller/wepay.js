@@ -252,7 +252,7 @@ const payResult = function async(req, res) {
         if (xmlRes) {//接收了xml
             wepayResult = xml2json(xmlRes);//将xml转换为json
         }
-        console.log("999999999999999999999-------",wepayResult);
+        console.log("999999999999999999999-------", wepayResult);
         if (wepayResult.result_code == 'SUCCESS') {
             //支付成功 使用socket.io通知客户端
             let { total_fee, trade_type, out_trade_no, cash_fee, bank_type, fee_type } = wepayResult;
@@ -292,25 +292,32 @@ const payResult = function async(req, res) {
                 }
 
                 //vip充值
-                if (orderDetail.productName === "vip充值") {
-                    vipCharge("1")
-                }
-                if (orderDetail.productName === "vip2充值") {
-                    vipCharge("2")
-                }
-                if (orderDetail.productName === "vip3充值") {
-                    vipCharge("3")
+                if (masterOrder[0].pay_status === 0) {
+                    //vip
+                    console.log('正在充值')
+                    if (orderDetail.productName === "vip充值") {
+                        vipCharge("1")
+                    }
+                    if (orderDetail.productName === "vip2充值") {
+                        vipCharge("2")
+                    }
+                    if (orderDetail.productName === "vip3充值") {
+                        vipCharge("3")
+                    }
                 }
 
                 //更新订单支付状态 将订单状态修改为已支付
                 await update_order_masters(query, updated)
                 //从llt订单倒计时队列中移除该队列
                 let targetQue = global.LLTqueue.find(item => item.order_id == out_trade_no);
+                console.log(targetQue)
                 //清除定时器
-                clearTimeout(targetQue.timer)
+                if (targetQue) {
+                    clearTimeout(targetQue.timer)
+                }
                 //移除该队列
                 global.LLTqueue = global.LLTqueue.filter(item => item.order_id !== out_trade_no);
-            } catch (e) { 
+            } catch (e) {
                 console.log(e)
             }
             if (global.sock) {
