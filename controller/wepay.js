@@ -281,6 +281,7 @@ const payResult = function async(req, res) {
                     //查找主表订单
                     let masterOrder = await find_order_masters({ order_id });
                     let unid = masterOrder[0].unid;
+                    console.log('unid====',unid)
                     let users = await find({ unid });
                     //vip一次充值1分钟
                     let timeStamp = 1000 * 60;
