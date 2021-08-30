@@ -145,7 +145,7 @@ const payment = async function (req, res) {
     // }else {
     //     res.send({state:false,status:10022,msg:"请登入"})
     // }
- 
+
     let productNames = orderDetail.map(item => {
         if (item.description) {
             return item.description
@@ -302,23 +302,23 @@ const payResult = function async(req, res) {
                     let userVipStamp = { ...user[0]._doc }
                     userVipStamp = userVipStamp.vipStamp
                     //vip一次充值1分钟
-                    let timeStamp = 1000 * 60;
+                    let timeStamp = 1000 * 60 * 10;
                     let currentTime = +new Date();
                     //用当前时间减去用户的vip时间,是否大于0,大于0表示过期了
                     userVipStamp = userVipStamp - currentTime > 0 ? userVipStamp - currentTime : 0
                     //
-                    console.log('curr',currentTime)
+                    console.log('curr', currentTime)
                     // console.log('vip',userVipStamp)
                     //vip过期时间
                     // console.log(userVipStamp)
-                    let vipStamp =userVipStamp + currentTime + orderDetail[0].quantity * timeStamp;
+                    let vipStamp = userVipStamp + currentTime + orderDetail[0].quantity * timeStamp;
                     // console.log(vipStamp)
                     let vipExpires = moment(vipStamp).format("YYYY-MM-DD hh:mm:ss")
                     // console.log(vipExpires)
                     console.log(vipStamp)
                     //更新用户vip等级
                     //将角色提升为管理员.id是101
-                    await updatedUser({ unid }, { $set: { vipLevel: level, vipStamp,vipExpires,roleid:"101" } })
+                    await updatedUser({ unid }, { $set: { vipLevel: level, vipStamp, vipExpires, roleid: "101" } })
                 }
                 console.log("-----", masterOrder[0].pay_status)
                 //vip充值
@@ -327,7 +327,7 @@ const payResult = function async(req, res) {
                     console.log('正在充值')
                     // console.log(orderDetail[0])
                     if (orderDetail[0].productName === "vip充值") {
-                        
+
 
                         await vipCharge("1")
                     }

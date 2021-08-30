@@ -47,7 +47,7 @@ app.use(session({
     resave: false, //强制保存session,即使它没变化
     saveUninitialized: true, //强制将未初始化的session存储，默认为true
     cookie: { maxAge: 1000 * 60 * 3 }, //过期时间
-    rolling: false //每次滚动更新
+    rolling: true //每次滚动更新
 }));
 
 app.all('*', function(req, res, next) {

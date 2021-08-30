@@ -225,11 +225,20 @@ const updatePassword = async (req, res) => {
 }
 //获取用户
 var getAllUsers = async (req, res) => {
-    var result = await find();
+    let params = {};
+    let {unid} = req.query;
+    if(unid){
+        params = {
+            unid
+        } 
+    }
+    var result = await find(params);
     if (result && Array.isArray(result)) {
         var users = result.map(item => ({
             roleid: item.String,
             unid: item.unid,
+            vipLevel:item.vipLevel,
+            vipStamp:item.vipStamp,
             username: item.username,
             phone: item.phone,
             nickname: item.nickname,
