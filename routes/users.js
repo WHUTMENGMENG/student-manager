@@ -74,6 +74,7 @@ router.get("/wechatCallBack", wechatCallBackCtr)
 
 router.get("/getQrcode", getScancodeCtr)
 
+router.post("/addUser",register)
 module.exports = {
     router,
     io

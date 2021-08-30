@@ -44,10 +44,14 @@ const createOrder = async function (req, res, next, checkedCarts) {
     //1.2然后通过product_id将产品先查找出来,用quantity对比库存是否充足,虽然添加的时候做了判断,但是有时添加到购物车的时候库存充足,购买的时候库存不足
     console.log(checkedCartsProductIds)
     let productTargets = await find_products({ product_id: { $in: checkedCartsProductIds } })
-    console.log(productTargets)
+    if(!productTargets.length){
+        res.send({state:false,status:10021,msg:"没有该商品"})
+        return
+    }
     //再获取订单商品详情取得商品名字
     let vipLevel = productTargets[0].productName.slice(3);
-    vipLevel = vipLevel ? parseInt(vipLevel) : 0;
+    console.log("-------===",vipLevel)
+    vipLevel = !isNaN(vipLevel) ? parseInt(vipLevel) : 0;
     console.log("vip==lv",vipLevel)
     if (req.session.userInfo) {
         let { vipLevel: userLevel } = req.session.userInfo;
@@ -124,14 +128,14 @@ const createOrder = async function (req, res, next, checkedCarts) {
                             create_time: derived("YYYY-MM-DD,hh:mm:ss"),//创建时间
                             total_fee//总价格 单位(分)
                         }
-                        console.log(orderMasterParam)
+                        // console.log(orderMasterParam)
                         let saveOrderRet = await save_order_masters(orderMasterParam)//保存订单到主表
-                        console.log(saveOrderRet)
+                        // console.log(saveOrderRet)
                         if (!saveOrderRet) {
                             res.send({ status: 1004, msg: "保存order主表到数据库出错" })
                             return
                         }
-                        console.log(isInventoryEnoughProducts)
+                        // console.log(isInventoryEnoughProducts)
                         let orderDetails = isInventoryEnoughProducts.map(item => (
                             {
                                 order_id,//关联的订单id
@@ -143,7 +147,7 @@ const createOrder = async function (req, res, next, checkedCarts) {
                                 imageUrl: item.imageUrl,//商品图片
                             }
                         ))
-                        console.log("--------------", orderDetails);
+                        // console.log("--------------", orderDetails);
                         let saveOrderDetail = await save_order_details(orderDetails)
                         if (!saveOrderDetail) {
                             res.send({ status: 1004, msg: "保存order详情到数据库出错" })
@@ -209,7 +213,7 @@ const createOrder = async function (req, res, next, checkedCarts) {
                             }
                         }
                         let queue = new lltqueue(order_id) //默认30秒回滚
-                        queue.rollBack(1000 * 60 * 2)
+                        queue.rollBack(1000 * 60 * 5)
                         tarskQueue.push(queue)
                         global.LLTqueue = tarskQueue;
                     } else {

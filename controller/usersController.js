@@ -25,6 +25,10 @@ const register = async (req, res) => {
         let unid = Math.random().toString(32).substr(2)
         params.unid = unid
         params.roleid = req.body['roleid'] || '200' //如果没有传roleid那么默认是普通员工
+        if (req.userInfo.roleid > "101") {
+            res.send({ state: false, status: 10066, msg: "没有指定角色的权限" })
+            return
+        }
         //3.往数据库插入注册的信息
 
         let regRes = await registerModel(params)

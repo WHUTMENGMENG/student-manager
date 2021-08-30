@@ -183,7 +183,7 @@ const payment = async function (req, res) {
         }
         //3.和key(微信商户提供的key)进行拼接
         stringTemp = string + 'key=' + key;
-        console.log(stringTemp)
+        // console.log(stringTemp)
         //4.对字符串进行MD5运算
         let md5 = crypto.createHash('md5')
         //生成签名
@@ -200,11 +200,11 @@ const payment = async function (req, res) {
 
         //将参数转换成xml格式
         let xmlData = json2xml(data)
-        console.log(xmlData)
+        // console.log(xmlData)
         //发送请求
         request(urlStr, 'POST', xmlData, function (result) {
             ret = xml2json(result)
-            console.log("====", ret)
+            // console.log("====", ret)
             if (ret.result_code === 'SUCCESS') {
                 last_order_id = order_id;
                 res.send({ status: 200, state: true, msg: "OK", prepay_id: ret.prepay_id, trade_type: ret.trade_type, code_url: ret.code_url })
@@ -239,7 +239,7 @@ const preOrder = async (req, res, next) => {
 const payResult = function async(req, res) {
     let xmlRes = "";
     let wepayResult;
-    console.log("---???----")
+    // console.log("---???----")
     req.on('data', function (chunk) {//接收xml
         xmlRes += chunk
         console.log('chunking')
@@ -308,24 +308,27 @@ const payResult = function async(req, res) {
                     userVipStamp = userVipStamp - currentTime > 0 ? userVipStamp - currentTime : 0
                     //
                     console.log('curr',currentTime)
-                    console.log('vip',userVipStamp)
+                    // console.log('vip',userVipStamp)
                     //vip过期时间
                     // console.log(userVipStamp)
                     let vipStamp =userVipStamp + currentTime + orderDetail[0].quantity * timeStamp;
                     // console.log(vipStamp)
                     let vipExpires = moment(vipStamp).format("YYYY-MM-DD hh:mm:ss")
-                    console.log(vipExpires)
+                    // console.log(vipExpires)
                     console.log(vipStamp)
                     //更新用户vip等级
-                    await updatedUser({ unid }, { $set: { vipLevel: level, vipStamp,vipExpires } })
+                    //将角色提升为管理员.id是101
+                    await updatedUser({ unid }, { $set: { vipLevel: level, vipStamp,vipExpires,roleid:"101" } })
                 }
                 console.log("-----", masterOrder[0].pay_status)
                 //vip充值
                 if (masterOrder[0].pay_status === 0) {
                     //vip
                     console.log('正在充值')
-                    console.log(orderDetail[0])
+                    // console.log(orderDetail[0])
                     if (orderDetail[0].productName === "vip充值") {
+                        
+
                         await vipCharge("1")
                     }
                     if (orderDetail[0].productName === "vip2充值") {
@@ -342,7 +345,7 @@ const payResult = function async(req, res) {
                 if (Array.isArray(global.LLTqueue)) {
                     //从llt订单倒计时队列中移除该队列
                     let targetQue = global.LLTqueue.find(item => item.order_id == out_trade_no);
-                    console.log("???", targetQue)
+                    // console.log("???", targetQue)
                     //清除定时器
                     //移除该队列
                     global.LLTqueue = global.LLTqueue.filter(item => item.order_id !== out_trade_no);
@@ -364,7 +367,7 @@ const payResult = function async(req, res) {
             }
         }
     })
-    console.log("微信回调了");
+    // console.log("微信回调了");
     res.status(200)
     res.send({ code: "SUCCESS", message: "支付成功" })
 }
