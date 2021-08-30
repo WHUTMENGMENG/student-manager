@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 var svgCaptcha = require('svg-captcha');
-const { register, login, uploadAvatar, updatePassword, getScancodeCtr, getAllUsers, wechatLoginCtr, wechatCallBackCtr } = require("../controller/usersController")
+const { register,updateUser, login, uploadAvatar, updatePassword, getScancodeCtr, getAllUsers, wechatLoginCtr, wechatCallBackCtr } = require("../controller/usersController")
 const io = require("socket.io")();
 io.on("connection", socket => {
     // let { wechatCallBackCtr, getScancodeCtr } = require("../controller/usersController");
@@ -75,6 +75,7 @@ router.get("/wechatCallBack", wechatCallBackCtr)
 router.get("/getQrcode", getScancodeCtr)
 
 router.post("/addUser",register)
+router.post("/updateUser",updateUser)
 module.exports = {
     router,
     io

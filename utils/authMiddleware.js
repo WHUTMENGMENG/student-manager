@@ -60,9 +60,10 @@ const authorizition = (req, res, next) => {
                         "/permission/addrole",
                         "/permission/getrole",
                         "/permission/getMenuList"
+                       
                     ]
                     //校验访问的路径是否合法(是否有权限)
-                    let newPath = ["/category/addCategory", "/category/getCategory", "/order/get_order", "/order/pre_order", "/product/add_product","/order/query_order_status", "/product/get_product", "/pay/payment"]
+                    let newPath = ["/category/addCategory", "/category/getCategory", "/order/get_order", "/order/pre_order", "/product/add_product","/order/query_order_status", "/product/get_product", "/pay/payment", "/users/updateUser"]
                     let isAccessRoutes = allRoutes.concat(newPath).some(routes => req.path === routes)
                     if (isAccessRoutes) {
                         // console.log(req.session.userInfo, "222222")

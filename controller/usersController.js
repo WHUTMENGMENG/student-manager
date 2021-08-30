@@ -4,6 +4,7 @@ const { addLog, findLog } = require("../model/logModel")
 const moment = require("moment")
 const jwt = require("jsonwebtoken")
 const https = require("https")
+const { Query } = require("mongoose")
 
 const register = async (req, res) => {
     //1.接受前端传递过来的参数
@@ -48,6 +49,37 @@ const register = async (req, res) => {
         res.send({ status: 0, state: false, msg: "用户名已注册" })
     }
 
+}
+//更新用户信息
+const updateUser = async (req, res) => {
+    let { unid, roleid } = req.body;
+    if (!unid) {
+        res.send({ state: false, status: 3004, msg: "请传入用户unid" });
+        return
+    }
+    let query = { unid };
+    roleid = parseInt(roleid);
+    if (!roleid) {
+        roleid = "200";
+        req.body.roleid = roleid;
+    }
+    if (roleid < 200 || vipLevel > 0) {
+        //判断当前用户的权限是不是root id是1
+        if (req.session.userInfo.roleid !== "1" || req.session.userInfo.roleid !== "100") {
+            res.send({ state: false, status: 10066, msg: "not permitted 没有该的权限" })
+            return
+        }
+    }
+    if (roleid > 200) {
+        res.send({ state: false, status: 10077, msg: "角色id错误" })
+        return
+    }
+    let result = updated(query, { $set: req.body });
+    if (result) {
+        res.send({ state: true, status: 200, msg: '更新成功' })
+    } else {
+        res.send({ state: false, status: 10077, msg: '更新出错' })
+    }
 }
 
 //登入
@@ -462,4 +494,5 @@ module.exports = {
     wechatCallBackCtr,
     wechatLoginCtr,
     getScancodeCtr,
+    updateUser
 }
