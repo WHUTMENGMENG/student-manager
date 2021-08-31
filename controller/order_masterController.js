@@ -55,7 +55,7 @@ const createOrder = async function (req, res, next, checkedCarts) {
     console.log("vip==lv",vipLevel)
     if (req.session.userInfo) {
         let { vipLevel: userLevel } = req.session.userInfo;
-        if (vipLevel < userLevel) {
+        if (parseInt(vipLevel) < parseInt(userLevel)) {
             res.send({ state: false, status: 10004, msg: "不能充值低等级的vip" })
             return
         }

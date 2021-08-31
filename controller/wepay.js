@@ -134,7 +134,7 @@ const payment = async function (req, res) {
     let total_fee = (orderInfo[0].total_fee) * 100;//微信规定用分,前端用元,所以此处乘以100
     console.log(total_fee);
     // //再获取订单商品详情取得商品名字
-    // let orderDetail = await find_order_details({ order_id });
+    let orderDetail = await find_order_details({ order_id });
     // let vipLevel = orderDetail[0].productName.slice(3);
     // vipLevel = vipLevel?parseInt(vipLevel):0;
     // if(req.session.userInfo){
