@@ -78,9 +78,10 @@ const authorizition = (req, res, next) => {
                             let currentStamp = +new Date();
 
                             if (vipStamp - currentStamp <= 0 && vipLevel > 0) {
-                                updated({ unid }, { $set: { vipLevel: 0 } })
+                                updated({ unid }, { $set: { vipLevel: 0 ,roleid:"200"} })
                                     .then(() => {
                                         req.session.userInfo.vipLevel = 0;//session的临时数据vip也为0
+                                        req.session.userInfo.roleid = "200"
                                     })
                             }
                             next()

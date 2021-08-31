@@ -101,7 +101,7 @@ const login = async (req, res) => {
         let currentTime = +new Date()
         if (currentTime - vipStamp >= 0) {
             //过期 vip等级降维0
-            await updated({ unid }, { $set: { vipLevel: 0 } })
+            await updated({ unid }, { $set: { vipLevel: 0,roleid:"200" } })
             info.vipLevel = 0;
         }
         //保持用户登入
