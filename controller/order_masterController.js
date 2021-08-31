@@ -52,7 +52,7 @@ const createOrder = async function (req, res, next, checkedCarts) {
     let vipLevel = productTargets[0].productName.substr(3, 1)
     console.log("???===", vipLevel)
     console.log("-------===", vipLevel)
-    vipLevel = !isNaN(vipLevel) ? parseInt(vipLevel) : 0;
+    vipLevel = !isNaN(vipLevel) ? vipLevel : 1;
     console.log("vip==lv", vipLevel)
     if (req.session.userInfo) {
         let { vipLevel: userLevel } = req.session.userInfo;
