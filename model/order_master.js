@@ -31,7 +31,7 @@ let Collection = mongoose.model("order_masters", schema)
  * @param query.order_id 查询订单详情
  */
 let find_order_masters = (query = {}) => {
-    return Collection.find(query)
+    return Collection.find(query).sort({_id:-1})
         .then(res => res)
         .catch(err => {
             console.log(err)
