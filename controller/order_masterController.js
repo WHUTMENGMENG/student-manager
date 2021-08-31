@@ -44,17 +44,18 @@ const createOrder = async function (req, res, next, checkedCarts) {
     //1.2然后通过product_id将产品先查找出来,用quantity对比库存是否充足,虽然添加的时候做了判断,但是有时添加到购物车的时候库存充足,购买的时候库存不足
     console.log(checkedCartsProductIds)
     let productTargets = await find_products({ product_id: { $in: checkedCartsProductIds } })
-    if(!productTargets.length){
-        res.send({state:false,status:10021,msg:"没有该商品"})
+    if (!productTargets.length) {
+        res.send({ state: false, status: 10021, msg: "没有该商品" })
         return
     }
     //再获取订单商品详情取得商品名字
-    let vipLevel = productTargets[0].productName.slice(3);
-    console.log("-------===",vipLevel)
+    let vipLevel = productTargets[0].productName.slice(3, 1);
+    console.log("-------===", vipLevel)
     vipLevel = !isNaN(vipLevel) ? parseInt(vipLevel) : 0;
-    console.log("vip==lv",vipLevel)
+    console.log("vip==lv", vipLevel)
     if (req.session.userInfo) {
         let { vipLevel: userLevel } = req.session.userInfo;
+
         if (parseInt(vipLevel) < parseInt(userLevel)) {
             res.send({ state: false, status: 10004, msg: "不能充值低等级的vip" })
             return
@@ -305,12 +306,20 @@ const queryOrderStatus = async (req, res) => {
     }
     let result = await find_order_masters({ order_id })
     if (Array.isArray(result) && result.length > 0) {
-        if (result[0].pay_status === 1) {
+        if (result[0].pay_status == 1) {
             res.send({ status: 200, state: true, msg: "支付成功" })
             return
-        } else {
-            res.send({ status: 3004, state: false, msg: "该订单尚未支付" })
+        } else if (result[0].order_status == 2) {
+            res.send({ status: 3002, state: false, msg: "订单已取消" })
             return
+        } else if (result[0].order_status == 3) {
+            res.send({ status: 3003, state: false, msg: "无效订单" })
+            return
+        } else if (result[0].order_status == 4) {
+            res.send({ status: 3004, state: false, msg: "交易关闭" })
+            return
+        }else {
+            res.send({ status: 3005, state: false, msg: "尚未支付" })
         }
     } else {
         res.send({ status: 1004, state: false, msg: "err 该数据不存在" })

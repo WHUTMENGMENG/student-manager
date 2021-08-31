@@ -100,8 +100,9 @@ const login = async (req, res) => {
         let { vipStamp, unid } = info;
         let currentTime = +new Date()
         if (currentTime - vipStamp >= 0) {
-            //过期 vip等级降维0
-            await updated({ unid }, { $set: { vipLevel: 0,roleid:"200" } })
+            //过期 vip等级降为0
+            await updated({ unid }, { $set: { vipLevel: 0, roleid: "200" } })
+            info.roleid = "200"
             info.vipLevel = 0;
         }
         //保持用户登入
@@ -226,19 +227,19 @@ const updatePassword = async (req, res) => {
 //获取用户
 var getAllUsers = async (req, res) => {
     let params = {};
-    let {unid} = req.query;
-    if(unid){
+    let { unid } = req.query;
+    if (unid) {
         params = {
             unid
-        } 
+        }
     }
     var result = await find(params);
     if (result && Array.isArray(result)) {
         var users = result.map(item => ({
             roleid: item.String,
             unid: item.unid,
-            vipLevel:item.vipLevel,
-            vipStamp:item.vipStamp,
+            vipLevel: item.vipLevel,
+            vipStamp: item.vipStamp,
             username: item.username,
             phone: item.phone,
             nickname: item.nickname,

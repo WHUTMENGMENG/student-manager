@@ -722,6 +722,26 @@ npm i socket.io-client
 | :--------------: | :------: | :------: |
 | order_id<String> |    是    |  订单id  |
 
+```js
+  if (result[0].pay_status === 1) {
+            res.send({ status: 200, state: true, msg: "支付成功" })
+            return
+        } else if (result[0].order_status === 2) {
+            res.send({ status: 3002, state: false, msg: "订单已取消" })
+            return
+        } else if (result[0].order_status === 3) {
+            res.send({ status: 3003, state: false, msg: "无效订单" })
+            return
+        } else if (result[0].order_status === 4) {
+            res.send({ status: 3004, state: false, msg: "交易关闭" })
+            return
+        }else {
+            res.send({ status: 3005, state: false, msg: "尚未支付" })
+        }
+```
+
+
+
 # 7.商城模块
 
 ## 5.1 类目模块

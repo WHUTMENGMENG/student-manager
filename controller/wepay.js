@@ -313,7 +313,7 @@ const payResult = function async(req, res) {
                     // console.log(userVipStamp)
                     let vipStamp = userVipStamp + currentTime + orderDetail[0].quantity * timeStamp;
                     // console.log(vipStamp)
-                    let vipExpires = moment(vipStamp).format("YYYY-MM-DD hh:mm:ss")
+                    let vipExpires = moment(vipStamp).format("YYYY-MM-DD HH:mm:ss")
                     // console.log(vipExpires)
                     console.log(vipStamp)
                     //更新用户vip等级
