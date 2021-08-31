@@ -49,9 +49,10 @@ const createOrder = async function (req, res, next, checkedCarts) {
         return
     }
     //再获取订单商品详情取得商品名字
-    let vipLevel = parseInt(productTargets[0].productName.slice(3, 1));
+    let vipLevel = productTargets[0].productName.substr(3, 1)
+    console.log("???===", vipLevel)
     console.log("-------===", vipLevel)
-    vipLevel = !isNaN(vipLevel) ? vipLevel : 0;
+    vipLevel = !isNaN(vipLevel) ? parseInt(vipLevel) : 0;
     console.log("vip==lv", vipLevel)
     if (req.session.userInfo) {
         let { vipLevel: userLevel } = req.session.userInfo;
