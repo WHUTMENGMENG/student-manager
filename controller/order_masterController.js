@@ -49,9 +49,9 @@ const createOrder = async function (req, res, next, checkedCarts) {
         return
     }
     //再获取订单商品详情取得商品名字
-    let vipLevel = productTargets[0].productName.slice(3, 1);
+    let vipLevel = parseInt(productTargets[0].productName.slice(3, 1));
     console.log("-------===", vipLevel)
-    vipLevel = !isNaN(vipLevel) ? parseInt(vipLevel) : 0;
+    vipLevel = !isNaN(vipLevel) ? vipLevel : 0;
     console.log("vip==lv", vipLevel)
     if (req.session.userInfo) {
         let { vipLevel: userLevel } = req.session.userInfo;
@@ -318,7 +318,7 @@ const queryOrderStatus = async (req, res) => {
         } else if (result[0].order_status == 4) {
             res.send({ status: 3004, state: false, msg: "交易关闭" })
             return
-        }else {
+        } else {
             res.send({ status: 3005, state: false, msg: "尚未支付" })
         }
     } else {
