@@ -50,10 +50,10 @@ const createOrder = async function (req, res, next, checkedCarts) {
     }
     //再获取订单商品详情取得商品名字
     let vipLevel = productTargets[0].productName.substr(3, 1)
-    console.log("???===", vipLevel)
-    console.log("-------===", vipLevel)
+    // console.log("???===", vipLevel)
+    // console.log("-------===", vipLevel)
     vipLevel = !isNaN(vipLevel) ? vipLevel : 1;
-    console.log("vip==lv", vipLevel)
+    // console.log("vip==lv", vipLevel)
     if (req.session.userInfo) {
         let { vipLevel: userLevel } = req.session.userInfo;
 
@@ -127,7 +127,7 @@ const createOrder = async function (req, res, next, checkedCarts) {
                             user_nickname: nickname,//买家名称
                             user_phone: phone || 520,//买家电话
                             address: address || 520,//买家地址
-                            create_time: derived("YYYY-MM-DD,hh:mm:ss"),//创建时间
+                            create_time: derived("YYYY-MM-DD HH:mm:ss"),//创建时间
                             total_fee//总价格 单位(分)
                         }
                         // console.log(orderMasterParam)
