@@ -264,7 +264,7 @@ const getOrder = async (req, res) => {
             res.send({ status: 200, state: true, msg: "订单获取成功", data })
             return
         } else {
-            res.send({ state: false, data: [], msg: "没有数据或者查询出错" })
+            res.send({ state: false, data: [], msg: "没有数据" })
         }
     } else { //通过订单号查询单个订单
         queryParam = {
