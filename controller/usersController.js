@@ -52,7 +52,7 @@ const register = async (req, res) => {
 }
 //更新用户信息
 const updateUser = async (req, res) => {
-    let { unid, roleid } = req.body;
+    let { unid, roleid,vipLevel } = req.body;
     if (!unid) {
         res.send({ state: false, status: 3004, msg: "请传入用户unid" });
         return
