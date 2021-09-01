@@ -63,7 +63,7 @@ const updateUser = async (req, res) => {
         roleid = "200";
         req.body.roleid = roleid;
     }
-    if (roleid < 200 || vipLevel > 0) {
+    if (roleid != req.session.userInfo.roleid || vipLevel > 0) {
         //判断当前用户的权限是不是root id是1
         if (req.session.userInfo.roleid !== "1" || req.session.userInfo.roleid !== "100") {
             res.send({ state: false, status: 10066, msg: "not permitted 没有该的权限" })
@@ -74,7 +74,7 @@ const updateUser = async (req, res) => {
         res.send({ state: false, status: 10077, msg: "角色id错误" })
         return
     }
-    let result = updated(query, { $set: req.body });
+    let result = await updated(query, { $set: req.body });
     if (result) {
         res.send({ state: true, status: 200, msg: '更新成功' })
     } else {
@@ -238,8 +238,8 @@ var getAllUsers = async (req, res) => {
         var users = result.map(item => ({
             roleid: item.String,
             unid: item.unid,
-            vipLevel: item.vipLevel,
-            vipStamp: item.vipStamp,
+            vipLevel: item.vipLevel || 0,
+            vipStamp: item.vipStamp || 0,
             username: item.username,
             phone: item.phone,
             nickname: item.nickname,
@@ -251,7 +251,7 @@ var getAllUsers = async (req, res) => {
             province: item.province,
             country: item.country
         }))
-        res.send({ status: 200, state: true, msg: "success", data:users })
+        res.send({ status: 200, state: true, msg: "success", data: users })
     } else {
         res.send({ status: 403, state: false, msg: "获取出错" })
     }

@@ -9,7 +9,7 @@ const schema = mongoose.Schema({
     phone: { type: String, required: false, default: "" },
     vipStamp: { type: Number, required: false, default: 0 },
     vipExpires: { type: String, required: false, default: "" },
-    vipLevel: { type: Number, required: false, default: 1 },
+    vipLevel: { type: Number, required: true, default: 0 },
     nickname: { type: String, required: false, default: "" },
     roles: { type: String, required: false, default: "" },
     headimgurl: { type: String, required: false, default: "" },
