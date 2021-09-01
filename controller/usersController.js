@@ -251,7 +251,7 @@ var getAllUsers = async (req, res) => {
             province: item.province,
             country: item.country
         }))
-        res.send({ status: 200, state: true, msg: "success", users })
+        res.send({ status: 200, state: true, msg: "success", data:users })
     } else {
         res.send({ status: 403, state: false, msg: "获取出错" })
     }
