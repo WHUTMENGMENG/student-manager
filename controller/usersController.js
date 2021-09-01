@@ -63,7 +63,7 @@ const updateUser = async (req, res) => {
         roleid = "200";
         req.body.roleid = roleid;
     }
-    if (roleid != req.session.userInfo.roleid || vipLevel > 0) {
+    if (roleid != req.session.userInfo.roleid || vipLevel != req.session.userInfo.vipLevel) {
         //判断当前用户的权限是不是root id是1
         if (req.session.userInfo.roleid !== "1" || req.session.userInfo.roleid !== "100") {
             res.send({ state: false, status: 10066, msg: "not permitted 没有该的权限" })
