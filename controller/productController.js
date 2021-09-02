@@ -85,17 +85,18 @@ const updateProduct = async (req, res) => {
 }
 const getProduct = async (req, res) => {
     let param;
-    let { product_id, category_id } = req.query;
+    let { product_id, category_id, count = 15, page = 1 } = req.query;
     if (product_id) {
         param = { product_id }
     } else if (category_id) {
         param = { category_id }
-    }else {
+    } else {
         param = {}
     }
-    let findRes = await find_products(param);
+    let findRes = await find_products({ ...param, count, page });
+    //    console.log(findRes)
     if (Array.isArray(findRes)) {
-        res.send({ status: 200, state: true, msg: "获取成功", data: [...findRes] })
+        res.send({ status: 200, state: true, msg: "获取成功", total: findRes.total, data: [...findRes] })
     } else {
         res.send({ status: 1004, state: false, msg: "获取数据出错" })
     }

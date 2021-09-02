@@ -52,7 +52,7 @@ const register = async (req, res) => {
 }
 //更新用户信息
 const updateUser = async (req, res) => {
-    let { unid, roleid,vipLevel } = req.body;
+    let { unid, roleid, vipLevel } = req.body;
     if (!unid) {
         res.send({ state: false, status: 3004, msg: "请传入用户unid" });
         return
@@ -97,9 +97,9 @@ const login = async (req, res) => {
         res.send({ status: 0, state: false, msg: "用户名或者密码错误" })
     } else {
         var info = { ...result[0]._doc }
-        let { vipStamp, unid } = info;
+        let { vipStamp, unid, roleid } = info;
         let currentTime = +new Date()
-        if (currentTime - vipStamp >= 0) {
+        if (currentTime - vipStamp >= 0 && roleid != "200") {
             //过期 vip等级降为0
             await updated({ unid }, { $set: { vipLevel: 0, roleid: "200" } })
             info.roleid = "200"
@@ -113,46 +113,6 @@ const login = async (req, res) => {
             expiresIn: 60 * 60 * 3
         }) //1.payload载荷 2.secrect 加密字符串 3.{expirsIn:秒} 生效时间
         //2.在用户访问服务器的时候 必须携带token 进行校验 如果有效那么正常返回数据 ,无效返回错误信息
-        //3.登入成功后记录登入日志
-        //查找上次登入的日志
-        let lastLoginQuery = {
-            username: req.body.username
-        }
-        //获取上次登入结果
-        let findLogResult = await findLog(lastLoginQuery)
-        //如果是第一次登入 让lastLogin的值设置空
-        let lastLogin;
-        if (findLogResult.length !== 0) {
-            findLogResult = findLogResult[0]
-            lastLogin = {
-                loginTime: findLogResult['nowLogin']['loginTime'],
-                ip: findLogResult['nowLogin']['ip']
-            }
-        } else {
-            lastLogin = {
-                loginTime: "",
-                ip: ""
-            }
-        }
-        //获取登入ip
-        let ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-        // ip = ip.substr(7)
-        let regExp = /([^0-9])*((\.|\d)*)/
-        let r = regExp.exec(ip)
-        ip = r[2]
-        // console.log(ip)
-        //创建登入时间
-        let loginTime = moment().format("YYYY/MM/DD HH:mm:ss")
-        let nowLogin = {
-            ip,
-            loginTime,
-        }
-        let log = {
-            username: req.body.username,
-            lastLogin,
-            nowLogin,
-        }
-        let setLogResult = await addLog(log)
         // console.log(setLogResult)
         //获取权限路径
         let result2 = await perModel.find({ roleid: info.roleid })
@@ -167,6 +127,49 @@ const login = async (req, res) => {
         delete newInfo.password
         res.send({ status: 1, state: true, msg: "登入成功", permission: { buttons }, userInfo: newInfo, token: token })
     }
+
+
+    //3.登入成功后记录登入日志
+    //查找上次登入的日志
+    let lastLoginQuery = {
+        username: req.body.username
+    }
+    //获取上次登入结果
+    let findLogResult = await findLog(lastLoginQuery)
+    //如果是第一次登入 让lastLogin的值设置空
+    let lastLogin;
+    if (findLogResult.length !== 0) {
+        findLogResult = findLogResult[0]
+        lastLogin = {
+            loginTime: findLogResult['nowLogin']['loginTime'],
+            ip: findLogResult['nowLogin']['ip']
+        }
+    } else {
+        lastLogin = {
+            loginTime: "",
+            ip: ""
+        }
+    }
+    //获取登入ip
+    let ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    // ip = ip.substr(7)
+    let regExp = /([^0-9])*((\.|\d)*)/
+    let r = regExp.exec(ip)
+    ip = r[2]
+    // console.log(ip)
+    //创建登入时间
+    let loginTime = moment().format("YYYY/MM/DD HH:mm:ss")
+    let nowLogin = {
+        ip,
+        loginTime,
+    }
+    let log = {
+        username: req.body.username,
+        lastLogin,
+        nowLogin,
+    }
+    let setLogResult = addLog(log)
+
 }
 
 //上传头像
@@ -227,13 +230,13 @@ const updatePassword = async (req, res) => {
 //获取用户
 var getAllUsers = async (req, res) => {
     let params = {};
-    let { unid } = req.query;
+    let { unid, page = 1, count = 15 } = req.query;
     if (unid) {
         params = {
             unid
         }
     }
-    var result = await find(params);
+    var result = await find({ ...params, page, count });
     if (result && Array.isArray(result)) {
         var users = result.map(item => ({
             roleid: item.String,
@@ -251,7 +254,7 @@ var getAllUsers = async (req, res) => {
             province: item.province,
             country: item.country
         }))
-        res.send({ status: 200, state: true, msg: "success", data: users })
+        res.send({ status: 200, state: true, msg: "success",  total: result.total ,data: users})
     } else {
         res.send({ status: 403, state: false, msg: "获取出错" })
     }

@@ -60,10 +60,10 @@ const authorizition = (req, res, next) => {
                         "/permission/addrole",
                         "/permission/getrole",
                         "/permission/getMenuList"
-                       
+
                     ]
                     //校验访问的路径是否合法(是否有权限)
-                    let newPath = ["/category/addCategory", "/category/getCategory", "/order/get_order", "/order/pre_order", "/product/add_product","/order/query_order_status", "/product/get_product", "/pay/payment", "/users/updateUser","/users/getAllUsers"]
+                    let newPath = ["/category/addCategory", "/category/getCategory", "/order/get_order", "/order/pre_order", "/product/add_product", "/order/query_order_status", "/product/get_product", "/pay/payment", "/users/updateUser", "/users/getAllUsers"]
                     let isAccessRoutes = allRoutes.concat(newPath).some(routes => req.path === routes)
                     if (isAccessRoutes) {
                         // console.log(req.session.userInfo, "222222")
@@ -74,11 +74,11 @@ const authorizition = (req, res, next) => {
                         if (isAuth) {
                             //检查当前的vip是否过期
                             // console.log(req.session.userInfo)
-                            let { vipStamp, unid, vipLevel } = req.session.userInfo;
+                            let { vipStamp, unid, vipLevel, roleid } = req.session.userInfo;
                             let currentStamp = +new Date();
 
-                            if (vipStamp - currentStamp <= 0 && vipLevel > 0) {
-                                updated({ unid }, { $set: { vipLevel: 0 ,roleid:"200"} })
+                            if (roleid != "200" && vipStamp - currentStamp <= 0 && vipLevel > 0) {
+                                updated({ unid }, { $set: { vipLevel: 0, roleid: "200" } })
                                     .then(() => {
                                         req.session.userInfo.vipLevel = 0;//session的临时数据vip也为0
                                         req.session.userInfo.roleid = "200"

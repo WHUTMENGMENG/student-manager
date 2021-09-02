@@ -30,9 +30,16 @@ let Collection = mongoose.model("order_masters", schema)
  * @param query.unid 接受unid字段用户查询所有订单
  * @param query.order_id 查询订单详情
  */
-let find_order_masters = (query = {}) => {
-    return Collection.find(query).sort({_id:-1})
-        .then(res => res)
+let find_order_masters = async(query = {}) => {
+    let { page, count } = query;
+    delete query.page
+    delete query.count
+    let total = await Collection.countDocuments()//获取总数
+    return Collection.find(query).skip((page - 1) * count).limit(count).sort({ _id: -1 })
+        .then(res => {
+            res.total = total;
+            return res;
+        })
         .catch(err => {
             console.log(err)
             return false

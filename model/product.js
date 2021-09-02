@@ -26,9 +26,16 @@ let Collection = mongoose.model("products", schema)
  * 
  * @param query.product_id  接收一个product_id参数
  */
-let find_products = (query = {}) => {
-    return Collection.find(query)
-        .then(res => res)
+let find_products = async(query = {}) => {
+    let {page,count} = query;
+    delete query.page
+    delete query.count
+    let total = await Collection.countDocuments()//获取总数
+    return Collection.find(query).skip((page-1)*count).limit(count).sort({_id:-1})
+        .then(res => {
+            res.total = total;
+            return res;
+        })
         .catch(err => {
             console.log(err)
             return false

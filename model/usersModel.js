@@ -30,8 +30,16 @@ const schema = mongoose.Schema({
 let Collection = mongoose.model("users", schema)
 
 //查重
-let find = (query = {}) => {
-    return Collection.find(query)
+let find = async(query = {}) => {
+    let {page,count} = query;
+    delete query.page
+    delete query.count
+    let total = await Collection.countDocuments()//获取总数
+    return Collection.find(query).skip((page - 1) * count).limit(count).sort({ _id: -1 })
+        .then(res => {
+            res.total = total;
+            return res;
+        })
         .then(res => res)
         .catch(err => {
             console.log(err)

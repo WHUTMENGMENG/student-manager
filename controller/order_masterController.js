@@ -246,10 +246,12 @@ const getOrder = async (req, res) => {
     }
     let { unid } = req.session.userInfo;
     let queryParam;
-    let { order_id } = req.body;
+    let { order_id, page = 1, count = 15 } = req.body;
     if (!order_id) { //获取用户全部订单
         queryParam = {
-            unid
+            unid,
+            page,
+            count
         }
         let findRes = await find_order_masters(queryParam)
         if (Array.isArray(findRes) && findRes.length > 0) {
