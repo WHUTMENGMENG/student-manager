@@ -52,10 +52,20 @@ const register = async (req, res) => {
 }
 //更新用户信息
 const updateUser = async (req, res) => {
-    let { unid, roleid, vipLevel } = req.body;
+    let { unid, roleid, vipLevel, username, vipStamp, vipExpires, password } = req.body;
     if (!unid) {
         res.send({ state: false, status: 3004, msg: "请传入用户unid" });
         return
+    }
+    if (username == "admin" && password) {
+        res.send({ state: false, status: 10066, msg: "not permitted 你没有权限修改admin密码" })
+        return
+    }
+    if (username === "admin" || username === "root" || vipExpires || vipStamp || unid != req.session.userInfo.unid) {
+        if (req.session.userInfo.username !== "root") {
+            res.send({ state: false, status: 10066, msg: "not permitted 没有该的权限,只有root才有权限" })
+            return
+        }
     }
     let query = { unid };
     roleid = parseInt(roleid);
@@ -63,9 +73,12 @@ const updateUser = async (req, res) => {
         roleid = "200";
         req.body.roleid = roleid;
     }
-    if (roleid != req.session.userInfo.roleid || vipLevel != req.session.userInfo.vipLevel) {
+    if (roleid != req.session.userInfo.roleid || (vipLevel && vipLevel != req.session.userInfo.vipLevel)) {
         //判断当前用户的权限是不是root id是1
-        if (req.session.userInfo.roleid !== "1" || req.session.userInfo.roleid !== "100") {
+        if (req.session.userInfo.roleid == "1" || req.session.userInfo.roleid == "100") {
+
+        } else {
+         
             res.send({ state: false, status: 10066, msg: "not permitted 没有该的权限" })
             return
         }
@@ -254,7 +267,7 @@ var getAllUsers = async (req, res) => {
             province: item.province,
             country: item.country
         }))
-        res.send({ status: 200, state: true, msg: "success",  total: result.total ,data: users})
+        res.send({ status: 200, state: true, msg: "success", total: result.total, data: users })
     } else {
         res.send({ status: 403, state: false, msg: "获取出错" })
     }
