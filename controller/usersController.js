@@ -355,7 +355,7 @@ const wechatLoginCtr = (req, response) => {
                         expiresIn: 60 * 3
 
                     })
-                    let result2 = await perModel.find({ roleid: info.roleid })
+                    let result2 = await perModel.find({ roleid: parseInt(info.roleid) })
                     //console.log("")
                     // console.log("==========278", result2)
                     let rows = result2[0].rows
