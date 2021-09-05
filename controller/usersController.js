@@ -78,7 +78,7 @@ const updateUser = async (req, res) => {
         if (req.session.userInfo.roleid == "1" || req.session.userInfo.roleid == "100") {
 
         } else {
-         
+
             res.send({ state: false, status: 10066, msg: "not permitted 没有该的权限" })
             return
         }
@@ -335,7 +335,16 @@ const wechatLoginCtr = (req, response) => {
             if (Array.isArray(isUser)) {
                 if (isUser.length) {
                     //说明有 不需要存储 直接响应登入成功
-                    let info = isUser[0]
+                  //处理vip过期
+                    var info = { ...isUser[0]._doc }
+                    let { vipStamp, unid, roleid } = info;
+                    let currentTime = +new Date()
+                    if (currentTime - vipStamp >= 0 && roleid != "200") {
+                        //过期 vip等级降为0
+                        await updated({ unid }, { $set: { vipLevel: 0, roleid: "200" } })
+                        info.roleid = "200"
+                        info.vipLevel = 0;
+                    }
                     delete info.password
                     //socket响应登入成功
                     //生成token
