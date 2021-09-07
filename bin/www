@@ -8,9 +8,8 @@ var app = require('../app');
 var { io } = require("../routes/users")
 var debug = require('debug')('be:server');
 var https = require('https');
-var http = require('http');
 let path = require("path")
-let fs = require('fs')
+let fs = require("fs")
 
 /**
  * Get port from environment and store in Express.
@@ -18,39 +17,30 @@ let fs = require('fs')
 
 //https证书目录
 
-let key = fs.readFileSync(path.resolve("https", "chst.vip.key"))
-let cert = fs.readFileSync(path.resolve("https", "chst.vip.pem"))
-
-let httpsOptions = {
+let key = fs.readFileSync(path.resolve("https","chst.vip.key"))
+let cert = fs.readFileSync(path.resolve("https","chst.vip.pem"))
+// console.log(key)
+// console.log(cert)
+let httpsOption = {
     key,
     cert
 }
-
-
-
-var httpPort = normalizePort(process.env.PORT || 80);
-var httpsPort = normalizePort(process.env.PORT || 443);
-let httpApp = app.set('port', httpPort);
-let httpsApp = app.set('port', httpsPort);
+var port = normalizePort(process.env.PORT || '80');
+app.set('port', port);
 /**
  * Create HTTP server.
  */
 
-var httpsServer = https.createServer(httpsOptions,httpsApp);
-var httpServer = http.createServer(httpApp)
-io.attach(httpsServer)
-io.attach(httpServer)
+var server = https.createServer(httpsOption,app);
+io.attach(server)
 
 /**
  * Listen on provided port, on all network interfaces.
  */
 
-httpServer.listen(httpPort);
-httpsServer.listen(httpsPort)
-httpServer.on('error', onError);
-httpServer.on('listening', onListening);
-httpsServer.on('error', onError);
-httpsServer.on('listening', onListening);
+server.listen(port);
+server.on('error', onError);
+server.on('listening', onListening);
 
 /**
  * Normalize a port into a number, string, or false.
@@ -81,9 +71,9 @@ function onError(error) {
         throw error;
     }
 
-    var bind = typeof httpPort === 'string' ?
-        'Pipe ' + httpPort :
-        'Port ' + httpPort;
+    var bind = typeof port === 'string' ?
+        'Pipe ' + port :
+        'Port ' + port;
 
     // handle specific listen errors with friendly messages
     switch (error.code) {
@@ -105,7 +95,7 @@ function onError(error) {
  */
 
 function onListening() {
-    var addr = httpServer.address();
+    var addr = server.address();
     var bind = typeof addr === 'string' ?
         'pipe ' + addr :
         'port ' + addr.port;
