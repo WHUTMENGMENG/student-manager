@@ -29,7 +29,7 @@ const uploads = (params, staticPath) => (req, res, next) => {
             let match = RegExp.exec(file.originalname)
             let extendsName = match[0]
             //将avatar的文件路径存到数据库里面
-            req.body[params] = "http://chst.vip/" + staticPath + "/" + filenames + extendsName
+            req.body[params] = "https://chst.vip/" + staticPath + "/" + filenames + extendsName
             // console.log("===========", req.body)
             cb(null, filenames + extendsName)//处理上传文件的文件名
         }
