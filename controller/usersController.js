@@ -297,7 +297,7 @@ function createScanCodeUrl({ appid, redirect_uri, response_type, scope, state })
 }
 //微信扫码登入
 let appid = "wxed58e834201d0894";
-let redirect_uri = "http://chst.vip/users/wechatCallBack"
+let redirect_uri = "https://chst.vip/users/wechatCallBack"
 let scope = "snsapi_userinfo"
 let secret = '346db5c19ef8337e8d6384decf0bf2c0'
 let response_type = "code"
