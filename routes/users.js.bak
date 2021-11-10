@@ -1,10 +1,10 @@
 const express = require("express");
 const router = express.Router();
 var svgCaptcha = require('svg-captcha');
-const { register, login, uploadAvatar, updatePassword, getScancodeCtr, getAllUsers, wechatLoginCtr, wechatCallBackCtr } = require("../controller/usersController")
+const { register,updateUser, login, uploadAvatar, updatePassword, getScancodeCtr, getAllUsers, wechatLoginCtr, wechatCallBackCtr } = require("../controller/usersController")
 const io = require("socket.io")();
 io.on("connection", socket => {
-    let { wechatCallBackCtr, getScancodeCtr } = require("../controller/usersController");
+    // let { wechatCallBackCtr, getScancodeCtr } = require("../controller/usersController");
     socket.emit("connectSuccess", { state: true, status: 200, sid: socket.id, msg: "连接成功" });
     // console.log(io.sockets)
     global.io = io;
@@ -41,7 +41,9 @@ router.get("/refreshCaptcha", createCaptcha)
 router.get("/verifyCaptcha", (req, res) => {
     console.log(req.query.captcha);
     console.log(req.session.captcha);
-
+	if(!req.query.captcha){
+		res.send({ state: false, status: 3004, msg: "验证码不能为空" })
+	}
 
     if (req.query.captcha == req.session.captcha) {
         res.send({ state: true, status: 200, msg: "验证码正确" })
@@ -71,12 +73,11 @@ router.get("/wechatLogin", wechatLoginCtr)
 //微信回调页面参数处理
 router.get("/wechatCallBack", wechatCallBackCtr)
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 43e8b1d5305b38946a1d375b8d8f4b9d9dec2c0a
-router.get("/getScancode", getScancodeCtr)
+router.get("/getQrcode", getScancodeCtr)
 
+router.post("/addUser",register)
+router.post("/updateUser",updateUser)
 module.exports = {
     router,
     io

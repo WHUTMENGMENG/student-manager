@@ -41,7 +41,10 @@ router.get("/refreshCaptcha", createCaptcha)
 router.get("/verifyCaptcha", (req, res) => {
     console.log(req.query.captcha);
     console.log(req.session.captcha);
-
+	if(!req.query.captcha){
+		res.send({ state: false, status: 3004, msg: "验证码不能为空" })
+			return
+	}
 
     if (req.query.captcha == req.session.captcha) {
         res.send({ state: true, status: 200, msg: "验证码正确" })
