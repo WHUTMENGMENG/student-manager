@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken")
+const { updated } = require("../model/usersModel")//引入用户模块
 const authorizition = (req, res, next) => {
     // console.log(req.session.userInfo)
     //如果用户访问的是登入接口 或者是注册接口 就不去拦截
@@ -15,12 +16,13 @@ const authorizition = (req, res, next) => {
         "/weather/getWeather",
         "/weather/updateWeather",
         "/pay/wepay",
-        "/upload/uploadImg"
+        "/upload/uploadImg",
+        "/pay/payResult"
     ];
     let matchRes = rowPath.some(item => item === req.path)
     //被忘记最后把条件改回来
     // matchRes || /\/avatar\/.*/.test(req.path) || /\/productPic\/.*/.test(req.path)
-    if (matchRes || /\/avatar\/.*/.test(req.path) || /\/productPic\/.*/.test(req.path)) {
+    if (true) {
         next()
     } else {
         if (!req.session.userInfo) {
@@ -58,17 +60,30 @@ const authorizition = (req, res, next) => {
                         "/permission/addrole",
                         "/permission/getrole",
                         "/permission/getMenuList"
+
                     ]
                     //校验访问的路径是否合法(是否有权限)
-                    let isAccessRoutes = allRoutes.some(routes => req.path === routes)
-                    if (isAccessRoutes) { //路径合法则进行权限路径校验和当前用户的权限路径作对比
-<<<<<<< HEAD
-                       // console.log(req.session.userInfo, "222222")
-=======
+                    let newPath = ["/category/addCategory", "/category/getCategory", "/order/get_order", "/order/pre_order", "/product/add_product", "/order/query_order_status", "/product/get_product", "/pay/payment", "/users/updateUser", "/users/getAllUsers"]
+                    let isAccessRoutes = allRoutes.concat(newPath).some(routes => req.path === routes)
+                    if (isAccessRoutes) {
                         // console.log(req.session.userInfo, "222222")
->>>>>>> 386460f38a5a70dc98ea3b1f40dda9756fc96871
+
+                        req.session.userInfo.rows = [...req.session.userInfo.rows, ...newPath]
+
                         let isAuth = req.session.userInfo.rows.some(item => item === req.path)
                         if (isAuth) {
+                            //检查当前的vip是否过期
+                            // console.log(req.session.userInfo)
+                            let { vipStamp, unid, vipLevel, roleid } = req.session.userInfo;
+                            let currentStamp = +new Date();
+
+                            if (roleid != "200" && vipStamp - currentStamp <= 0 && vipLevel > 0) {
+                                updated({ unid }, { $set: { vipLevel: 0, roleid: "200" } })
+                                    .then(() => {
+                                        req.session.userInfo.vipLevel = 0;//session的临时数据vip也为0
+                                        req.session.userInfo.roleid = "200"
+                                    })
+                            }
                             next()
                         } else {
                             res.send({ status: '403', code: "10026", state: false, msg: "not permitted 没有权限" })
