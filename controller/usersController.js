@@ -299,7 +299,7 @@ function createScanCodeUrl({ appid, redirect_uri, response_type, scope, state })
 let appid = "wxed58e834201d0894";
 let redirect_uri = "https://chst.vip/users/wechatCallBack"
 let scope = "snsapi_userinfo"
-let secret = '74ac0ba1c15b7d709e81e878d1e9dcc4'
+let secret = 'c7ec5b61faa2314dc34e3cfb9d572189'
 let response_type = "code"
 let socket;
 const wechatLoginCtr = (req, response) => {

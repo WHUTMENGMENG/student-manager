@@ -1,0 +1,1 @@
+set port=443&&pm2 start ./bin/www
