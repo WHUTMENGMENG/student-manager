@@ -506,15 +506,16 @@ npm i socket.io-client
 |   参数   | 是否必填 |   描述    |
 | :----: | :--: | :-----: |
 | headimgurl |  是   | 上传的图片文件 |
-|  uId   |  是   | 当前用户的id |
+|  unid   |  是   | 当前用户的id |
 | token  |  是   | token值  |
 
 ```json
 //成功数据
 {
-  "status": 1,
-  "state": true,
-  "msg": "图片上传成功"
+    "status": 1,
+    "state": true,
+    "msg": "图片上传成功",
+    "imgurl": "https://chst.vip/imgs/headimgurl-1650792836990.png"
 }
 ```
 

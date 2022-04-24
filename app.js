@@ -46,7 +46,7 @@ app.use(session({
     secret: 'MY_NAME_IS_HMM', //加密的字符串，里面内容可以随便写
     resave: false, //强制保存session,即使它没变化
     saveUninitialized: true, //强制将未初始化的session存储，默认为true
-    cookie: { maxAge: 1000 * 60 * 3 }, //过期时间
+    cookie: { maxAge: 1000 * 60 * 30 }, //过期时间
     rolling: true //每次滚动更新
 }));
 

@@ -60,7 +60,7 @@ router.post("/login", login)
 
 //上传头像
 
-router.post("/uploadAvatar", uploads, uploadAvatar)
+router.post("/uploadAvatar", uploads('headimgurl','imgs'), uploadAvatar)
 
 //修改密码
 

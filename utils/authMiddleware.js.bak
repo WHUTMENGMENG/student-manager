@@ -22,7 +22,7 @@ const authorizition = (req, res, next) => {
     let matchRes = rowPath.some(item => item === req.path)
     //被忘记最后把条件改回来
     // matchRes || /\/avatar\/.*/.test(req.path) || /\/productPic\/.*/.test(req.path)
-    if (true) {
+    if (matchRes || /\/avatar\/.*/.test(req.path) || /\/productPic\/.*/.test(req.path)) {
         next()
     } else {
         if (!req.session.userInfo) {
@@ -54,12 +54,13 @@ const authorizition = (req, res, next) => {
                         "/users/register",
                         "/users/login",
                         "/users/sigout",
-                        "/users/uploadAvatar",
+                       // "/users/uploadAvatar",
                         "/verify",
                         "/users/updatePassword",
                         "/permission/addrole",
                         "/permission/getrole",
-                        "/permission/getMenuList"
+                        "/permission/getMenuList",
+						"/users/addUser"
 
                     ]
                     //校验访问的路径是否合法(是否有权限)

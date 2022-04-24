@@ -26,7 +26,7 @@ const register = async (req, res) => {
         let unid = Math.random().toString(32).substr(2)
         params.unid = unid
         params.roleid = req.body['roleid'] || '200' //如果没有传roleid那么默认是普通员工
-        if (req.userInfo.roleid > "101") {
+        if (req.session.userInfo.roleid > "101") {
             res.send({ state: false, status: 10066, msg: "没有指定角色的权限" })
             return
         }
@@ -198,7 +198,7 @@ const uploadAvatar = async (req, res) => {
     let result = await updated(query, update)
     // console.log(result)
     if (result.n) {
-        res.send({ status: 1, state: true, msg: "图片上传成功" })
+        res.send({ status: 1, state: true, msg: "图片上传成功",imgurl:req.body.headimgurl })
     } else {
         res.send({ status: 0, state: false, msg: "图片上传失败" })
     }
@@ -352,7 +352,7 @@ const wechatLoginCtr = (req, response) => {
 
 
                     let token = jwt.sign({ ...info }, secrect, {
-                        expiresIn: 60 * 3
+                        expiresIn: 60 * 30
 
                     })
                     let result2 = await perModel.find({ roleid: parseInt(info.roleid) })

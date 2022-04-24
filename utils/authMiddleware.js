@@ -59,7 +59,8 @@ const authorizition = (req, res, next) => {
                         "/users/updatePassword",
                         "/permission/addrole",
                         "/permission/getrole",
-                        "/permission/getMenuList"
+                        "/permission/getMenuList",
+						"/users/addUser"
 
                     ]
                     //校验访问的路径是否合法(是否有权限)
