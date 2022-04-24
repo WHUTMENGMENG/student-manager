@@ -189,6 +189,10 @@ const login = async (req, res) => {
 const uploadAvatar = async (req, res) => {
     //req.body里面由于mutler中间件已经添加了一个字段 avatarUrl 所以接下来要把值存到数据库
     //一个头像需要对应一个用户 可以使用用户id来对应头像
+	if(!req.body.headimgurl){
+		res.send({ status: 0, state: false, msg: "图片上传失败" })
+			return 
+	}
     //实现思路
     //1.用户调用上传头像接口,传递当前用户的id和图片
     let query = { unid: req.body.unid }

@@ -352,7 +352,7 @@ const wechatLoginCtr = (req, response) => {
 
 
                     let token = jwt.sign({ ...info }, secrect, {
-                        expiresIn: 60 * 3
+                        expiresIn: 60 * 30
 
                     })
                     let result2 = await perModel.find({ roleid: parseInt(info.roleid) })

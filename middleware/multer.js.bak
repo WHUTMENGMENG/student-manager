@@ -41,7 +41,6 @@ const uploads = (params, staticPath) => (req, res, next) => {
         if (err instanceof multer.MulterError) {
             console.log(err)
             res.send({ err: err.message, msg: "上传文件出错" })
-				return
         } else {
             console.log(next)
             next() //如果上传文件没有错误 那么释放控制权给下一个中间件
