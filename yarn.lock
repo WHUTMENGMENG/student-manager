@@ -2,6 +2,97 @@
 # yarn lockfile v1
 
 
+"@alicloud/credentials@^2":
+  version "2.2.1"
+  resolved "https://mirrors.cloud.tencent.com/npm/@alicloud%2fcredentials/-/credentials-2.2.1.tgz#9ab763e53f3022aa2e8d199c924e84eb9b259c2d"
+  integrity sha512-N+1prwGoq/B38OzyY79tbFoUbPtnsYuC8a/JYAiP9/PtNLaT6nDDPpXa1h5jgfr9SmrPBif2KbmmJXdeVD6QZA==
+  dependencies:
+    "@alicloud/tea-typescript" "^1.5.3"
+    httpx "^2.2.0"
+    ini "^1.3.5"
+    kitx "^2.0.0"
+
+"@alicloud/dysmsapi20170525@^2.0.9":
+  version "2.0.9"
+  resolved "https://mirrors.cloud.tencent.com/npm/@alicloud%2fdysmsapi20170525/-/dysmsapi20170525-2.0.9.tgz#95fe77f0ca6469f881f58585caf49463763e2932"
+  integrity sha512-iI063RLiPSHHjAUjd34k0iFykxEr/6xrbTqiJvC2a4ZkRBA9TkpdLAwSlWrDHX3yDa0RZ4R44keXfOITFWepog==
+  dependencies:
+    "@alicloud/endpoint-util" "^0.0.1"
+    "@alicloud/openapi-client" "^0.4.1"
+    "@alicloud/openapi-util" "^0.2.7"
+    "@alicloud/tea-typescript" "^1.7.1"
+    "@alicloud/tea-util" "^1.4.0"
+
+"@alicloud/endpoint-util@^0.0.1":
+  version "0.0.1"
+  resolved "https://mirrors.cloud.tencent.com/npm/@alicloud%2fendpoint-util/-/endpoint-util-0.0.1.tgz#b237f5e04e373abb54c42119377b30bd6afb1a7c"
+  integrity sha512-+pH7/KEXup84cHzIL6UJAaPqETvln4yXlD9JzlrqioyCSaWxbug5FUobsiI6fuUOpw5WwoB3fWAtGbFnJ1K3Yg==
+  dependencies:
+    "@alicloud/tea-typescript" "^1.5.1"
+    kitx "^2.0.0"
+
+"@alicloud/gateway-spi@^0.0.8":
+  version "0.0.8"
+  resolved "https://mirrors.cloud.tencent.com/npm/@alicloud%2fgateway-spi/-/gateway-spi-0.0.8.tgz#1d251986ed40d8b98690dcac8128fec0c56f0f53"
+  integrity sha512-KM7fu5asjxZPmrz9sJGHJeSU+cNQNOxW+SFmgmAIrITui5hXL2LB+KNRuzWmlwPjnuA2X3/keq9h6++S9jcV5g==
+  dependencies:
+    "@alicloud/credentials" "^2"
+    "@alicloud/tea-typescript" "^1.7.1"
+
+"@alicloud/openapi-client@^0.4.1":
+  version "0.4.1"
+  resolved "https://mirrors.cloud.tencent.com/npm/@alicloud%2fopenapi-client/-/openapi-client-0.4.1.tgz#8e55a3bdfee17a00c2ec3d10feaf7bfd0eff7502"
+  integrity sha512-FNGQ9kmGi0AuNFX9yj7DDbMn8CB4TvihIIQ3ONNhLZF8Hj2asau7NiqVoftJX3F/JFq9qzJWeVbvboSM9Zq5kA==
+  dependencies:
+    "@alicloud/credentials" "^2"
+    "@alicloud/gateway-spi" "^0.0.8"
+    "@alicloud/openapi-util" "^0.2.7"
+    "@alicloud/tea-typescript" "^1.7.1"
+    "@alicloud/tea-util" "^1.4.0"
+
+"@alicloud/openapi-util@^0.2.7":
+  version "0.2.8"
+  resolved "https://mirrors.cloud.tencent.com/npm/@alicloud%2fopenapi-util/-/openapi-util-0.2.8.tgz#b404cff825c1b00967e0b3929a48856e6a42bbd1"
+  integrity sha512-63UWzteiJrSBGyMATHsuREhLKt6amRalwwumG9ufvMEVSx52x+DdxY8WrM8wwHL8BWEmmBllWCMPZ3TVrwBI7A==
+  dependencies:
+    "@alicloud/tea-typescript" "^1.7.1"
+    "@alicloud/tea-util" "^1.3.0"
+    kitx "^2.1.0"
+    sm3 "^1.0.3"
+
+"@alicloud/tea-console@^1.0.0":
+  version "1.0.0"
+  resolved "https://mirrors.cloud.tencent.com/npm/@alicloud%2ftea-console/-/tea-console-1.0.0.tgz#bacc60859d463764212f700dcb9333de2a69b5ec"
+  integrity sha512-kkdhu/iZRUzZBh58XPaKw+fsKlUAznPRD21wgHSUN+R85ODM66h3+a//hK9dsX3zUbfZ7DqDjZf53zu5ecKk6g==
+  dependencies:
+    "@alicloud/tea-typescript" latest
+
+"@alicloud/tea-typescript@^1.5.1", "@alicloud/tea-typescript@^1.5.3", "@alicloud/tea-typescript@^1.7.1", "@alicloud/tea-typescript@latest":
+  version "1.7.2"
+  resolved "https://mirrors.cloud.tencent.com/npm/@alicloud%2ftea-typescript/-/tea-typescript-1.7.2.tgz#1f9baf1093ff9f865f2b6091c2ba166aafd106cc"
+  integrity sha512-vDOU6qUp9ZAGlHSLC7lqVLgxUbmkcDXTEXyiIipvPWcq7dqwDDO6SeLlU7nBYI+yYWpbfOazEGkMTlHMhvA5Tw==
+  dependencies:
+    "@types/node" "^12.0.2"
+    httpx "^2.2.6"
+
+"@alicloud/tea-util@^1.3.0", "@alicloud/tea-util@^1.4.0":
+  version "1.4.3"
+  resolved "https://mirrors.cloud.tencent.com/npm/@alicloud%2ftea-util/-/tea-util-1.4.3.tgz#e6d70fb3a9be0ca5b83da7b2fdbfb96197c5f2e6"
+  integrity sha512-8bYzfn+hmzp8L1tkfOX7XNqOOc57i23EAVe09SvM/DasySTtBFdONkDV+EtHzROohBI1zpbE61EFD8jGThg1OA==
+  dependencies:
+    "@alicloud/tea-typescript" "^1.5.1"
+    kitx "^2.0.0"
+
+"@types/node@^12.0.2":
+  version "12.20.49"
+  resolved "https://mirrors.tencent.com/npm/@types%2fnode/-/node-12.20.49.tgz#97897a33dd145490f514bbcbccefc178534e360f"
+  integrity sha512-5e6QNb9bkeh4Hni4ktLqUZuUqnGTX/kou2aZkXyxtuYaHXgBm+In1SHR9V+7kDzWzjB08KC2uqt2doDi7cuAAA==
+
+"@types/node@^14":
+  version "14.18.14"
+  resolved "https://mirrors.tencent.com/npm/@types%2fnode/-/node-14.18.14.tgz#a0137fcc35719123e7270f158c50afd51e5e0674"
+  integrity sha512-HTgN9C1x8iMFycNAkLKIkJg+D3z1j0/Bm5/CMyzI3bO8a8dS0U1FxlS6hfvg5MPUYqkG3Y1myuje7HUNKLX9Mw==
+
 accepts@~1.3.4, accepts@~1.3.7:
   version "1.3.7"
   resolved "https://registry.npm.taobao.org/accepts/download/accepts-1.3.7.tgz#531bc726517a3b2b41f850021c6cc15eaab507cd"
@@ -26,6 +117,11 @@ acorn@^2.1.0:
   version "2.7.0"
   resolved "http://registry.npm.taobao.org/acorn/download/acorn-2.7.0.tgz#ab6e7d9d886aaca8b085bc3312b79a198433f0e7"
   integrity sha1-q259nYhqrKiwhbwzEreaGYQz8Oc=
+
+add@^2.0.6:
+  version "2.0.6"
+  resolved "https://mirrors.cloud.tencent.com/npm/add/-/add-2.0.6.tgz#248f0a9f6e5a528ef2295dbeec30532130ae2235"
+  integrity sha1-JI8Kn25aUo7yKV2+7DBTITCuIjU=
 
 after@0.8.2:
   version "0.8.2"
@@ -329,6 +425,13 @@ debug@3.1.0, debug@~3.1.0:
   dependencies:
     ms "2.0.0"
 
+debug@^4.1.1:
+  version "4.3.4"
+  resolved "https://mirrors.cloud.tencent.com/npm/debug/-/debug-4.3.4.tgz#1319f6579357f2338d3337d2cdd4914bb5dcc865"
+  integrity sha512-PRWFHuSU3eDtQJPvnNY7Jcket1j0t5OuOsFzPPzsekD52Zl8qUfFIPEiswXqIvHWGVHOgX+7G/vCNNhehwxfkQ==
+  dependencies:
+    ms "2.1.2"
+
 debug@~4.1.0:
   version "4.1.1"
   resolved "https://registry.npm.taobao.org/debug/download/debug-4.1.1.tgz#3b72260255109c6b589cee050f1d516139664791"
@@ -563,6 +666,14 @@ http-errors@~1.7.2:
     statuses ">= 1.5.0 < 2"
     toidentifier "1.0.0"
 
+httpx@^2.2.0, httpx@^2.2.6:
+  version "2.2.7"
+  resolved "http://mirrors.cloud.tencent.com/npm/httpx/-/httpx-2.2.7.tgz#1e34198146e32ca3305a66c11209559e1cbeba09"
+  integrity sha512-Wjh2JOAah0pdczfqL8NC5378G7jMt0Zcpn8U+yyxAiejjlagzSTQgJHuVvka2VNPQlKfoGehYRc79WKq9E4gDw==
+  dependencies:
+    "@types/node" "^14"
+    debug "^4.1.1"
+
 iconv-lite@0.4.24:
   version "0.4.24"
   resolved "https://registry.npm.taobao.org/iconv-lite/download/iconv-lite-0.4.24.tgz#2022b4b25fbddc21d2f524974a474aafe733908b"
@@ -584,6 +695,11 @@ inherits@2.0.4:
   version "2.0.4"
   resolved "https://registry.npm.taobao.org/inherits/download/inherits-2.0.4.tgz#0fa2c64f932917c3433a0ded55363aae37416b7c"
   integrity sha1-D6LGT5MpF8NDOg3tVTY6rjdBa3w=
+
+ini@^1.3.5:
+  version "1.3.8"
+  resolved "https://mirrors.cloud.tencent.com/npm/ini/-/ini-1.3.8.tgz#a29da425b48806f34767a4efce397269af28432c"
+  integrity sha512-JV/yugV2uzW5iMRSiZAyDtQd+nxtUnjeLt0acNdw98kKLrvuRVyB80tsREOE7yvGVgalhZ6RNXCmEHkUKBKxew==
 
 ipaddr.js@1.9.1:
   version "1.9.1"
@@ -688,6 +804,13 @@ kind-of@^3.0.2:
   integrity sha1-MeohpzS6ubuw8yRm2JOupR5KPGQ=
   dependencies:
     is-buffer "^1.1.5"
+
+kitx@^2.0.0, kitx@^2.1.0:
+  version "2.1.0"
+  resolved "http://mirrors.cloud.tencent.com/npm/kitx/-/kitx-2.1.0.tgz#fc7fbf78eb6ed7a5a3fd2d7afb3011e29d0e44c8"
+  integrity sha512-C/5v9MtIX7aHGOjwn5BmrrbNkJSf7i0R5mRzmh13GSAdRqQ7bYQo/Su2pTYNylFicqKNTVX3HML9k1u8k51+pQ==
+  dependencies:
+    "@types/node" "^12.0.2"
 
 lazy-cache@^1.0.3:
   version "1.0.4"
@@ -884,6 +1007,11 @@ ms@2.1.1, ms@^2.1.1:
   version "2.1.1"
   resolved "http://registry.npm.taobao.org/ms/download/ms-2.1.1.tgz#30a5864eb3ebb0a66f2ebe6d727af06a09d86e0a"
   integrity sha1-MKWGTrPrsKZvLr5tcnrwagnYbgo=
+
+ms@2.1.2:
+  version "2.1.2"
+  resolved "http://mirrors.cloud.tencent.com/npm/ms/-/ms-2.1.2.tgz#d09d1f357b443f493382a8eb3ccd183872ae6009"
+  integrity sha512-sGkPx+VjMtmA6MX27oA4FBFELFCZZ4S4XqeGOXCv68tT+jb3vk/RyaKWP0PTKyWtmLSM0b+adUTEvbs1PEaH2w==
 
 multer@^1.4.1:
   version "1.4.1"
@@ -1149,6 +1277,11 @@ sliced@1.0.1:
   version "1.0.1"
   resolved "http://registry.npm.taobao.org/sliced/download/sliced-1.0.1.tgz#0b3a662b5d04c3177b1926bea82b03f837a2ef41"
   integrity sha1-CzpmK10Ewxd7GSa+qCsD+Dei70E=
+
+sm3@^1.0.3:
+  version "1.0.3"
+  resolved "https://mirrors.cloud.tencent.com/npm/sm3/-/sm3-1.0.3.tgz#0051f0cc948c983944843136e7baa244eec5cd49"
+  integrity sha512-KyFkIfr8QBlFG3uc3NaljaXdYcsbRy1KrSfc4tsQV8jW68jAktGeOcifu530Vx/5LC+PULHT0Rv8LiI8Gw+c1g==
 
 socket.io-adapter@~1.1.0:
   version "1.1.2"
@@ -1427,6 +1560,11 @@ yargs@~3.10.0:
     cliui "^2.1.0"
     decamelize "^1.0.0"
     window-size "0.1.0"
+
+yarn@^1.22.18:
+  version "1.22.18"
+  resolved "https://mirrors.cloud.tencent.com/npm/yarn/-/yarn-1.22.18.tgz#05b822ade8c672987bab8858635145da0850f78a"
+  integrity sha512-oFffv6Jp2+BTUBItzx1Z0dpikTX+raRdqupfqzeMKnoh7WD6RuPAxcqDkMUy9vafJkrB0YaV708znpuMhEBKGQ==
 
 yeast@0.1.2:
   version "0.1.2"

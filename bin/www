@@ -8,6 +8,7 @@ var app = require('../app');
 var { io } = require("../routes/users")
 var debug = require('debug')('be:server');
 var https = require('https');
+var http = require('http'); //本地测试的时候用http
 let path = require("path")
 let fs = require("fs")
 
@@ -17,8 +18,8 @@ let fs = require("fs")
 
 //https证书目录
 
-let key = fs.readFileSync(path.resolve("https","chst.vip.key"))
-let cert = fs.readFileSync(path.resolve("https","chst.vip.pem"))
+let key = fs.readFileSync(path.resolve("https", "chst.vip.key"))
+let cert = fs.readFileSync(path.resolve("https", "chst.vip.pem"))
 // console.log(key)
 // console.log(cert)
 let httpsOption = {
@@ -27,11 +28,13 @@ let httpsOption = {
 }
 var port = normalizePort(process.env.PORT || '80');
 app.set('port', port);
+console.log(port)
 /**
  * Create HTTP server.
  */
 
 var server = https.createServer(httpsOption,app);
+// var server = http.createServer(app);
 io.attach(server)
 
 /**

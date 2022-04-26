@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 var svgCaptcha = require('svg-captcha');
-const { register,updateUser, login, uploadAvatar, updatePassword, getScancodeCtr, getAllUsers, wechatLoginCtr, wechatCallBackCtr } = require("../controller/usersController")
+const { register, updateUser, login, uploadAvatar, updatePassword, getScancodeCtr, getAllUsers, wechatLoginCtr, wechatCallBackCtr } = require("../controller/usersController")
 const io = require("socket.io")();
 io.on("connection", socket => {
     // let { wechatCallBackCtr, getScancodeCtr } = require("../controller/usersController");
@@ -15,6 +15,7 @@ const uploads = require("../middleware/multer")
 // console.log(uploads)
 //注册
 function createCaptcha(req, res) {
+
     var codeConfig = {
         size: 5, // 验证码长度
         ignoreChars: '0o1i', // 验证码字符中排除 0o1i
@@ -28,7 +29,12 @@ function createCaptcha(req, res) {
     var codeData = {
         img: captcha.data
     }
-    res.send(codeData);
+    if (req.query.v === "next") {
+        res.send({ state: true, status: 200, ...codeData });
+    } else {
+        res.send(codeData)
+    }
+
 }
 
 //获取验证码
@@ -41,10 +47,10 @@ router.get("/refreshCaptcha", createCaptcha)
 router.get("/verifyCaptcha", (req, res) => {
     console.log(req.query.captcha);
     console.log(req.session.captcha);
-	if(!req.query.captcha){
-		res.send({ state: false, status: 3004, msg: "验证码不能为空" })
-			return
-	}
+    if (!req.query.captcha) {
+        res.send({ state: false, status: 3004, msg: "验证码不能为空" })
+        return
+    }
 
     if (req.query.captcha == req.session.captcha) {
         res.send({ state: true, status: 200, msg: "验证码正确" })
@@ -60,7 +66,7 @@ router.post("/login", login)
 
 //上传头像
 
-router.post("/uploadAvatar", uploads('headimgurl','imgs'), uploadAvatar)
+router.post("/uploadAvatar", uploads('headimgurl', 'imgs'), uploadAvatar)
 
 //修改密码
 
@@ -77,8 +83,8 @@ router.get("/wechatCallBack", wechatCallBackCtr)
 
 router.get("/getQrcode", getScancodeCtr)
 
-router.post("/addUser",register)
-router.post("/updateUser",updateUser)
+router.post("/addUser", register)
+router.post("/updateUser", updateUser)
 module.exports = {
     router,
     io

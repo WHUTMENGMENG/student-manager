@@ -4,9 +4,9 @@ var path = require('path'); //内置的path模块
 var cookieParser = require('cookie-parser');
 var logger = require('morgan'); //日志模块
 var jwt = require("jsonwebtoken")
-    // const io = require('socket.io')();
-    // io.on("connection", socket => {
-    //     global.sock = socket
+// const io = require('socket.io')();
+// io.on("connection", socket => {
+//     global.sock = socket
 
 // })
 var indexRouter = require('./routes/index'); //路由
@@ -23,11 +23,15 @@ let productCategoryRouter = require("./routes/product_category")
 let weather = require("./routes/weather")
 let orderRouter = require("./routes/order")
 let upload = require("./routes/upload")
+//引入sms短信服务
+let smsRouter = require("./routes/sms")
+// ✂️✂️✂️✂️✂️✂️✂️✂️✂️✂️✂️华丽的分割线✂️✂️✂️✂️✂️✂️✂️✂️✂️✂️✂️✂️
+
 var app = express(); //通过express创建一个服务器
 var session = require('express-session');
 //引入验证用户信息拦截器(权限拦截)
 var authorization = require("./utils/authMiddleware.js")
-    // view engine setup
+// view engine setup
 app.set('views', path.join(__dirname, 'views')); //设置模板的默认文件夹为当前目录下的views文件夹
 app.set('view engine', 'ejs'); //设置模板引擎为ejs
 
@@ -37,9 +41,9 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public'))); //静态资源托管
 app.use(express.static(path.join(__dirname, 'webServer')))
-    //静态资源托管上传的文件
+//静态资源托管上传的文件
 app.use(express.static(path.join(__dirname, 'assets')))
-    //定义一个拦截器 用于校验用户访问的时候是否携带token 并且 校验token是否正确
+//定义一个拦截器 用于校验用户访问的时候是否携带token 并且 校验token是否正确
 
 //session模块
 app.use(session({
@@ -50,28 +54,34 @@ app.use(session({
     rolling: true //每次滚动更新
 }));
 
-app.all('*', function(req, res, next) {
+app.all('*', function (req, res, next) {
     // console.log(req.cookies)
     res.header("Access-Control-Allow-Credentials", "true")
     res.header("Access-Control-Allow-Origin", "*")
     res.header("Access-Control-Allow-Headers", "authorization,Content-Type");
     res.header("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS");
     res.header("X-Powered-By", ' 3.2.1')
-    req.session.name123 = "李雷"
-        // io.on('connection', socket => {
-        //         console.log(123)
-        //         req.session.socketIo = socket;
-        //         // console.log(req.session)
-        //         console.log("=====", socket[socket.id])
-        //         socket.emit("connectSuccess", "已经和您建立连接" + socket.id)
-        //         console.log(req.cookies['connect.sid'])
-        //     })
-        // res.header("Content-Type", "application/json;charset=utf-8");
+    // req.session.name123 = "李雷"
+    // io.on('connection', socket => {
+    //         console.log(123)
+    //         req.session.socketIo = socket;
+    //         // console.log(req.session)
+    //         console.log("=====", socket[socket.id])
+    //         socket.emit("connectSuccess", "已经和您建立连接" + socket.id)
+    //         console.log(req.cookies['connect.sid'])
+    //     })
+    // res.header("Content-Type", "application/json;charset=utf-8");
     next();
 });
-
+// let phoneMessage = require("./utils/phoneMessage")
+// app.use(function (req, res, next) {
+//     console.log(phoneMessage.default.send)
+//     phoneMessage.default.send(req, res, {})
+//     // next()
+// })
 
 app.use(authorization); //使用路由:就是服务器在匹配到不同的path路径的时候 给前端响应不同的资源
+app.use("/sms", smsRouter)
 app.use("/permission", permissionRouter) //权限路由
 app.use('/custom', customRouter)
 app.use("/students", studentsRouter)
@@ -83,5 +93,6 @@ app.use("/product", productRouter)
 app.use("/category", productCategoryRouter)
 app.use("/order", orderRouter)
 app.use("/weather", weather)
-app.use("/upload",upload)
+app.use("/upload", upload)
+
 module.exports = app

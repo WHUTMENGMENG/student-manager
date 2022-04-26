@@ -71,7 +71,7 @@ let loginModel = (params) => {
 //更新数据库 
 
 const updated = (query, update) => {
-    console.log(query, update)
+    // console.log(query, update)
     return Collection.updateOne(query, update)
         .then(res => res)
         .catch(err => {
