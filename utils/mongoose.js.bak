@@ -2,7 +2,7 @@
 
 let mongoose = require("mongoose");
 
-let url = "mongodb://127.0.0.1:27017/H51901";
+let url = "mongodb://localhost:27017/H51901";
 
 mongoose.connect(url, { useNewUrlParser: true })//加上{ useNewUrlParser: true } 可以去除控制台mongo的警告
 
