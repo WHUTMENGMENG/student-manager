@@ -77,7 +77,7 @@ const updateUser = async (req, res) => {
     // }
     if (roleid != req.session.userInfo.roleid || (vipLevel && vipLevel != req.session.userInfo.vipLevel)) {
         //判断当前用户的权限是不是root id是1
-        if (req.session.userInfo.roleid == "1" || req.session.userInfo.roleid == "100") {
+        if (req.session.userInfo.roleid == "1" || req.session.userInfo.roleid == "101") {
 
         } else {
 
