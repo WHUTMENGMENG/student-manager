@@ -91,7 +91,7 @@ const updateUser = async (req, res) => {
     }
 
     if (req.body.phone) {//如果传递了手机号进行绑定
-        let findRes = await find({ phone });
+        let findRes = await find({ phone:req.body.phone });
         if (findRes.length) {
             res.send({ state: false, status: 10066, msg: "手机号已经被绑定" })
             return
