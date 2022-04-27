@@ -71,10 +71,10 @@ const updateUser = async (req, res) => {
     }
     let query = { unid };
     roleid = parseInt(roleid);
-    if (!roleid) {
-        roleid = "200";
-        req.body.roleid = roleid;
-    }
+    // if (!roleid) {
+    //     roleid = "200";
+    //     req.body.roleid = roleid;
+    // }
     if (roleid != req.session.userInfo.roleid || (vipLevel && vipLevel != req.session.userInfo.vipLevel)) {
         //判断当前用户的权限是不是root id是1
         if (req.session.userInfo.roleid == "1" || req.session.userInfo.roleid == "100") {
@@ -89,6 +89,15 @@ const updateUser = async (req, res) => {
         res.send({ state: false, status: 10077, msg: "角色id错误" })
         return
     }
+
+    if (req.body.phone) {//如果传递了手机号进行绑定
+        let findRes = find({ phone });
+        if (findRes.length) {
+            res.send({ state: false, status: 10066, msg: "手机号已经被绑定" })
+            return
+        }
+    }
+
     let result = await updated(query, { $set: req.body });
     if (result) {
         res.send({ state: true, status: 200, msg: '更新成功' })
