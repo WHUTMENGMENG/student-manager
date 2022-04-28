@@ -3,7 +3,8 @@
 /**
  * Module dependencies.
  */
-
+// console.log(process.argv)
+var getEnv = require('../utils/getEnv')
 var app = require('../app');
 var { io } = require("../routes/users")
 var debug = require('debug')('be:server');
@@ -32,9 +33,9 @@ console.log(port)
 /**
  * Create HTTP server.
  */
-
-var server = https.createServer(httpsOption,app);
-// var server = http.createServer(app);
+//先判断当前服务器环境
+let env = getEnv('env');
+var server = env==="test"?http.createServer(app):https.createServer(httpsOption,app);
 io.attach(server)
 
 /**

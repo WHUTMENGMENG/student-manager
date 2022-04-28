@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
+    "test": "nodemon ./bin/www env=test",
     "start": "nodemon ./bin/www",
     "zx": "nodemon ./bin/www"
   },
