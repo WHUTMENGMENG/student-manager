@@ -75,7 +75,7 @@ const updateUser = async (req, res) => {
     //     roleid = "200";
     //     req.body.roleid = roleid;
     // }
-    if (roleid != req.session.userInfo.roleid || (vipLevel && vipLevel != req.session.userInfo.vipLevel)) {
+    if ((roleid && roleid) != req.session.userInfo.roleid || (vipLevel && vipLevel != req.session.userInfo.vipLevel)) {
         //判断当前用户的权限是不是root id是1
         if (req.session.userInfo.roleid == "1" || req.session.userInfo.roleid == "101") {
 
@@ -91,7 +91,7 @@ const updateUser = async (req, res) => {
     }
 
     if (req.body.phone) {//如果传递了手机号进行绑定
-        let findRes = await find({ phone:req.body.phone });
+        let findRes = await find({ phone: req.body.phone });
         if (findRes.length) {
             res.send({ state: false, status: 10066, msg: "手机号已经被绑定" })
             return
@@ -274,7 +274,7 @@ const updatePassword = async (req, res) => {
     if (findUernameResult.length !== 0) {
         //说明有此用户 继续验证密码
         query.password = oldPassword
-        //根据用户传入的旧妈妈查询是否和数据库的密码相匹配
+        //根据用户传入的旧密码查询是否和数据库的密码相匹配
         let matchPasswordResult = await find(query)
         if (matchPasswordResult.length !== 0) { //表示旧密码匹配成功 那么可以继续更改密码
             //说明用户名和密码匹配成功 调用updatePass方法 对数据库的密码进行修改
