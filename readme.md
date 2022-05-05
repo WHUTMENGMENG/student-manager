@@ -373,7 +373,7 @@ npm start
 {
     "state": false,
     "status": 10026,
-    "message": "验证码不正确"
+    "msg": "验证码不正确"
 }
 ```
 

@@ -113,18 +113,18 @@ const login = async (req, res) => {
     if (req.query.type === "sms") {
         let { smsCode } = req.session;
         if (!smsCode) {
-            res.send({ state: false, status: 10027, message: "先点击发送验证码" })
+            res.send({ state: false, status: 10027, msg: "先点击发送验证码" })
             return
         }
         //获取用户传入的校验验证码
         let { code } = req.body;
         if (!code || code.length < 5) {
-            res.send({ state: false, status: 10025, message: "请传入5位验证码" })
+            res.send({ state: false, status: 10025, msg: "请传入5位验证码" })
             return
         } else {
             //校验session中验证码是否正确
             if (req.session.smsCode !== code) {
-                res.send({ state: false, status: 10026, message: "验证码不正确" })
+                res.send({ state: false, status: 10026, msg: "验证码不正确" })
                 return
             } else {
                 //验证码校验通过
@@ -262,7 +262,7 @@ const uploadAvatar = async (req, res) => {
 //修改密码
 const updatePassword = async (req, res) => {
     //1.获取前端输入的账户名和密码
-    //2.验证传入的密码是否和数据库的密码一致 yes=>update no=>send error message
+    //2.验证传入的密码是否和数据库的密码一致 yes=>update no=>send error msg
     let { username, oldPassword, newPassword } = req.body;
 
     //查询数据库是否存在此用户

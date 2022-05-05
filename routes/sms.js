@@ -11,7 +11,7 @@ let router = express.Router()
 router.post("/send", function (req, res) {
     let { phoneNumber } = req.body;
     if (!phoneNumber) {
-        res.send({ state: false, status: 3004, message: "请输入手机号" })
+        res.send({ state: false, status: 3004, msg: "请输入手机号" })
         return
     }
     let num = '0123456789';

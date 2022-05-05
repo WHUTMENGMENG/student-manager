@@ -31,9 +31,9 @@ const getWeather = async(req, res, next) => { //传递all获取全部的天气�
         } else {
             data = result
         }
-        res.send({ state: true, status: 200, message: '获取成功', data })
+        res.send({ state: true, status: 200, msg: '获取成功', data })
     } else {
-        res.send({ state: false, status: 500, message: '获取出错' })
+        res.send({ state: false, status: 500, msg: '获取出错' })
     }
 }
 
