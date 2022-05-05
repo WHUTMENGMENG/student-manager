@@ -71,11 +71,10 @@ const updateUser = async (req, res) => {
     }
     let query = { unid };
     roleid = parseInt(roleid);
-    // if (!roleid) {
-    //     roleid = "200";
-    //     req.body.roleid = roleid;
-    // }
-    if ((roleid && roleid) != req.session.userInfo.roleid || (vipLevel && vipLevel != req.session.userInfo.vipLevel)) {
+    if (!roleid) {
+        roleid = req.session.userInfo.roleid;
+    }
+    if (roleid != req.session.userInfo.roleid || (vipLevel && vipLevel != req.session.userInfo.vipLevel)) {
         //判断当前用户的权限是不是root id是1
         if (req.session.userInfo.roleid == "1" || req.session.userInfo.roleid == "101") {
 
