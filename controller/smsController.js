@@ -73,7 +73,7 @@ var Client = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                       
+
                         client = Client.createClient("LTAI5t7YUzzyMpVDvbNm3fb2", "kO9WSY2DCouqLOfA9MnmRUou9KXdce");
                         sendSmsRequest = new $Dysmsapi20170525.SendSmsRequest({
                             signName,
@@ -107,9 +107,9 @@ var Client = /** @class */ (function () {
                                 console.log("手机验证码:" + codeQueue.code)
                                 req.session.phone = phoneNumbers;
                                 // console.log(req.session)
-                                res.send({ status: 200, state: true, ...r.body })
+                                res.send({ status: 200, state: true, msg: r.body.message, ...r.body })
                             } else {
-                                res.send({ status: 4003, state: false, ...r.body })
+                                res.send({ status: 4003, state: false, msg: r.body.message, ...r.body })
                             }
 
                         })
