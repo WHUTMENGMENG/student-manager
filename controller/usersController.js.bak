@@ -6,6 +6,8 @@ const jwt = require("jsonwebtoken")
 const https = require("https")
 const { Query } = require("mongoose")
 
+// ✂️✂️✂️✂️✂️✂️✂️✂️✂️✂️✂️华丽的分割线✂️✂️✂️✂️✂️✂️✂️✂️✂️✂️✂️✂️
+
 const register = async (req, res) => {
     //1.接受前端传递过来的参数
     let cTime = moment().format("YYYY/MM/DD HH:mm:ss")
@@ -70,12 +72,11 @@ const updateUser = async (req, res) => {
     let query = { unid };
     roleid = parseInt(roleid);
     if (!roleid) {
-        roleid = "200";
-        req.body.roleid = roleid;
+        roleid = req.session.userInfo.roleid;
     }
     if (roleid != req.session.userInfo.roleid || (vipLevel && vipLevel != req.session.userInfo.vipLevel)) {
         //判断当前用户的权限是不是root id是1
-        if (req.session.userInfo.roleid == "1" || req.session.userInfo.roleid == "100") {
+        if (req.session.userInfo.roleid == "1" || req.session.userInfo.roleid == "101") {
 
         } else {
 
@@ -87,6 +88,15 @@ const updateUser = async (req, res) => {
         res.send({ state: false, status: 10077, msg: "角色id错误" })
         return
     }
+
+    if (req.body.phone) {//如果传递了手机号进行绑定
+        let findRes = await find({ phone: req.body.phone });
+        if (findRes.length) {
+            res.send({ state: false, status: 10066, msg: "手机号已经被绑定" })
+            return
+        }
+    }
+
     let result = await updated(query, { $set: req.body });
     if (result) {
         res.send({ state: true, status: 200, msg: '更新成功' })
@@ -97,91 +107,132 @@ const updateUser = async (req, res) => {
 
 //登入
 const login = async (req, res) => {
-    //1.获取前端传入的用户名和密码
-    //2.调用loginModel进行数据库校验 如果有返回值=>登入成功 没有=>登入失败
-    let params = req.body;
-    if (!params.username || !params.password) {
-        res.send({ status: 1004, state: false, msg: "没有传递用户名或者密码" })
-        return
-    }
-    let result = await loginModel(params)
-    if (result.length == 0) {
-        //说明数据库没有查找到(用户名或者密码错误)
-        res.send({ status: 0, state: false, msg: "用户名或者密码错误" })
-    } else {
-        var info = { ...result[0]._doc }
-        let { vipStamp, unid, roleid } = info;
-        let currentTime = +new Date()
-        if (currentTime - vipStamp >= 0 && roleid != "200") {
-            //过期 vip等级降为0
-            await updated({ unid }, { $set: { vipLevel: 0, roleid: "200" } })
-            info.roleid = "200"
-            info.vipLevel = 0;
+
+    // ✂️✂️✂️✂️✂️✂️✂️✂️✂️✂️✂️新增手机登入,通过传递的type类型来判断是否手机登入✂️✂️✂️✂️✂️✂️✂️✂️✂️✂️✂️✂️
+    // console.log(req.session);
+    if (req.query.type === "sms") {
+        let { smsCode } = req.session;
+        if (!smsCode) {
+            res.send({ state: false, status: 10027, msg: "先点击发送验证码" })
+            return
         }
-        //保持用户登入
-        //1.在用户登入成功的时候 使用jwt生成一串数字签名token 返回给前端
-        //1.1调用jsonwebtoken下面的sign方法 进行签名
-        let secrect = "YOU_PLAY_BASKETBALL_LIKE_CAIXUKUN" //随机字符串用于加密
-        let token = jwt.sign(info, secrect, {
-            expiresIn: 60 * 60 * 3
-        }) //1.payload载荷 2.secrect 加密字符串 3.{expirsIn:秒} 生效时间
-        //2.在用户访问服务器的时候 必须携带token 进行校验 如果有效那么正常返回数据 ,无效返回错误信息
-        // console.log(setLogResult)
-        //获取权限路径
-        let result2 = await perModel.find({ roleid: info.roleid })
-        // console.log(result2)
-        let rows = result2[0].rows
-        let buttons = result2[0].buttons
-        info.rows = rows
-        req.session.userInfo = info;
-        info.roleName = result2[0].roleName
-        let newInfo = { ...info }
-        delete newInfo.rows
-        delete newInfo.password
-        res.send({ status: 1, state: true, msg: "登入成功", permission: { buttons }, userInfo: newInfo, token: token })
+        //获取用户传入的校验验证码
+        let { code } = req.body;
+        if (!code || code.length < 5) {
+            res.send({ state: false, status: 10025, msg: "请传入5位验证码" })
+            return
+        } else {
+            //校验session中验证码是否正确
+            if (req.session.smsCode !== code) {
+                res.send({ state: false, status: 10026, msg: "验证码不正确" })
+                return
+            } else {
+                //验证码校验通过
+                //获取用户手机号,到数据库中查找
+                let { phone } = req.session;
+
+                verifyUser({ phone }, '这个手机号没有注册')
+            }
+        }
+    } else {
+
+        //1.获取前端传入的用户名和密码
+        //2.调用loginModel进行数据库校验 如果有返回值=>登入成功 没有=>登入失败
+        let params = req.body;
+        if (!params.username || !params.password) {
+            res.send({ status: 1004, state: false, msg: "没有传递用户名或者密码" })
+            return
+        }
+
+        verifyUser(params, "用户名或者密码错误")
+    }
+
+    let username;
+    //复用的逻辑
+
+    async function verifyUser(params, msg) {
+        let result = await loginModel(params)
+        if (result.length == 0) {
+            //说明数据库没有查找到(用户名或者密码错误)
+            res.send({ status: 0, state: false, msg })
+            return
+        } else {
+            var info = { ...result[0]._doc }
+            let { vipStamp, unid, roleid } = info;
+            let currentTime = +new Date()
+            if (currentTime - vipStamp >= 0 && roleid != "200") {
+                //过期 vip等级降为0
+                await updated({ unid }, { $set: { vipLevel: 0, roleid: "200" } })
+                info.roleid = "200"
+                info.vipLevel = 0;
+            }
+            //保持用户登入
+            //1.在用户登入成功的时候 使用jwt生成一串数字签名token 返回给前端
+            //1.1调用jsonwebtoken下面的sign方法 进行签名
+            let secrect = "YOU_PLAY_BASKETBALL_LIKE_CAIXUKUN" //随机字符串用于加密
+            let token = jwt.sign(info, secrect, {
+                expiresIn: 60 * 60 * 10
+            }) //1.payload载荷 2.secrect 加密字符串 3.{expirsIn:秒} 生效时间
+            //2.在用户访问服务器的时候 必须携带token 进行校验 如果有效那么正常返回数据 ,无效返回错误信息
+            // console.log(setLogResult)
+            //获取权限路径
+            let result2 = await perModel.find({ roleid: info.roleid })
+            // console.log(result2)
+            let rows = result2[0].rows
+            let buttons = result2[0].buttons
+            info.rows = rows
+            req.session.userInfo = info;
+            info.roleName = result2[0].roleName
+            let newInfo = { ...info }
+            delete newInfo.rows
+            delete newInfo.password
+            res.send({ status: 1, state: true, msg: "登入成功", permission: { buttons }, userInfo: newInfo, token: token })
+
+
+            //3.登入成功后记录登入日志
+            //查找上次登入的日志
+            let lastLoginQuery = {
+                username: newInfo.username
+            }
+            //获取上次登入结果
+            let findLogResult = await findLog(lastLoginQuery)
+            //如果是第一次登入 让lastLogin的值设置空
+            let lastLogin;
+            if (findLogResult.length !== 0) {
+                findLogResult = findLogResult[0]
+                lastLogin = {
+                    loginTime: findLogResult['nowLogin']['loginTime'],
+                    ip: findLogResult['nowLogin']['ip']
+                }
+            } else {
+                lastLogin = {
+                    loginTime: "",
+                    ip: ""
+                }
+            }
+            //获取登入ip
+            let ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+            // ip = ip.substr(7)
+            let regExp = /([^0-9])*((\.|\d)*)/
+            let r = regExp.exec(ip)
+            ip = r[2]
+            // console.log(ip)
+            //创建登入时间
+            let loginTime = moment().format("YYYY/MM/DD HH:mm:ss")
+            let nowLogin = {
+                ip,
+                loginTime,
+            }
+            let log = {
+                username: req.body.username,
+                lastLogin,
+                nowLogin,
+            }
+            let setLogResult = addLog(log)
+        }
     }
 
 
-    //3.登入成功后记录登入日志
-    //查找上次登入的日志
-    let lastLoginQuery = {
-        username: req.body.username
-    }
-    //获取上次登入结果
-    let findLogResult = await findLog(lastLoginQuery)
-    //如果是第一次登入 让lastLogin的值设置空
-    let lastLogin;
-    if (findLogResult.length !== 0) {
-        findLogResult = findLogResult[0]
-        lastLogin = {
-            loginTime: findLogResult['nowLogin']['loginTime'],
-            ip: findLogResult['nowLogin']['ip']
-        }
-    } else {
-        lastLogin = {
-            loginTime: "",
-            ip: ""
-        }
-    }
-    //获取登入ip
-    let ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-    // ip = ip.substr(7)
-    let regExp = /([^0-9])*((\.|\d)*)/
-    let r = regExp.exec(ip)
-    ip = r[2]
-    // console.log(ip)
-    //创建登入时间
-    let loginTime = moment().format("YYYY/MM/DD HH:mm:ss")
-    let nowLogin = {
-        ip,
-        loginTime,
-    }
-    let log = {
-        username: req.body.username,
-        lastLogin,
-        nowLogin,
-    }
-    let setLogResult = addLog(log)
 
 }
 
@@ -189,6 +240,10 @@ const login = async (req, res) => {
 const uploadAvatar = async (req, res) => {
     //req.body里面由于mutler中间件已经添加了一个字段 avatarUrl 所以接下来要把值存到数据库
     //一个头像需要对应一个用户 可以使用用户id来对应头像
+    if (!req.body.headimgurl) {
+        res.send({ status: 0, state: false, msg: "图片上传失败" })
+        return
+    }
     //实现思路
     //1.用户调用上传头像接口,传递当前用户的id和图片
     let query = { unid: req.body.unid }
@@ -198,7 +253,7 @@ const uploadAvatar = async (req, res) => {
     let result = await updated(query, update)
     // console.log(result)
     if (result.n) {
-        res.send({ status: 1, state: true, msg: "图片上传成功",imgurl:req.body.headimgurl })
+        res.send({ status: 1, state: true, msg: "图片上传成功", imgurl: req.body.headimgurl })
     } else {
         res.send({ status: 0, state: false, msg: "图片上传失败" })
     }
@@ -207,7 +262,7 @@ const uploadAvatar = async (req, res) => {
 //修改密码
 const updatePassword = async (req, res) => {
     //1.获取前端输入的账户名和密码
-    //2.验证传入的密码是否和数据库的密码一致 yes=>update no=>send error message
+    //2.验证传入的密码是否和数据库的密码一致 yes=>update no=>send error msg
     let { username, oldPassword, newPassword } = req.body;
 
     //查询数据库是否存在此用户
@@ -218,7 +273,7 @@ const updatePassword = async (req, res) => {
     if (findUernameResult.length !== 0) {
         //说明有此用户 继续验证密码
         query.password = oldPassword
-        //根据用户传入的旧妈妈查询是否和数据库的密码相匹配
+        //根据用户传入的旧密码查询是否和数据库的密码相匹配
         let matchPasswordResult = await find(query)
         if (matchPasswordResult.length !== 0) { //表示旧密码匹配成功 那么可以继续更改密码
             //说明用户名和密码匹配成功 调用updatePass方法 对数据库的密码进行修改
@@ -305,7 +360,7 @@ let socket;
 const wechatLoginCtr = (req, response) => {
     let { wechatCode } = req.query
     if (!wechatCode) {
-        response.send({ errormsg: "请传入wechatCode", state: false })
+        response.send({ msg: "请传入wechatCode", state: false })
         return
     }
     // socket = req.sock;
@@ -335,7 +390,7 @@ const wechatLoginCtr = (req, response) => {
             if (Array.isArray(isUser)) {
                 if (isUser.length) {
                     //说明有 不需要存储 直接响应登入成功
-                  //处理vip过期
+                    //处理vip过期
                     var info = { ...isUser[0]._doc }
                     let { vipStamp, unid, roleid } = info;
                     let currentTime = +new Date()
@@ -401,7 +456,7 @@ const wechatLoginCtr = (req, response) => {
                                 let info = { ...registResult }
                                 console.log("++++++" + info.roleid)
                                 let result2 = await perModel.find({ roleid: 200 })
-                                console.log("===========320", result2)
+                                // console.log("===========320", result2)
 
                                 let rows = result2[0].rows
                                 let buttons = result2[0].buttons
