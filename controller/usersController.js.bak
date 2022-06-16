@@ -501,7 +501,7 @@ const getScancodeCtr = (req, res) => {
     //获取客户端传来的sid就是socketid
     let { sid = "" } = req.query;
     if (!sid) {
-        res.send({ state: false, code: 10022, error: "没有传递sid" });
+        res.send({ state: false, code: 10022, msg: "没有传递sid" });
         return
     }
     randomState[state] = sid;//通过随机状态和socket的sid建立映射关系;

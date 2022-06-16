@@ -385,7 +385,7 @@ const wechatLoginCtr = (req, response) => {
             let { access_token, openid } = result
             // console.log(result)
             //请求用户信息之前判断一下数据库是否有用户信息 用openid判断
-            if (!openid) { response.send({ "errmsg": "请重新扫码" }); return }
+            if (!openid) { response.send({ "msg": "请重新扫码" }); return }
             let isUser = await find({ openid })
             if (Array.isArray(isUser)) {
                 if (isUser.length) {
@@ -478,7 +478,7 @@ const wechatLoginCtr = (req, response) => {
                 }
             } else {
 
-                response.send({ errmsg: "查询数据库出错" })
+                response.send({ msg: "查询数据库出错" })
             }
         })
     })
@@ -508,11 +508,11 @@ const getScancodeCtr = (req, res) => {
     // console.log(randomState)
     let socketid = randomState[state];
     if (!global.io) {
-        res.send({ state: false, errmsg: "没有连接socket.io" })
+        res.send({ state: false, msg: "没有连接socket.io" })
         return
     }
     if (!global.io.sockets.sockets[socketid]) {
-        res.send({ state: false, errmsg: "socket指定sid错误" })
+        res.send({ state: false, msg: "socket指定sid错误" })
         return
     }
     qrCodeDelayObj[state] = setTimeout(() => {
@@ -537,7 +537,7 @@ const wechatCallBackCtr = async (req, res) => {
     let { code, state } = req.query; //获取code之后去换access_token]
     // console.log("---------",req.query)
     if (!state) {
-        res.send({ state: false, errmsg: '没有传递state' })
+        res.send({ state: false, msg: '没有传递state' })
         return
     }
     if (global.io) {
@@ -562,11 +562,11 @@ const wechatCallBackCtr = async (req, res) => {
             global.io.sockets.sockets[socketid].emit("scancodeSuccess", { status: 200, state: true, msg: "已扫码", wechatCode: code });
             res.render("wechatCallBack", { nickname: "qf", headimgurl: "/imgs/log.png" })
         } else {
-            res.send({ state: false, errmsg: "socket指定sid错误" })
+            res.send({ state: false, msg: "socket指定sid错误" })
             return
         }
     } else {
-        res.send({ state: false, errmsg: "没有连接socket.io" })
+        res.send({ state: false, msg: "没有连接socket.io" })
         return
     }
 
