@@ -30,7 +30,9 @@ yarn
 npm start
 ```
 
-# base:http://www.chst.vip
+# 项目效果地址:http://chst.vip:8081/crm
+
+# 服务器基础地址:http://www.chst.vip
 
 # 测试账号:lbw 密码:555
 
