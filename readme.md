@@ -897,6 +897,10 @@ npm i socket.io-client
 
 ### 5.1.4 获取类目
 
+请求地址
+
+/category/getCategory
+
 响应成功结果
 
 ```json
