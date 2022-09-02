@@ -7,7 +7,8 @@ const derivedId = require("../utils/derivedIdFromMoment")
 // updateTime: { type: String, required: false, default: null }//更新时间
 
 const getProductCategorys = async (req, res) => {
-    let findRes = await find_product_categorys();
+    let { category_id = {} } = req.query;
+    let findRes = await find_product_categorys(category_id);
     if (Array.isArray(findRes)) {
         res.send({ status: 200, state: true, msg: "获取成功", data: [...findRes] })
     } else {
@@ -20,7 +21,7 @@ const addProductCategorys = async (req, res) => {
         return
     }
     let { username } = req.session.userInfo;
-    let { categoryName,categoryImgurl } = req.body;
+    let { categoryName, categoryImgurl } = req.body;
 
     //查询是否已经有该类目
     let findRes = await find_product_categorys({ categoryName })
