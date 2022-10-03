@@ -354,7 +354,7 @@ function createScanCodeUrl({ appid, redirect_uri, response_type, scope, state })
 let appid = "wxed58e834201d0894";
 let redirect_uri = "https://chst.vip/users/wechatCallBack"
 let scope = "snsapi_userinfo"
-let secret = 'c7ec5b61faa2314dc34e3cfb9d572189'
+let secret = '6c0bfa8649572d4e813f5bf5b1344576'
 let response_type = "code"
 let socket;
 const wechatLoginCtr = (req, response) => {
@@ -385,7 +385,7 @@ const wechatLoginCtr = (req, response) => {
             let { access_token, openid } = result
             // console.log(result)
             //请求用户信息之前判断一下数据库是否有用户信息 用openid判断
-            if (!openid) { response.send({ "msg": "请重新扫码" }); return }
+            if (!openid) { response.send({ "msg": result.errmsg ,err:result.toString()}); return }
             let isUser = await find({ openid })
             if (Array.isArray(isUser)) {
                 if (isUser.length) {

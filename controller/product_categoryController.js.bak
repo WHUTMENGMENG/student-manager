@@ -59,7 +59,7 @@ const delProductCategorys = async (req, res) => {
         res.send({ status: 1004, state: false, msg: "err 请传入category_id" })
         return
     }
-			if(category_id=="20210827165510715"){
+			if(category_id=="20220902115604269"){
 			res.send({ status: 1004, state: false, msg: "not permitted, you can't delete it" })
 				return
 		}
