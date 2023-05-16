@@ -25,6 +25,9 @@ let orderRouter = require("./routes/order")
 let upload = require("./routes/upload")
 //引入sms短信服务
 let smsRouter = require("./routes/sms")
+//引入权限路径路由
+
+let permissionPathRouter = require("./routes/permissionPath")
 // ✂️✂️✂️✂️✂️✂️✂️✂️✂️✂️✂️华丽的分割线✂️✂️✂️✂️✂️✂️✂️✂️✂️✂️✂️✂️
 
 var app = express(); //通过express创建一个服务器
@@ -81,6 +84,7 @@ app.all('*', function (req, res, next) {
 // })
 
 app.use(authorization); //使用路由:就是服务器在匹配到不同的path路径的时候 给前端响应不同的资源
+// app.use('/permissionPath', permissionPathRouter)
 app.use("/sms", smsRouter)
 app.use("/permission", permissionRouter) //权限路由
 app.use('/custom', customRouter)

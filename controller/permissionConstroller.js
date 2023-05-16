@@ -1,51 +1,7 @@
 const { addRole, updateRole, find } = require("../model/permissionModel")
 
 const addRoleCtr = async (req, res) => { //添加角色
-    const obj = {
-        "roleid": "103",
-        "roleName": "主管",
-        "menuList": [
-            {
-                "name": "管理首页"
-            },
-            {
-                "name": "学员管理",
-                "children": [
-                    {
-                        "name": "学员项目管理"
-                    },
-                    {
-                        "name": "学员资料"
-                    }
-                ]
-            },
-            {
-                "name": "数据统计"
-            },
-            {
-                "name": "我的中心"
-            }
-        ],
-        "rows": [
-            "/students/getstulist",
-            "/getloginlog",
-            "/students/getclasses",
-            "students/addstu",
-            "/students/delstu",
-            "/students/updatestu",
-            "/students/searchstu",
-            "/permission/getRole",
-            "/permission/getPermission",
-            "/permission/getMenuList"
-        ]
-    }
-    //res.send({msg:"好的我知道了"}) //功能待开发
-    const result = await addRole(obj)
-    if (result) {
-        res.send({ msg: "succ" })
-    } else {
-        res.send({ msg: "err" })
-    }
+   
 
 }
 

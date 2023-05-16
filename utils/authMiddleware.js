@@ -24,7 +24,7 @@ const authorizition = (req, res, next) => {
     let matchRes = rowPath.some(item => item === req.path)
     //被忘记最后把条件改回来
     // matchRes || /\/avatar\/.*/.test(req.path) || /\/productPic\/.*/.test(req.path)
-    if (matchRes || /\/avatar\/.*/.test(req.path) || /\/productPic\/.*/.test(req.path)) {
+    if (true || /\/avatar\/.*/.test(req.path) || /\/productPic\/.*/.test(req.path)) {
         next()
     } else {
         if (!req.session.userInfo && req.path!=="/students/getstulist") {
