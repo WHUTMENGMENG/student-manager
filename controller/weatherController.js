@@ -10,7 +10,7 @@ let oldDay = oldTime.getDate() //获取几日 29
     //获取小时进行运算
 let oldHours = oldTime.getHours(); //1
 const getWeather = async(req, res, next) => { //传递all获取全部的天气情况
-    let { key } = req.query;
+    let { key,counter=3 } = req.query;
     let data;
     let query;
     if (req.query.city) {
@@ -24,14 +24,10 @@ const getWeather = async(req, res, next) => { //传递all获取全部的天气�
         }
 
     }
-    let result = await model.find_weather(query = {});
+    let result = await model.find_weather(query = {},counter);
     if (Array.isArray(result)) {
-        if (key !== "all") {
-            data = [result[result.length - 1]]
-        } else {
-            data = result
-        }
-        res.send({ state: true, status: 200, msg: '获取成功', data })
+   
+        res.send({ state: true, status: 200, msg: '获取成功', result })
     } else {
         res.send({ state: false, status: 500, msg: '获取出错' })
     }

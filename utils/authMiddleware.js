@@ -27,7 +27,7 @@ const authorizition = (req, res, next) => {
     if (matchRes || /\/avatar\/.*/.test(req.path) || /\/productPic\/.*/.test(req.path)) {
         next()
     } else {
-        if (!req.session.userInfo) {
+        if (!req.session.userInfo && req.path!=="/students/getstulist") {
             res.send({ status: 403, code: "10022", msg: "请登入" })
             return
         }
@@ -71,12 +71,18 @@ const authorizition = (req, res, next) => {
                     let isAccessRoutes = allRoutes.concat(newPath).some(routes => req.path === routes)
                     if (isAccessRoutes) {
                         // console.log(req.session.userInfo, "222222")
-
-                        req.session.userInfo.rows = [...req.session.userInfo.rows, ...newPath]
-
-                        let isAuth = req.session.userInfo.rows.some(item => item === req.path)
+						var isAuth = false;
+						if(req.path!=="/students/getstulist"){
+							 req.session.userInfo.rows = [...req.session.userInfo.rows, ...newPath]
+							 var isAuth = req.session.userInfo.rows.some(item => item === req.path)
+						}else {
+								 isAuth = true;
+							 }
+                       
                         if (isAuth) {
-                            //检查当前的vip是否过期
+							
+							if(req.path!=="/students/getstulist"){
+								 //检查当前的vip是否过期
                             // console.log(req.session.userInfo)
                             let { vipStamp, unid, vipLevel, roleid } = req.session.userInfo;
                             let currentStamp = +new Date();
@@ -87,7 +93,8 @@ const authorizition = (req, res, next) => {
                                         req.session.userInfo.vipLevel = 0;//session的临时数据vip也为0
                                         req.session.userInfo.roleid = "200"
                                     })
-                            }
+								}
+							}
                             next()
                         } else {
                             res.send({ status: '403', code: "10026", state: false, msg: "not permitted 没有权限" })

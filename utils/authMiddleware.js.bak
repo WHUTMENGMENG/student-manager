@@ -27,7 +27,7 @@ const authorizition = (req, res, next) => {
     if (matchRes || /\/avatar\/.*/.test(req.path) || /\/productPic\/.*/.test(req.path)) {
         next()
     } else {
-        if (!req.session.userInfo) {
+        if (!req.session.userInfo && req.path!=="/students/getstulist") {
             res.send({ status: 403, code: "10022", msg: "请登入" })
             return
         }
@@ -67,16 +67,22 @@ const authorizition = (req, res, next) => {
 
                     ]
                     //校验访问的路径是否合法(是否有权限)
-                    let newPath = ["/cart/get_cart","/category/addCategory", "/category/getCategory","/category/delCategory", "/category/updateCategory","/order/get_order", "/order/pre_order", "/product/add_product", "/order/query_order_status", "/product/get_product","/product/del_product","/product/update_product", "/pay/payment", "/users/updateUser", "/users/getAllUsers"]
+                    let newPath = ["/cart/add_to_cart","/cart/update_cart","/cart/del_prouct","/cart/check","/cart/get_cart","/category/addCategory", "/category/getCategory","/category/delCategory", "/category/updateCategory","/order/get_order", "/order/pre_order", "/product/add_product", "/order/query_order_status", "/product/get_product","/product/del_product","/product/update_product", "/pay/payment", "/users/updateUser", "/users/getAllUsers"]
                     let isAccessRoutes = allRoutes.concat(newPath).some(routes => req.path === routes)
                     if (isAccessRoutes) {
                         // console.log(req.session.userInfo, "222222")
-
-                        req.session.userInfo.rows = [...req.session.userInfo.rows, ...newPath]
-
-                        let isAuth = req.session.userInfo.rows.some(item => item === req.path)
+						var isAuth = false;
+						if(req.path!=="/students/getstulist"){
+							 req.session.userInfo.rows = [...req.session.userInfo.rows, ...newPath]
+							 var isAuth = req.session.userInfo.rows.some(item => item === req.path)
+						}else {
+								 isAuth = true;
+                       
+                       
                         if (isAuth) {
-                            //检查当前的vip是否过期
+							
+							if(req.path!=="/students/getstulist"){
+								 //检查当前的vip是否过期
                             // console.log(req.session.userInfo)
                             let { vipStamp, unid, vipLevel, roleid } = req.session.userInfo;
                             let currentStamp = +new Date();
@@ -87,7 +93,8 @@ const authorizition = (req, res, next) => {
                                         req.session.userInfo.vipLevel = 0;//session的临时数据vip也为0
                                         req.session.userInfo.roleid = "200"
                                     })
-                            }
+								}
+							}
                             next()
                         } else {
                             res.send({ status: '403', code: "10026", state: false, msg: "not permitted 没有权限" })

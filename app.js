@@ -48,7 +48,7 @@ app.use(express.static(path.join(__dirname, 'assets')))
 //session模块
 app.use(session({
     secret: 'MY_NAME_IS_HMM', //加密的字符串，里面内容可以随便写
-    resave: false, //强制保存session,即使它没变化
+    resave: false, //强制保存session,即使它没变化c
     saveUninitialized: true, //强制将未初始化的session存储，默认为true
     cookie: { maxAge: 1000 * 60 * 30 }, //过期时间
     rolling: true //每次滚动更新
@@ -56,8 +56,8 @@ app.use(session({
 
 app.all('*', function (req, res, next) {
     // console.log(req.cookies)
-    res.header("Access-Control-Allow-Credentials", "true")
-    res.header("Access-Control-Allow-Origin", "*")
+    res.header("Access-Control-Allow-Credentials", true)
+    res.header("Access-Control-Allow-Origin", "http://127.0.0.1:5500")
     res.header("Access-Control-Allow-Headers", "authorization,Content-Type");
     res.header("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS");
     res.header("X-Powered-By", ' 3.2.1')

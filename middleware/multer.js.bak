@@ -27,7 +27,13 @@ const uploads = (params, staticPath) => (req, res, next) => {
             //dsfsf....gif
             let RegExp = /\.[^\.]+$/;
             let match = RegExp.exec(file.originalname)
-            let extendsName = match[0]
+				let extendsName = ""
+           try  {
+			 extendsName = match[0]
+           }catch(err){
+			res.send({state:false,status:10022,msg:'error please note the upload field:headimgurl'})
+				return
+           }
             //将avatar的文件路径存到数据库里面
             req.body[params] = "https://chst.vip/" + staticPath + "/" + filenames + extendsName
             // console.log("===========", req.body)
@@ -41,6 +47,7 @@ const uploads = (params, staticPath) => (req, res, next) => {
         if (err instanceof multer.MulterError) {
             console.log(err)
             res.send({ err: err.message, msg: "上传文件出错" })
+				return
         } else {
             console.log(next)
             next() //如果上传文件没有错误 那么释放控制权给下一个中间件

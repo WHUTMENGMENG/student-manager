@@ -958,7 +958,7 @@ npm i socket.io-client
 
 |    参数     |                  描述                   | 是否必传 |
 | :---------: | :-------------------------------------: | :------: |
-| category_id |            类目的id (String)            |    是    |
+| product_id  |            商品的id (String)            |    是    |
 | productName |            商品名称 (String)            |    否    |
 |    price    | 商品价格 (Number) 单位以人民币为单位:元 |    否    |
 | description |            商品描述 (String)            |    否    |
