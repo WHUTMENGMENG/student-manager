@@ -2,7 +2,7 @@
 const { mongoose } = require("../utils/mongoose");
 
 const schema = mongoose.Schema({
-    roleid: { type: String, default: "200" },
+    roleid: { type: String, default: '3' },
     unid: { type: String, required: true },
     username: { type: String, required: true },
     password: { type: String, required: true },
@@ -20,7 +20,11 @@ const schema = mongoose.Schema({
     city: { type: String, required: false, default: "" },
     province: { type: String, required: false, default: "" },
     country: { type: String, required: false, default: "" },
-    unionid: { type: String, default: "" }
+    unionid: { type: String, default: "" },
+    // 0 正常 1 禁用
+    status: { type: String, default: "1" },
+    create_at: { type: String, default: new Date().toLocaleString() },
+    update_at: { type: String, default: "" }
 }, {
     versionKey: false // You should be aware of the outcome after set to false
 })
@@ -30,12 +34,17 @@ const schema = mongoose.Schema({
 let Collection = mongoose.model("users", schema)
 
 //查重
-let find = async(query = {}) => {
-    let {page,count} = query;
+let find = async (query = {}) => {
+    let { page, count, order_by } = query;
+    order_by = parseInt(order_by);
+    page = page - 0;
+    count = count - 0
     delete query.page
     delete query.count
-    let total = await Collection.countDocuments()//获取总数
-    return Collection.find(query).skip((page - 1) * count).limit(count).sort({ _id: -1 })
+    delete query.order_by
+    let total = await Collection.countDocuments(query)//获取总数
+    console.log(query)
+    return Collection.find(query).skip((page - 1) * count).limit(count).sort({ _id: order_by })
         .then(res => {
             res.total = total;
             return res;

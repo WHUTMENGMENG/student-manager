@@ -10,7 +10,7 @@ const smsClient = require("../controller/smsController")
 let router = express.Router()
 
 function randomCode(){
-    let num = '0123456789';
+    let num = '123456789';
     let code = ""
     for (var i = 0; i < 5; i++) {
         let random = Math.floor(Math.random() * 10);

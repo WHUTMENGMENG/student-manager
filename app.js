@@ -25,6 +25,11 @@ let orderRouter = require("./routes/order")
 let upload = require("./routes/upload")
 //引入sms短信服务
 let smsRouter = require("./routes/sms")
+
+//角色路由
+
+let roleRouter = require("./routes/role")
+
 //引入权限路径路由
 
 let permissionPathRouter = require("./routes/permissionPath")
@@ -98,5 +103,5 @@ app.use("/category", productCategoryRouter)
 app.use("/order", orderRouter)
 app.use("/weather", weather)
 app.use("/upload", upload)
-
+app.use('role', roleRouter)
 module.exports = app

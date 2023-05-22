@@ -25,7 +25,7 @@ const register = async (req, res) => {
     //只要result的length是0  说明数据库里不存在此用户 可以注册
     if (result.length == 0) {
         //说明可以注册 生成用户unid 并且调用model层里面save的方法
-        let unid = Math.random().toString(32).substr(2)
+        let unid = Math.random().toString(16).substring(2) + Date.now();
         params.unid = unid
         params.roleid = req.body['roleid'] || '200' //如果没有传roleid那么默认是普通员工
         if (req.session.userInfo.roleid > "101") {
@@ -41,7 +41,8 @@ const register = async (req, res) => {
                 unid: regRes.unid,
                 username: regRes.username,
                 nickname: regRes.nickname,
-                phone: regRes.phone
+                phone: regRes.phone,
+                create_at: new Date().toLocaleString()
             }
             res.send({ status: 1, state: true, msg: "注册成功", userInfo: info })
         } else {
@@ -63,31 +64,31 @@ const updateUser = async (req, res) => {
         res.send({ state: false, status: 10066, msg: "not permitted 你没有权限修改admin密码" })
         return
     }
-    if (username === "admin" || username === "root" || vipExpires || vipStamp || unid != req.session.userInfo.unid) {
-        if (req.session.userInfo.username !== "root") {
-            res.send({ state: false, status: 10066, msg: "not permitted 没有该的权限,只有root才有权限" })
-            return
-        }
-    }
+    // if (username === "admin" || username === "root" || vipExpires || vipStamp || unid != req.session.userInfo.unid) {
+    //     if (req.session.userInfo.username !== "root") {
+    //         res.send({ state: false, status: 10066, msg: "not permitted 没有该的权限,只有root才有权限" })
+    //         return
+    //     }
+    // }
     let query = { unid };
-    roleid = parseInt(roleid);
-    if (!roleid) {
-        roleid = req.session.userInfo.roleid;
-    }
-    if (roleid != req.session.userInfo.roleid || (vipLevel && vipLevel != req.session.userInfo.vipLevel)) {
-        //判断当前用户的权限是不是root id是1
-        if (req.session.userInfo.roleid == "1" || req.session.userInfo.roleid == "101") {
+    // roleid = parseInt(roleid);
+    // if (!roleid) {
+    //     roleid = req.session.userInfo.roleid;
+    // }
+    // if (roleid != req.session.userInfo.roleid || (vipLevel && vipLevel != req.session.userInfo.vipLevel)) {
+    //     //判断当前用户的权限是不是root id是1
+    //     if (req.session.userInfo.roleid == "1" || req.session.userInfo.roleid == "101") {
 
-        } else {
+    //     } else {
 
-            res.send({ state: false, status: 10066, msg: "not permitted 没有该的权限" })
-            return
-        }
-    }
-    if (roleid > 200) {
-        res.send({ state: false, status: 10077, msg: "角色id错误" })
-        return
-    }
+    //         res.send({ state: false, status: 10066, msg: "not permitted 没有该的权限" })
+    //         return
+    //     }
+    // }
+    // if (roleid > 200) {
+    //     res.send({ state: false, status: 10077, msg: "角色id错误" })
+    //     return
+    // }
 
     if (req.body.phone) {//如果传递了手机号进行绑定
         let findRes = await find({ phone: req.body.phone });
@@ -96,7 +97,8 @@ const updateUser = async (req, res) => {
             return
         }
     }
-
+    //添加更新时间
+    req.body.update_at = new Date().toLocaleString()
     let result = await updated(query, { $set: req.body });
     if (result) {
         res.send({ state: true, status: 200, msg: '更新成功' })
@@ -296,15 +298,26 @@ const updatePassword = async (req, res) => {
     }
 }
 //获取用户
+
+//参数 page count order_by
+
 var getAllUsers = async (req, res) => {
     let params = {};
-    let { unid, page = 1, count = 15 } = req.query;
+    let { unid, page = 1, count = 15, order_by = 1, username = "" } = req.query;
+    //通过id进行查找
     if (unid) {
         params = {
             unid
         }
     }
-    var result = await find({ ...params, page, count });
+    //通过用户名进行查找
+    if(username){
+        params = {
+            username
+        }
+    }
+
+    var result = await find({ ...params, page, count, order_by });
     if (result && Array.isArray(result)) {
         var users = result.map(item => ({
             roleid: item.String,
@@ -320,7 +333,9 @@ var getAllUsers = async (req, res) => {
             sex: item.sex,
             city: item.city,
             province: item.province,
-            country: item.country
+            country: item.country,
+            create_at: item.create_at || null,
+            update_at: item.update_at || null,
         }))
         res.send({ status: 200, state: true, msg: "success", total: result.total, data: users })
     } else {
@@ -383,10 +398,10 @@ const wechatLoginCtr = (req, response) => {
             var result = buff.toString()
             result = JSON.parse(result);
             let { access_token, openid } = result;
-			console.log('----openid:-----',openid)
+            console.log('----openid:-----', openid)
             // console.log(result)
             //请求用户信息之前判断一下数据库是否有用户信息 用openid判断
-            if (!openid) { response.send({ "msg": result.errmsg ,err:result.toString()}); return }
+            if (!openid) { response.send({ "msg": result.errmsg, err: result.toString() }); return }
             let isUser = await find({ openid })
             if (Array.isArray(isUser)) {
                 if (isUser.length) {
@@ -463,7 +478,7 @@ const wechatLoginCtr = (req, response) => {
                                 let buttons = result2[0].buttons
                                 info.rows = rows
                                 req.session.userInfo = { ...registResult._doc, rows }
-					
+
                                 //console.log(rows)
                                 // socket.emit("wechatLoginSuccess", { status: 200, state: true, msg: "登入成功", userInfo: { ...registResult._doc }, token: token })
                                 // response.render("wechatCallBack", { nickname: registResult.nickname, headimgurl: registResult.headimgurl })
@@ -538,7 +553,7 @@ const getScancodeCtr = (req, res) => {
 //处理微信回调页面控制层
 const wechatCallBackCtr = async (req, res) => {
     let { code, state } = req.query; //获取code之后去换access_token]
-     
+
     if (!state) {
         res.send({ state: false, msg: '没有传递state' })
         return
@@ -553,8 +568,8 @@ const wechatCallBackCtr = async (req, res) => {
         }
         if (global.io.sockets.sockets[socketid]) {
             if (scanCodeCount[state]) {
-				console.log('-----------comeing-------------')
-				global.io.sockets.sockets[socketid].emit("scancodeSuccess", { status: 200, state: true, msg: "获取完整服务", wechatCode: code });
+                console.log('-----------comeing-------------')
+                global.io.sockets.sockets[socketid].emit("scancodeSuccess", { status: 200, state: true, msg: "获取完整服务", wechatCode: code });
                 //如果已扫码次数中已经存在这个属性,表示已经被扫码了,或者失效了,需要通知客户端,并且让二维码失效
                 // global.io.sockets.sockets[socketid].emit('invalidCode', { state: false, msg: "无效的二维码", status: 10004 })//响应客户端1
                 delete randomState[state];//删除state映射的socketid
