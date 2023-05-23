@@ -1,5 +1,5 @@
 let model = require('../model/roleModel')
-
+let permissionModel = require('../model/permission_New')
 //获取角色
 
 //page 页码
@@ -232,7 +232,7 @@ let updateRole = async (req, res, next) => {
         res.send({
             state: true,
             code: 200,
-            msg: '修改成功' 
+            msg: '修改成功'
         })
     } else {
         res.send({
@@ -245,8 +245,126 @@ let updateRole = async (req, res, next) => {
 
 //角色授权
 
+//工具方法,用于判断当前授权的角色是否是自己的上级角色
+
+let isParent = (currentid, targetid, fullRoleList) => {
+    //如果修改的是自己的权限可以直接通过
+    if (currentid == targetid) return true;
+    //先通过currentid查找到自身的数据对象
+    let current = fullRoleList.find(item => item.roleid == currentid);
+    //查找到自身之后,判断自身的parentid是否等于targetid
+    if (current) {
+        //可以递归查找自己的父级id是不是等于targetid
+        return isParent(current.parentid, targetid, fullRoleList)
+    } else {
+        return false
+    }
+}
+
+//当前角色id:string 授权角色id:string 权限id:[]string
+
+//roleids:[当前角色id,授权角色id]string 
+
+//permission_ids:[权限id] string
+
 let grantRole = async (req, res, next) => {
-    let { _id, auth } = req.body;
+
+    let { roleids = [], permission_ids = [] } = req.body;
+
+    // console.log(roleids, permission_ids)
+
+    //判断传递的参数是否合法
+    if (!Array.isArray(roleids) || !Array.isArray(permission_ids)) {
+        res.send({
+            state: false,
+            code: 400,
+            msg: 'roleids或者permission_ids必须是数组'
+        })
+        return;
+    }
+    console.log(req.session.userInfo)
+
+    let currentRoleid = req.session?.userInfo?.roleid || '3'
+
+    roleids = [currentRoleid].concat(roleids)
+
+    //判断传递的参数是否合法
+    if (roleids.length < 2) {
+        res.send({
+            state: false,
+            code: 400,
+            msg: '缺少roleid或者缺少传递permission_ids'
+        })
+        return;
+    }
+
+    //查询修改的角色是否存在
+
+    let isExistsRole = await model.find({ queryParams: { roleid: { $in: roleids } } })
+    // console.log(isExistsRole)
+    //如果不存在
+    if (isExistsRole.length < 1) {
+        res.send({
+            state: false,
+            code: 400,
+            msg: '当前授权角色不存在或者目标授权的角色不存在'
+        })
+        return;
+    }
+
+    //获取所有的角色,查看授权的对象是不是自己的上级对象
+
+    let fullRoleList = await model.find({ queryParams: {} })
+  
+    //判断当前授权的角色是否是自己的上级角色
+
+    let flag = isParent(roleids[0], roleids[1], fullRoleList)
+    // console.log(flag)
+    //如果是自己的上级角色,超级管理员允许操作
+    if (flag && roleids[1] != 1) {
+        res.send({
+            state: false,
+            code: 403,
+            msg: '没有权限进行此操作'
+        })
+        return
+    }
+
+    //如果不是自己的上级角色,那么就可以授权
+
+
+
+    //先清掉数据库中该角色拥有的权限
+    let clearResult = await permissionModel.del({ roleid: roleids[1] });
+    // console.log(clearResult)
+    //如果传递的permission_ids是个空数组,那么就是清空权限不必再进行添加,不是个空数组,继续添加
+    //开始添加权限
+    let addResult = null;
+    if (permission_ids.length !== 0) {
+        //再重新添加权限
+        let permissModels = permission_ids.map(item => {
+            return {
+                roleid: roleids[1],
+                permission_id: item,
+                create_at: new Date().toLocaleString(),
+            }
+        })
+        addResult = await permissionModel.add(permissModels)
+    }
+
+    if (typeof (addResult) !== 'string') {
+        res.send({
+            state: true,
+            code: 200,
+            msg: '授权成功'
+        })
+    } else {
+        res.send({
+            state: false,
+            code: 400,
+            msg: '授权出错'
+        })
+    }
 }
 
 module.exports = {

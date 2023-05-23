@@ -27,11 +27,11 @@ const register = async (req, res) => {
         //说明可以注册 生成用户unid 并且调用model层里面save的方法
         let unid = Math.random().toString(16).substring(2) + Date.now();
         params.unid = unid
-        params.roleid = req.body['roleid'] || '200' //如果没有传roleid那么默认是普通员工
-        if (req.session.userInfo.roleid > "101") {
-            res.send({ state: false, status: 10066, msg: "没有指定角色的权限" })
-            return
-        }
+        // params.roleid = req.body['roleid'] //如果没有传roleid那么默认是普通员工
+        // if (req.session.userInfo.roleid > "101") {
+        //     res.send({ state: false, status: 10066, msg: "没有指定角色的权限" })
+        //     return
+        // }
         //3.往数据库插入注册的信息
 
         let regRes = await registerModel(params)
@@ -162,10 +162,10 @@ const login = async (req, res) => {
             var info = { ...result[0]._doc }
             let { vipStamp, unid, roleid } = info;
             let currentTime = +new Date()
-            if (currentTime - vipStamp >= 0 && roleid != "200") {
+            if (currentTime - vipStamp >= 0 && roleid != "3") {
                 //过期 vip等级降为0
-                await updated({ unid }, { $set: { vipLevel: 0, roleid: "200" } })
-                info.roleid = "200"
+                await updated({ unid }, { $set: { vipLevel: 0, roleid: "3" } })
+                info.roleid = "3"
                 info.vipLevel = 0;
             }
             //保持用户登入
