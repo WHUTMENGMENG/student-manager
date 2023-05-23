@@ -1,5 +1,7 @@
 let model = require('../model/roleModel')
 let permissionModel = require('../model/permission_New')
+let pathModel = require('../model/permissionPathModel');
+const e = require('express');
 //获取角色
 
 //page 页码
@@ -12,13 +14,13 @@ let permissionModel = require('../model/permission_New')
 
 //扁平转树形代码
 
-function buildTree(flatData) {
+function buildTree(flatData,childKey='roleid',parentKey='parentid') {
     let tree = [];
     flatData.forEach(item => {
         // console.log(!!item.parentid)
-        if (item.parentid) {
+        if (item[parentKey]) {
             //有父级
-            let parent = flatData.find(i => i.roleid == item.parentid);
+            let parent = flatData.find(i => i[childKey] == item[parentKey]);
 
             if (parent) {
                 //有父级
@@ -315,7 +317,7 @@ let grantRole = async (req, res, next) => {
     //获取所有的角色,查看授权的对象是不是自己的上级对象
 
     let fullRoleList = await model.find({ queryParams: {} })
-  
+
     //判断当前授权的角色是否是自己的上级角色
 
     let flag = isParent(roleids[0], roleids[1], fullRoleList)
@@ -367,10 +369,63 @@ let grantRole = async (req, res, next) => {
     }
 }
 
+//获取当前角色权限
+
+//通过roleid查询当前角色的权限,传递roleid
+
+let getRolePermission = async (req, res, next) => {
+    let { roleid } = req.query;
+    // console.log(roleid)
+    if (!roleid) {
+        res.send({
+            state: false,
+            code: 400,
+            msg: '缺少roleid'
+        })
+        return;
+    }
+
+    let data = await permissionModel.find({ queryParams: { roleid } })
+    // console.log(data)
+
+    if (typeof (data) !== 'string') {
+        if (data.length > 0) {
+            //根据获取数据的permission_id进行到path表中连表查询
+            let pathList = await pathModel.find({ id: { $in: data.map(item => item.permission_id) } })
+            // console.log(pathList)
+            if (typeof pathList !== 'string') {
+                //将pathList转换成树形结构
+                let rolePermissTree = buildTree(pathList,'id')
+                res.send({
+                    state: true,
+                    code: 200,
+                    msg: '查询成功',
+                    data:rolePermissTree
+                })
+            } else {
+                res.send({
+                    state: false,
+                    code: 400,
+                    msg: '查询出错:' + data
+                })
+            }
+
+        }
+    } else {
+        res.send({
+            state: false,
+            code: 400,
+            msg: '查询出错:' + data
+        })
+    }
+}
+
 module.exports = {
     getRole,
     addRole,
     delRole,
     updateRole,
-    grantRole
+    grantRole,
+    getRolePermission
 }
+

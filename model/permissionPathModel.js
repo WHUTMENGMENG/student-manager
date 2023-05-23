@@ -21,6 +21,8 @@ let Collection = mongoose.model("paths", schema)
 //查找
 let find = (query = {}) => {
     return Collection.find(query)
+        .lean()
+        .select({ _id: 1, id: 1, path: 2, desc: 3, parentid: 4, method: 5,  children: 7 ,permissions: 6})
         .then(res => res)
         .catch(err => {
             console.log(err)

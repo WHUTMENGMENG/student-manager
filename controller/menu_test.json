@@ -1,0 +1,20 @@
+{
+    "_id": "646c786315a73439abccfdc5",
+    ""menu_id"": "1",
+    ""name"": "首页",
+    "title": "glsy",
+    "create_at": "2023-05-23 15:00:00"
+}
+{"menu_id": "2", "title": "xygl", "name": "学员管理","create_at": "2023-05-23 15:00:00","parentid": ""}
+{"menu_id": "8", "title": "xyxmgl", "parentid": "2", "name": "学员项目管理","create_at": "2023-05-23 15:00:00"}
+{"menu_id": "9", "title": "xyzl", "parentid": "2", "name": "学员资料","create_at": "2023-05-23 15:00:00"}
+{"menu_id": "10", "parentid": "2", "title": "xysh", "name": "学员宿舍"}
+{"menu_id": "3", "title": "kqgl", "name": "考勤管理","create_at": "2023-05-23 15:00:00","parentid": ""}
+{"menu_id": "4", "title": "yhgl", "name": "用户管理","create_at": "2023-05-23 15:00:00","parentid": ""}
+
+{"menu_id": "5", "title": "sjtj", "name": "数据统计","create_at": "2023-05-23 15:00:00","parentid": ""}
+{"menu_id": "6", "title": "wdzx", "name": "我的中心","create_at": "2023-05-23 15:00:00","parentid": ""}
+{"menu_id": "7", "title": "vip", "name": "vip管理","create_at": "2023-05-23 15:00:00","parentid": ""}
+{"menu_id": "11", "parentid": "7", "title": "vipCharge", "name": "vip充值","create_at": "2023-05-23 15:00:00"}
+
+{"menu_id": "12", "parentid": "7", "title": "order", "name": "订单管理","create_at": "2023-05-23 15:00:00"}

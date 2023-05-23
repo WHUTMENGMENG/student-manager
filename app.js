@@ -33,6 +33,11 @@ let roleRouter = require("./routes/role")
 //引入权限路径路由
 
 let permissionPathRouter = require("./routes/permissionPath")
+
+//引入菜单路由
+
+let menusRouter = require("./routes/menus")
+
 // ✂️✂️✂️✂️✂️✂️✂️✂️✂️✂️✂️华丽的分割线✂️✂️✂️✂️✂️✂️✂️✂️✂️✂️✂️✂️
 
 var app = express(); //通过express创建一个服务器
@@ -104,4 +109,5 @@ app.use("/order", orderRouter)
 app.use("/weather", weather)
 app.use("/upload", upload)
 app.use('/role', roleRouter)
+app.use("/menus", menusRouter)
 module.exports = app
