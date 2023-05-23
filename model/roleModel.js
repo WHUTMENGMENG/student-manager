@@ -3,12 +3,15 @@ let { mongoose } = require('../utils/mongoose');
 
 let schema = mongoose.Schema({
     roleid: { type: String, default: '4' },
-    roleName: { type: String, default: '普通用户' },
+    roleName: { type: String, default: '普通用户', },
     desc: { type: String, default: 'regular user' },
     parentid: { type: String, default: '2' },
     create_at: { type: String, default: new Date().toLocaleString() },
     update_at: { type: String, default: "" },
-    status: { type: String, default: "1" }
+    status: { type: String, default: "1" },
+    children: { type: Array, default: [] }
+}, {
+    versionKey: false // You should be aware of the outcome after set to false
 })
 
 
@@ -30,19 +33,18 @@ let add = (params) => {
 //查找
 
 let find = async (query = {}) => {
-    let { page = 1, count = 5, order_by = 1, roleid } = query;
+    let { queryParams = {}, page, count, order_by } = query;
     order_by = parseInt(order_by);
     page = page - 0;
     count = count - 0
-    delete query.page
-    delete query.count
-    delete query.order_by
-    let total = await Collection.countDocuments(query)//获取总数
-    // console.log(query)
-    if (roleid) {
-        query = { roleid }
-    }
-    return Collection.find(query).skip((page - 1) * count).limit(count).sort({ _id: order_by })
+    order_by = order_by === 1 ? 1 : -1;
+    let total = await Collection.countDocuments(queryParams)//获取总数
+
+    return Collection.find(queryParams)
+        //这个方法将mongo文档转换成普通对象
+        .lean()
+        .select({ _id: 1, roleid: 2, parentid: 3, roleName: 4, desc: 5, create_at: 6, update_at: 7, status: 8, children: 9 })
+        .skip((page - 1) * count).limit(count).sort({ create_at: order_by })
         .then(res => {
             res.total = total;
             return res;

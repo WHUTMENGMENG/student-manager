@@ -103,5 +103,5 @@ app.use("/category", productCategoryRouter)
 app.use("/order", orderRouter)
 app.use("/weather", weather)
 app.use("/upload", upload)
-app.use('role', roleRouter)
+app.use('/role', roleRouter)
 module.exports = app
