@@ -14,7 +14,7 @@ const e = require('express');
 
 //扁平转树形代码
 
-function buildTree(flatData,childKey='roleid',parentKey='parentid') {
+function buildTree(flatData, childKey = 'roleid', parentKey = 'parentid') {
     let tree = [];
     flatData.forEach(item => {
         // console.log(!!item.parentid)
@@ -47,6 +47,7 @@ let getRole = async (req, res, next) => {
     if (roleid) {
         queryParams = { roleid }
     }
+
     let data = await model.find({ queryParams, page, count, roleid, order_by })
 
     //返回树形数据
@@ -374,33 +375,33 @@ let grantRole = async (req, res, next) => {
 //通过roleid查询当前角色的权限,传递roleid
 
 let getRolePermission = async (req, res, next) => {
-    let { roleid } = req.query;
+    let roleid = req.query.roleid || req.session.userInfo.roleid
     // console.log(roleid)
-    if (!roleid) {
-        res.send({
-            state: false,
-            code: 400,
-            msg: '缺少roleid'
-        })
-        return;
-    }
+    // if (!roleid) {
+    //     res.send({
+    //         state: false,
+    //         code: 400,
+    //         msg: '缺少roleid'
+    //     })
+    //     return;
+    // }
 
     let data = await permissionModel.find({ queryParams: { roleid } })
-    // console.log(data)
-
     if (typeof (data) !== 'string') {
+
+        console.log(data.length)
         if (data.length > 0) {
             //根据获取数据的permission_id进行到path表中连表查询
             let pathList = await pathModel.find({ id: { $in: data.map(item => item.permission_id) } })
             // console.log(pathList)
             if (typeof pathList !== 'string') {
                 //将pathList转换成树形结构
-                let rolePermissTree = buildTree(pathList,'id')
+                let rolePermissTree = buildTree(pathList, 'id')
                 res.send({
                     state: true,
                     code: 200,
                     msg: '查询成功',
-                    data:rolePermissTree
+                    data: rolePermissTree
                 })
             } else {
                 res.send({
@@ -410,6 +411,12 @@ let getRolePermission = async (req, res, next) => {
                 })
             }
 
+        } else {
+            res.send({
+                state: true,
+                code: 200,
+                data: data
+            })
         }
     } else {
         res.send({

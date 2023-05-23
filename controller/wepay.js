@@ -317,8 +317,8 @@ const payResult = function async(req, res) {
                     // console.log(vipExpires)
                     console.log(vipStamp)
                     //更新用户vip等级
-                    //将角色提升为管理员.id是101
-                    await updatedUser({ unid }, { $set: { vipLevel: level, vipStamp, vipExpires, roleid: "101" } })
+                    //将角色提升为管理员.id是2
+                    await updatedUser({ unid }, { $set: { vipLevel: level, vipStamp, vipExpires, roleid: "2" } })
                 }
                 console.log("-----", masterOrder[0].pay_status)
                 //vip充值

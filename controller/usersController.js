@@ -5,6 +5,7 @@ const moment = require("moment")
 const jwt = require("jsonwebtoken")
 const https = require("https")
 const { Query } = require("mongoose")
+let roleModel = require("../model/roleModel")
 
 // ✂️✂️✂️✂️✂️✂️✂️✂️✂️✂️✂️华丽的分割线✂️✂️✂️✂️✂️✂️✂️✂️✂️✂️✂️✂️
 
@@ -160,14 +161,20 @@ const login = async (req, res) => {
             return
         } else {
             var info = { ...result[0]._doc }
-            let { vipStamp, unid, roleid } = info;
-            let currentTime = +new Date()
-            if (currentTime - vipStamp >= 0 && roleid != "3") {
-                //过期 vip等级降为0
-                await updated({ unid }, { $set: { vipLevel: 0, roleid: "3" } })
-                info.roleid = "3"
-                info.vipLevel = 0;
-            }
+            let { vipStamp, unid, roleid = "4" } = info;
+
+            //处理vip过期的逻辑,暂时先不要
+
+            // let currentTime = +new Date()
+            // if (currentTime - vipStamp >= 0 && roleid != "4") {
+            //     //过期 vip等级降为0
+          
+            //     info.roleid = "4"
+            //     info.vipLevel = 0;
+            // }
+
+
+
             //保持用户登入
             //1.在用户登入成功的时候 使用jwt生成一串数字签名token 返回给前端
             //1.1调用jsonwebtoken下面的sign方法 进行签名
@@ -178,17 +185,20 @@ const login = async (req, res) => {
             //2.在用户访问服务器的时候 必须携带token 进行校验 如果有效那么正常返回数据 ,无效返回错误信息
             // console.log(setLogResult)
             //获取权限路径
-            let result2 = await perModel.find({ roleid: info.roleid })
+            let result2 = await roleModel.find({ queryParams: { roleid } })
+            console.log(result2)
             // console.log(result2)
-            let rows = result2[0].rows
-            let buttons = result2[0].buttons
-            info.rows = rows
+            // let rows = result2[0].rows
+            // let buttons = result2[0].buttons
+            // let buttons = []
+            // info.rows = rows
             req.session.userInfo = info;
             info.roleName = result2[0].roleName
             let newInfo = { ...info }
-            delete newInfo.rows
+
+            // delete newInfo.rows
             delete newInfo.password
-            res.send({ status: 1, state: true, msg: "登入成功", permission: { buttons }, userInfo: newInfo, token: token })
+            res.send({ status: 1, state: true, msg: "登入成功", userInfo: newInfo, token: token })
 
 
             //3.登入成功后记录登入日志
@@ -311,7 +321,7 @@ var getAllUsers = async (req, res) => {
         }
     }
     //通过用户名进行查找
-    if(username){
+    if (username) {
         params = {
             username
         }
