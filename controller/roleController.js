@@ -1,7 +1,7 @@
 let model = require('../model/roleModel')
 let permissionModel = require('../model/permission_New')
 let pathModel = require('../model/permissionPathModel');
-const e = require('express');
+let usersModel = require('../model/usersModel');
 //获取角色
 
 //page 页码
@@ -285,11 +285,13 @@ let grantRole = async (req, res, next) => {
         })
         return;
     }
-    console.log(req.session.userInfo)
+    // console.log(req.session.userInfo)
 
     let currentRoleid = req.session?.userInfo?.roleid || '3'
 
     roleids = [currentRoleid].concat(roleids)
+
+    // console.log('roleid', roleids)
 
     //判断传递的参数是否合法
     if (roleids.length < 2) {
@@ -324,7 +326,8 @@ let grantRole = async (req, res, next) => {
     let flag = isParent(roleids[0], roleids[1], fullRoleList)
     // console.log(flag)
     //如果是自己的上级角色,超级管理员允许操作
-    if (flag && roleids[1] != 1) {
+    // console.log(roleids[1])
+    if (flag && currentRoleid !== '1') {
         res.send({
             state: false,
             code: 403,
@@ -335,7 +338,39 @@ let grantRole = async (req, res, next) => {
 
     //如果不是自己的上级角色,那么就可以授权
 
+    //查看自己是否已经拥有了授权的权限,拥有才可以继续授权
 
+    //获取当前角色的权限
+
+    let currentPermissions = await permissionModel.find({ queryParams: { roleid: roleids[0] } })
+    // console.log('currentPermissions---',currentPermissions)
+    //映射成为一个只有permission_id的数组,和传递的permission_ids进行比较
+
+    currentPermissions = currentPermissions.map(item => item.permission_id);
+    //声明一个函数,用于判断当前角色是否拥有传递的权限
+    let isAccessAuth = (currentPermissions, permission_ids) => {
+        let flag = true;
+        permission_ids.forEach(incommin_ids => {
+            if (!currentPermissions.includes(incommin_ids)) {
+                flag = false
+                return;
+            }
+        })
+        return flag
+    }
+
+    let access = isAccessAuth(currentPermissions, permission_ids);
+
+    if (!access && currentRoleid !== '1') {
+        res.send({
+            state: false,
+            code: 403,
+            msg: '不能分配自己没有的权限'
+        })
+        return
+    }
+
+   
 
     //先清掉数据库中该角色拥有的权限
     let clearResult = await permissionModel.del({ roleid: roleids[1] });
@@ -376,27 +411,21 @@ let grantRole = async (req, res, next) => {
 
 let getRolePermission = async (req, res, next) => {
     let roleid = req.query.roleid || req.session.userInfo.roleid
-    // console.log(roleid)
-    // if (!roleid) {
-    //     res.send({
-    //         state: false,
-    //         code: 400,
-    //         msg: '缺少roleid'
-    //     })
-    //     return;
-    // }
+    //用于控制是否要返回树形数据
+    let { type } = req.query
+    // console.log(req.session)
 
     let data = await permissionModel.find({ queryParams: { roleid } })
     if (typeof (data) !== 'string') {
 
-        console.log(data.length)
+        // console.log(data.length)
         if (data.length > 0) {
             //根据获取数据的permission_id进行到path表中连表查询
             let pathList = await pathModel.find({ id: { $in: data.map(item => item.permission_id) } })
             // console.log(pathList)
             if (typeof pathList !== 'string') {
                 //将pathList转换成树形结构
-                let rolePermissTree = buildTree(pathList, 'id')
+                let rolePermissTree = !type ? buildTree(pathList, 'id') : pathList
                 res.send({
                     state: true,
                     code: 200,
@@ -427,12 +456,101 @@ let getRolePermission = async (req, res, next) => {
     }
 }
 
+//分配角色
+
+//通过roleid查询当前角色的权限,传递roleid
+
+//传递roleid,要分配的角色id
+
+//传递unid, 分配的用户id
+
+let roleAssignment = async (req, res, next) => {
+    //获取当前角色id
+    let roleid = req.session.userInfo.roleid;
+    //获取全部角色
+    let roleList = await model.find({ queryParams: {} })
+    //获取要分配的角色
+    let targetRoleid = req.body.roleid;
+    //如果没有传递roleid
+    if (!targetRoleid) {
+        res.send({
+            state: false,
+            code: 400,
+            msg: '缺少roleid'
+        })
+        return;
+    }
+    //判断分配的角色是否是自己的上级角色
+    let flag = isParent(roleid, targetRoleid, roleList);
+    //如果是自己的上级角色,超级管理员允许操作,其它不允许
+    if (flag && roleid !== '1') {
+        res.send({
+            state: false,
+            code: 403,
+            msg: '没有权限进行此操作,不能给自己或者给自己的上级分配角色'
+        })
+        return
+    }
+    //如果不是自己的上级角色,那么就可以分配
+    //获取当前传递的用户id
+    let userid = req.body.unid;
+    //如果没有传递userid
+    if (!userid) {
+        res.send({
+            state: false,
+            code: 400,
+            msg: '缺少unid'
+        })
+        return;
+    }
+    //查询当前分配角色的用户是否存在
+    let isExistsUser = await usersModel.find({ unid: userid })
+    //查询当前分配的角色是否存在
+    let isExistsRole = await model.find({ queryParams: { roleid: targetRoleid } })
+    console.log(isExistsRole)
+    if (isExistsRole.length < 1) {
+        res.send({
+            state: false,
+            code: 400,
+            msg: '当前分配的角色不存在'
+        })
+        return
+    }
+    //如果不存在
+    if (isExistsUser.length < 1) {
+        res.send({
+            state: false,
+            code: 400,
+            msg: '当前分配角色的用户不存在'
+        })
+        return;
+    }
+    //如果存在,那么进行更新操作
+    let updateResult = await usersModel.updated({ unid: userid }, { $set: { roleid: targetRoleid } })
+    // console.log(updateResult)
+    //分配成功
+    if (updateResult) {
+        res.send({
+            state: true,
+            code: 200,
+            msg: '分配角色成功'
+        })
+    } else {
+        res.send({
+            state: false,
+            code: 400,
+            msg: '分配角色失败'
+        })
+    }
+}
+
 module.exports = {
     getRole,
     addRole,
     delRole,
     updateRole,
     grantRole,
-    getRolePermission
+    getRolePermission,
+    roleAssignment
 }
 

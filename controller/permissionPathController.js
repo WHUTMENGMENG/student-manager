@@ -29,13 +29,13 @@ function buildTree(flatData) {
 }
 
 //检查字段是否合法的函数
-function checkParams(keys, fields,res) {
+function checkParams(keys, fields, res) {
     //控制开关
     let flag = true
     keys.forEach(key => {
         if (!fields.includes(key)) {
             flag = false
-            res.send({ state: false, status: 500, msg: '字段不合法:' + key +'只能传递:'+fields.join(',')+'中的字段'})
+            res.send({ state: false, status: 500, msg: '字段不合法:' + key + '只能传递:' + fields.join(',') + '中的字段' })
             return
         }
     })
@@ -91,15 +91,20 @@ const addPermissionPathCtr = async (req, res) => {
         }
     })
 
+    //添加时间
+    params.create_at = new Date().toLocaleString()//创建时间
+    //修改时间
+    params.update_at = new Date().toLocaleString()//修改时间
 
     // console.log(ids)
     let findResult = await model.find({ id: { $in: ids } })
+
     // console.log('findResult----', findResult)
     if (ids.length) {
         if (findResult.length !== ids.length) {
             res.send({ state: false, status: 500, msg: '传入的id有误' })
         } else {
-            //如果存在这个节点,那么就走更新操作
+            //如果传递了ids 那么从根据id关联关系进行添加
             let updateResult = await model.add({ id: Math.random().toString(16).substring(2), parentid: ids[ids.length - 1], ...params })
 
             if (typeof updateResult !== 'string') {
@@ -110,6 +115,7 @@ const addPermissionPathCtr = async (req, res) => {
         }
 
     } else {
+        //如果没有传递ids 那么直接添加
         let updateResult = await model.add({ id: Math.random().toString(16).substring(2), parentid: "", ...params })
 
         if (typeof updateResult !== 'string') {
@@ -141,7 +147,7 @@ const updatePermissionPathCtr = async (req, res) => {
         return
     }
     //声明参数
-    let params = {...req.body};
+    let params = { ...req.body };
     // 去除permissionId
     delete params.permissionId;
     //查看字段是否合法
@@ -150,7 +156,7 @@ const updatePermissionPathCtr = async (req, res) => {
     //要传递的字段
     let fields = ['path', 'desc', 'method', 'permissions']
     //检查是否合法
-    let isCheckParams = checkParams(keys, fields,res)
+    let isCheckParams = checkParams(keys, fields, res)
     //字段不合法 阻断代码往下执行
     if (!isCheckParams) return
     //查看是否存在这条权限信息
@@ -164,13 +170,14 @@ const updatePermissionPathCtr = async (req, res) => {
         res.send({ state: false, status: 500, msg: '未找到该权限' })
         return
     }
-    
-
+    //存在就更新,添加更新字段
+    params.update_at = new Date().toLocaleString()//修改时间
+    //数据库的更新操作
     let result = await model.update({ id }, { $set: params })
     if (typeof result !== 'string') {
-        res.send({state:true, status: 200, msg: '修改成功' })
+        res.send({ state: true, status: 200, msg: '修改成功' })
     } else {
-        res.send({ state:false,status: 500, msg: result })
+        res.send({ state: false, status: 500, msg: result })
     }
 }
 //字段 permissionId

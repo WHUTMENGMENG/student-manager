@@ -60,7 +60,7 @@ let find = async (query = {}) => {
 //删除
 
 let del = (params) => {
-    console.log(params)
+    // console.log(params)
     return Collection.deleteMany(params)
         .then(res => res)
         .catch(err => {

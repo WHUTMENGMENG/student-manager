@@ -71,7 +71,7 @@ var Client = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        console.log('88888888')
+                        // console.log('88888888')
                         client = Client.createClient("LTAI5t7YUzzyMpVDvbNm3fb2", "kO9WSY2DCouqLOfA9MnmRUou9KXdce");
                         sendSmsRequest = new $Dysmsapi20170525.SendSmsRequest({
                             signName,
@@ -81,7 +81,7 @@ var Client = /** @class */ (function () {
                         });
                         // return [4 /*yield*/, client.sendSms(sendSmsRequest)];
                         client.sendSms(sendSmsRequest).then(r => {
-                            console.log(r.body)
+                            // console.log(r.body)
                             if (r.body.code.toLocaleLowerCase === "ok") {
                                 //发送成功
                                 res.send({ status: 200, state: true, ...r.body })
@@ -94,7 +94,7 @@ var Client = /** @class */ (function () {
                         resp = _a.sent();
                         tea_console_1["default"].log(tea_util_1["default"].toJSONString($tea.toMap(resp)));
                         respJSON = tea_util_1["default"].toJSONString($tea.toMap(resp));
-                        console.log('----', resp);
+                        // console.log('----', resp);
                         return [2 /*return*/];
                 }
             });

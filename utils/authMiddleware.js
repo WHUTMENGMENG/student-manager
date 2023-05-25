@@ -22,12 +22,13 @@ const authorizition = (req, res, next) => {
         "/order/del_order"
     ];
     let matchRes = rowPath.some(item => item === req.path)
+    // console.log(rowPath)
     //被忘记最后把条件改回来
     // matchRes || /\/avatar\/.*/.test(req.path) || /\/productPic\/.*/.test(req.path)
     if (matchRes || /\/avatar\/.*/.test(req.path) || /\/productPic\/.*/.test(req.path)) {
         next()
     } else {
-        if (!req.session.userInfo && req.path!=="/students/getstulist") {
+        if (!req.session.userInfo) {
             res.send({ status: 403, code: "10022", msg: "请登入" })
             return
         }
@@ -39,77 +40,38 @@ const authorizition = (req, res, next) => {
             if (err) {
                 res.send({ status: 0, code: "1004", state: false, msg: "校验失败" })
             } else {
-                if (req.path !== "/verify") {
-                    //首先校验路径是否合法 不合法返回404
-                    let allRoutes = [
-                        "/users/wechatCallBack",
-                        "/users/wechatLogin",
-                        "/getloginlog",
-                        "/students/getclasses",
-                        "/students/getstulist",
-                        "/students/addstu",
-                        "/students/delstu",
-                        "/students/updatestu",
-                        "/students/searchstu",
-                        "/students/uploadStuAvatar",
-                        "/users/getAllUsers",
-                        "/users/register",
-                        "/users/login",
-                        "/users/sigout",
-                        "/users/uploadAvatar",
-                        "/verify",
-                        "/users/updatePassword",
-                        "/permission/addrole",
-                        "/permission/getrole",
-                        "/permission/getMenuList",
-						"/users/addUser",
-						
+                //校验访问的路径是否合法(是否有权限)
+                //获取用户访问的路径
+                let reqPath = req.path;
+                //获取角色拥有的权限路径
+                let rolePath = req.session.pathList
+                // let newPath = 1
+                let isAuth = rolePath.some(item => item.path === reqPath)
 
-                    ]
-                    //校验访问的路径是否合法(是否有权限)
-                    let newPath = ["/cart/add_to_cart","/cart/update_cart","/cart/del_prouct","/cart/check","/cart/get_cart","/category/addCategory", "/category/getCategory","/category/delCategory", "/category/updateCategory","/order/get_order", "/order/pre_order", "/product/add_product", "/order/query_order_status", "/product/get_product","/product/del_product","/product/update_product", "/pay/payment", "/users/updateUser", "/users/getAllUsers"]
-                    let isAccessRoutes = allRoutes.concat(newPath).some(routes => req.path === routes)
-                    if (true) {
-                        // console.log(req.session.userInfo, "222222")
-						// var isAuth = false;
-						// if(req.path!=="/students/getstulist"){
-						// 	 req.session.userInfo.rows = [...req.session.userInfo.rows, ...newPath]
-						// 	 var isAuth = req.session.userInfo.rows.some(item => item === req.path)
-						// }else {
-						// 		 isAuth = true;
-						// 	 }
-                       //权限路径筛选
-                        if (true) {
-							
-							if(req.path!=="/students/getstulist"){
-								 //检查当前的vip是否过期
-                            // console.log(req.session.userInfo)
-                            let { vipStamp, unid, vipLevel, roleid } = req.session.userInfo;
-                            let currentStamp = +new Date();
+                if (isAuth||req.session.userInfo.roleid=="1") {
+                    //vip对应的内容 暂时注释不要 2023/05/24 周三 11:53:00
+                    // if (req.path !== "/students/getstulist") {
+                    //     //检查当前的vip是否过期
+                    //     // console.log(req.session.userInfo)
+                    //     let { vipStamp, unid, vipLevel, roleid } = req.session.userInfo;
+                    //     let currentStamp = +new Date();
 
-                            if (roleid != "200" && vipStamp - currentStamp <= 0 && vipLevel > 0) {
-                                updated({ unid }, { $set: { vipLevel: 0, roleid: "200" } })
-                                    .then(() => {
-                                        req.session.userInfo.vipLevel = 0;//session的临时数据vip也为0
-                                        req.session.userInfo.roleid = "200"
-                                    })
-								}
-							}
-                            next()
-                        } else {
-                            res.send({ status: '403', code: "10026", state: false, msg: "not permitted 没有权限" })
-                        }
-                    } else {
-                        res.status(404)
-                        res.send({ status: 404, msg: "接口地址错误" })
-                    }
+                    //     if (roleid != "200" && vipStamp - currentStamp <= 0 && vipLevel > 0) {
+                    //         updated({ unid }, { $set: { vipLevel: 0, roleid: "200" } })
+                    //             .then(() => {
+                    //                 req.session.userInfo.vipLevel = 0;//session的临时数据vip也为0
+                    //                 req.session.userInfo.roleid = "200"
+                    //             })
+                    //     }
 
+                    next()
                 } else {
-                    res.send({ status: 1, state: true, msg: "校验成功", decode })
+                    res.send({ state: false, status: 403, msg: "你没有权限访问,或路径不正确" })
                 }
 
             }
         })
+
     }
 }
 

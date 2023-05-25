@@ -3,20 +3,21 @@ const { mongoose } = require("../utils/mongoose");
 
 const schema = mongoose.Schema({
     roleid: { type: String, default: '3' },
-    unid: { type: String, required: true },
-    username: { type: String, required: true },
-    password: { type: String, required: true },
+    unid: { type: String, required: false },
+    username: { type: String },
+    password: { type: String },
+    email: { type: String, required: false, default: "" },
     phone: { type: String, required: false, default: "" },
     vipStamp: { type: Number, required: false, default: 0 },
     vipExpires: { type: String, required: false, default: "" },
-    vipLevel: { type: Number, required: true, default: 0 },
+    vipLevel: { type: Number, required: false, default: 0 },
     nickname: { type: String, required: false, default: "" },
     roles: { type: String, required: false, default: "" },
     headimgurl: { type: String, required: false, default: "" },
     role: { type: String, required: false, default: "" },
     roleName: { type: String, required: false, default: "" },
     openid: { type: String, required: false, default: "" },
-    sex: { type: String, required: false, default: "" },
+    sex: { type: String, required: false, default: "1" },
     city: { type: String, required: false, default: "" },
     province: { type: String, required: false, default: "" },
     country: { type: String, required: false, default: "" },
@@ -35,7 +36,7 @@ let Collection = mongoose.model("users", schema)
 
 //查重
 let find = async (query = {}) => {
-    let { page, count, order_by } = query;
+    let { page = 1, count = 100, order_by = 1 } = query;
     order_by = parseInt(order_by);
     page = page - 0;
     count = count - 0
@@ -63,7 +64,7 @@ let registerModel = (params) => {
         .then(res => res)
         .catch(err => {
             console.log(err)
-            return false
+            return err.toString()
         })
 }
 
@@ -80,7 +81,7 @@ let loginModel = (params) => {
 //更新数据库 
 
 const updated = (query, update) => {
-    // console.log(query, update)
+    console.log(query, update)
     return Collection.updateOne(query, update)
         .then(res => res)
         .catch(err => {

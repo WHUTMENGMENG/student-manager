@@ -5,8 +5,13 @@ const moment = require("moment")
 const jwt = require("jsonwebtoken")
 const https = require("https")
 const { Query } = require("mongoose")
+/**
+ * @api usrname 没雨溪 更新:2023/5/24
+ */
 let roleModel = require("../model/roleModel")
-
+let pathModel = require("../model/permissionPathModel")
+let permissionModel = require('../model/permission_New')
+const { type } = require("os")
 // ✂️✂️✂️✂️✂️✂️✂️✂️✂️✂️✂️华丽的分割线✂️✂️✂️✂️✂️✂️✂️✂️✂️✂️✂️✂️
 
 const register = async (req, res) => {
@@ -35,19 +40,36 @@ const register = async (req, res) => {
         // }
         //3.往数据库插入注册的信息
 
-        let regRes = await registerModel(params)
-        if (regRes) {
+        let newParams = {
+            roleid: '4', //默认普通用户
+            create_at: new Date().toLocaleString(),
+            unid: Math.random().toString(16).substring(2) + Date.now(),
+            update_at: "",
+            status: "1",
+            username: params.username,
+            password: params.password,
+            sex: params.sex || 1,
+            phone: params.phone,
+            email: params.email,
+            nickname: params.nickname || '匿名用户',
+            city: params.city || '未知',
+            country: params.country || '中华人民共和国',
+            province: params.province || '未知',
+        }
+
+        //等待注册结果
+        let regRes = await registerModel(newParams)
+        if (typeof regRes == "object") {
             let info = {
-                roleid: params.roleid,
                 unid: regRes.unid,
                 username: regRes.username,
                 nickname: regRes.nickname,
                 phone: regRes.phone,
-                create_at: new Date().toLocaleString()
             }
+
             res.send({ status: 1, state: true, msg: "注册成功", userInfo: info })
         } else {
-            res.send({ status: 0, state: false, msg: "注册出错,缺少字段" })
+            res.send({ status: 0, state: false, msg: "注册出错:" + regRes })
         }
     } else {
         res.send({ status: 0, state: false, msg: "用户名已注册" })
@@ -57,6 +79,10 @@ const register = async (req, res) => {
 //更新用户信息
 const updateUser = async (req, res) => {
     let { unid, roleid, vipLevel, username, vipStamp, vipExpires, password } = req.body;
+    if (roleid) {
+        res.send({ state: false, status: 3004, msg: "没有权限修改用户角色" });
+        return
+    }
     if (!unid) {
         res.send({ state: false, status: 3004, msg: "请传入用户unid" });
         return
@@ -98,8 +124,10 @@ const updateUser = async (req, res) => {
             return
         }
     }
-    //添加更新时间
+    //添加更新时间 2023/05/25 周四
     req.body.update_at = new Date().toLocaleString()
+    req.body.roleid && delete req.body.roleid
+    req.body.roleName && delete req.body.roleName
     let result = await updated(query, { $set: req.body });
     if (result) {
         res.send({ state: true, status: 200, msg: '更新成功' })
@@ -161,14 +189,15 @@ const login = async (req, res) => {
             return
         } else {
             var info = { ...result[0]._doc }
+            // console.log('---info',info)
             let { vipStamp, unid, roleid = "4" } = info;
 
-            //处理vip过期的逻辑,暂时先不要
+            //处理vip过期的逻辑,暂时先不要 2034/05/24 星期三 11:46
 
             // let currentTime = +new Date()
             // if (currentTime - vipStamp >= 0 && roleid != "4") {
             //     //过期 vip等级降为0
-          
+
             //     info.roleid = "4"
             //     info.vipLevel = 0;
             // }
@@ -184,13 +213,29 @@ const login = async (req, res) => {
             }) //1.payload载荷 2.secrect 加密字符串 3.{expirsIn:秒} 生效时间
             //2.在用户访问服务器的时候 必须携带token 进行校验 如果有效那么正常返回数据 ,无效返回错误信息
             // console.log(setLogResult)
-            //获取权限路径
+
+            //兼容老版本写法 老版本的普通用户roleid是200 2023/05/23 11:46
+
+            if (roleid == "200") {
+                roleid = "4"
+                info.roleid = "4"
+            } else if (roleid == "101") {
+                roleid = "2"
+                info.roleid = "2"
+            }
+
+            //获取角色信息
             let result2 = await roleModel.find({ queryParams: { roleid } })
-            console.log(result2)
-            // console.log(result2)
-            // let rows = result2[0].rows
-            // let buttons = result2[0].buttons
-            // let buttons = []
+            //获取角色权限表中的的权限信息
+            let data = await permissionModel.find({ queryParams: { roleid } })
+            //根据角色权限表中的权限id进行到path表中连表查询
+            //根据获取数据的permission_id进行到path表中连表查询
+            let pathList = await pathModel.find({ id: { $in: data.map(item => item.permission_id) } })
+
+            req.session.pathList = pathList;
+
+            //遗留代码,先兼容老版本写法
+            let buttons = ['read', 'delete', 'edit', 'add']
             // info.rows = rows
             req.session.userInfo = info;
             info.roleName = result2[0].roleName
@@ -198,7 +243,12 @@ const login = async (req, res) => {
 
             // delete newInfo.rows
             delete newInfo.password
-            res.send({ status: 1, state: true, msg: "登入成功", userInfo: newInfo, token: token })
+
+            //根据角色id访问角色的路由权限
+            let permissionPath = await pathModel.find({ queryParams: { roleid } })
+
+
+            res.send({ status: 1, state: true, msg: "登入成功", userInfo: newInfo, permission: { buttons }, token: token })
 
 
             //3.登入成功后记录登入日志
@@ -328,9 +378,19 @@ var getAllUsers = async (req, res) => {
     }
 
     var result = await find({ ...params, page, count, order_by });
+
     if (result && Array.isArray(result)) {
-        var users = result.map(item => ({
-            roleid: item.String,
+
+        //根据角色id查找角色的名称
+
+        let roleids = result.map(item => item.roleid);
+
+        //开始查找
+        let roleNames = await roleModel.find({ queryParams: { roleid: { $in: roleids } } });
+
+        //组织数据
+        var users = result.map((item, index) => ({
+            roleid: item.roleid,
             unid: item.unid,
             vipLevel: item.vipLevel || 0,
             vipStamp: item.vipStamp || 0,
@@ -338,12 +398,13 @@ var getAllUsers = async (req, res) => {
             phone: item.phone,
             nickname: item.nickname,
             headimgurl: item.headimgurl,
-            roleName: item.roleName,
+            roleName: roleNames[index]?.roleName,
             openid: item.openid,
             sex: item.sex,
             city: item.city,
             province: item.province,
             country: item.country,
+            status: item.status || '1',
             create_at: item.create_at || null,
             update_at: item.update_at || null,
         }))

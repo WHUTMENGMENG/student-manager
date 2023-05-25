@@ -16,6 +16,7 @@ router.post('/updateRole', controller.updateRole);
 router.post('/grantRole', controller.grantRole);
 //获取当前角色权限
 router.get('/getRolePermission', controller.getRolePermission);
-
+//分配角色
+router.post('/roleAssignment', controller.roleAssignment)
 
 module.exports = router;
