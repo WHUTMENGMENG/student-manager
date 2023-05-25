@@ -97,6 +97,15 @@ function checkParams(keys, fields, res) {
 
 let addRole = async (req, res, next) => {
     let { parentid } = req.body;
+    //如果没有指定父级id
+    if (!parentid) {
+        res.send({
+            state: false,
+            code: 400,
+            msg: '请指定父级角色id'
+        })
+        return;
+    }
     //通过父级的parentid查询是否存在这个父级
     if (parentid) { //如果传递了parentid
         let isExistsParent = await model.find({ roleid: parentid });
@@ -109,6 +118,30 @@ let addRole = async (req, res, next) => {
             return;
         }
     }
+
+    //判断当前指定的父级是否是自己的子级或者是自己
+
+    let currentRoleid = req.session.userInfo.roleid;
+
+    if (parentid !== currentRoleid) {
+        //查询当前角色的所有子级
+        let childRoles = await model.find({ queryParams: { parentid: currentRoleid } });
+        // console.log(childRoles)
+        //检查子级中是否存在指定的父级
+        let flag = childRoles.some(item => item.roleid === parentid);
+        if (!flag) {
+            //不存在
+            res.send({
+                state: false,
+                code: 400,
+                msg: '指定的添加的角色不是自己的下级角色'
+            })
+            return;
+        }
+    }
+
+
+
     //生成roileid
     let roleid = Math.random().toString(16).substring(2)
     req.body.roleid = roleid;
@@ -164,6 +197,53 @@ let delRole = async (req, res, next) => {
         })
         return;
     }
+
+    //查询删除的角色是不是自己的上级角色
+
+    let currentRoleid = req.session.userInfo.roleid;
+
+    //获取所有的角色
+
+    let allRoles = await model.find({ queryParams: {} })
+
+    //判断是否是自己的上级
+
+    let isParentRole = isParent(currentRoleid, roleid, allRoles);
+
+    if (isParentRole && currentRoleid !== "1") {
+        res.send({
+            state: false,
+            code: 400,
+            msg: '没有权限删除自己,或者的上级角色'
+        })
+        return
+    }
+
+    //判断是不是自己的同级,同级也不能删除
+    
+    //找到自己的parentid
+
+    let currentRole = allRoles.find(item => item.roleid === currentRoleid);
+
+    let currentParentid = currentRole.parentid;
+
+    // 查找同级的兄弟
+
+    let brotherRoles = allRoles.filter(item => item.parentid === currentParentid);
+
+    //判断是否是同级
+
+    let isBrother = brotherRoles.some(item => item.roleid === roleid);
+
+    if(isBrother && currentRoleid !== "1"){
+        res.send({
+            state: false,
+            code: 400,
+            msg: '没有权限删除自己的同级角色'
+        })
+        return
+    }
+
 
     let data = await model.del({ roleid })
     if (typeof (data) !== 'string') {
@@ -226,6 +306,24 @@ let updateRole = async (req, res, next) => {
     let flag = checkParams(keys, fields, res)
     //字段不合法不能继续往下执行
     if (!flag) return;
+
+    //检查要修改的角色是不是自己的上级角色
+
+    let fullRoleList = await model.find({ queryParams: {} })
+
+    let isParentRole = isParent(req.session.userInfo.roleid, roleid, fullRoleList)
+
+    // console.log(isParentRole)
+
+    if (isParentRole && req.session.roleid !== '1') {
+        res.send({
+            state: false,
+            code: 400,
+            msg: '不能修改自己的上级角色'
+        })
+        return;
+    }
+
     //添加修改时间
     req.body.update_at = new Date().toLocaleString();
 
@@ -263,6 +361,8 @@ let isParent = (currentid, targetid, fullRoleList) => {
         return false
     }
 }
+
+
 
 //当前角色id:string 授权角色id:string 权限id:[]string
 
@@ -370,7 +470,7 @@ let grantRole = async (req, res, next) => {
         return
     }
 
-   
+
 
     //先清掉数据库中该角色拥有的权限
     let clearResult = await permissionModel.del({ roleid: roleids[1] });
