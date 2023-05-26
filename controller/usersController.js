@@ -190,6 +190,14 @@ const login = async (req, res) => {
         } else {
             var info = { ...result[0]._doc }
             // console.log('---info',info)
+
+            //判断用户状态,如果status是0,说明用户被禁用了
+
+            if (info.status === '0') {
+                res.send({ state: false, status: 1007, msg: "用户被禁用,请联系管理员" })
+                return
+            }
+
             let { vipStamp, unid, roleid = "4" } = info;
 
             //处理vip过期的逻辑,暂时先不要 2034/05/24 星期三 11:46

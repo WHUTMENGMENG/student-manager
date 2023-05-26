@@ -461,7 +461,7 @@ let grantRole = async (req, res, next) => {
 
     let access = isAccessAuth(currentPermissions, permission_ids);
 
-    if (!access && currentRoleid !== '1') {
+    if (!access && permission_ids.length && currentRoleid !== '1') {
         res.send({
             state: false,
             code: 403,
