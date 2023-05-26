@@ -42,7 +42,7 @@ function buildTree(flatData, childKey = 'roleid', parentKey = 'parentid') {
 }
 
 let getRole = async (req, res, next) => {
-    let { page, count, order_by, roleid } = req.query;
+    let { page, count, order_by, roleid, type } = req.query;
     let queryParams = {}
     if (roleid) {
         queryParams = { roleid }
@@ -58,7 +58,7 @@ let getRole = async (req, res, next) => {
             code: 200,
             msg: '查询成功',
             total: data.total,
-            data: buildTree(data)
+            data: type === '1' ? data : buildTree(data)
         })
     } else {
         res.send({
@@ -649,7 +649,7 @@ let roleAssignment = async (req, res, next) => {
     if (req.body.username) {
         query = { username }
     } else if (req.body.unid) {
-        query = { unid: unid }
+        query = { unid: req.body.unid }
     }
     //查询当前分配角色的用户是否存在
     let isExistsUser = await usersModel.find(query)
