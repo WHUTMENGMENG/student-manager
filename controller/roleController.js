@@ -108,7 +108,7 @@ let addRole = async (req, res, next) => {
     }
     //通过父级的parentid查询是否存在这个父级
     if (parentid) { //如果传递了parentid
-        let isExistsParent = await model.find({ roleid: parentid });
+        let isExistsParent = await model.find({ queryParams: { roleid: parentid } });
         if (isExistsParent.length === 0) {
             res.send({
                 state: false,
@@ -123,13 +123,16 @@ let addRole = async (req, res, next) => {
 
     let currentRoleid = req.session.userInfo.roleid;
 
-    if (parentid !== currentRoleid) {
-        //查询当前角色的所有子级
-        let childRoles = await model.find({ queryParams: { parentid: currentRoleid } });
-        // console.log(childRoles)
-        //检查子级中是否存在指定的父级
-        let flag = childRoles.some(item => item.roleid === parentid);
-        if (!flag) {
+    //获取所有的角色
+    let allRoles = await model.find({ queryParams: {} });
+
+    if (parentid !== currentRoleid && currentRoleid !== '1') {
+
+        //查看增加的是不是自己的上级角色
+
+        let flag = isParent(currentRoleid, parentid, allRoles)
+
+        if (flag) {
             //不存在
             res.send({
                 state: false,
@@ -220,7 +223,7 @@ let delRole = async (req, res, next) => {
     }
 
     //判断是不是自己的同级,同级也不能删除
-    
+
     //找到自己的parentid
 
     let currentRole = allRoles.find(item => item.roleid === currentRoleid);
@@ -235,7 +238,7 @@ let delRole = async (req, res, next) => {
 
     let isBrother = brotherRoles.some(item => item.roleid === roleid);
 
-    if(isBrother && currentRoleid !== "1"){
+    if (isBrother && currentRoleid !== "1") {
         res.send({
             state: false,
             code: 400,

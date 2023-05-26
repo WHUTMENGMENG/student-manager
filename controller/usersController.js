@@ -1,5 +1,6 @@
 const { find, registerModel, loginModel, updated } = require("../model/usersModel")
 const perModel = require("../model/permissionModel")
+const isParent = require("../utils/isParent")
 const { addLog, findLog } = require("../model/logModel")
 const moment = require("moment")
 const jwt = require("jsonwebtoken")
@@ -78,6 +79,8 @@ const register = async (req, res) => {
 }
 //更新用户信息
 const updateUser = async (req, res) => {
+    //当前角色的id
+    let currentRoleid = req.session.userInfo.roleid;
     let { unid, roleid, vipLevel, username, vipStamp, vipExpires, password } = req.body;
     if (roleid) {
         res.send({ state: false, status: 3004, msg: "没有权限修改用户角色" });
@@ -91,31 +94,8 @@ const updateUser = async (req, res) => {
         res.send({ state: false, status: 10066, msg: "not permitted 你没有权限修改admin密码" })
         return
     }
-    // if (username === "admin" || username === "root" || vipExpires || vipStamp || unid != req.session.userInfo.unid) {
-    //     if (req.session.userInfo.username !== "root") {
-    //         res.send({ state: false, status: 10066, msg: "not permitted 没有该的权限,只有root才有权限" })
-    //         return
-    //     }
-    // }
-    let query = { unid };
-    // roleid = parseInt(roleid);
-    // if (!roleid) {
-    //     roleid = req.session.userInfo.roleid;
-    // }
-    // if (roleid != req.session.userInfo.roleid || (vipLevel && vipLevel != req.session.userInfo.vipLevel)) {
-    //     //判断当前用户的权限是不是root id是1
-    //     if (req.session.userInfo.roleid == "1" || req.session.userInfo.roleid == "101") {
 
-    //     } else {
 
-    //         res.send({ state: false, status: 10066, msg: "not permitted 没有该的权限" })
-    //         return
-    //     }
-    // }
-    // if (roleid > 200) {
-    //     res.send({ state: false, status: 10077, msg: "角色id错误" })
-    //     return
-    // }
 
     if (req.body.phone) {//如果传递了手机号进行绑定
         let findRes = await find({ phone: req.body.phone });
@@ -124,15 +104,47 @@ const updateUser = async (req, res) => {
             return
         }
     }
+
+    //根据要修改的unid或者unsername查找角色的id
+    let query
+    if (unid) {
+        query = { unid };
+    } else if (username) {
+        query = { username };
+    }
+    //数据库查找
+    let target = await find(query);
+
+    if (target.length) {
+        let targetRoleid = target[0].roleid;
+        //检查要修改的用户角色是否是自己的上级角色
+
+        //获取完整角色表
+
+        let roleList = await roleModel.find({ queryParams: {} });
+
+        //检查targetRoleid是否是自己的上级角色
+
+        let isParentRole = isParent(currentRoleid, targetRoleid, roleList);
+
+        if (isParentRole && currentRoleid != "1") {
+            res.send({ state: false, status: 10066, msg: "没有权限修改自己的上级用户" })
+            return
+        }
+
+    } else {
+        res.send({ state: false, status: 10066, msg: "修改用户不存在" })
+    }
+
     //添加更新时间 2023/05/25 周四
     req.body.update_at = new Date().toLocaleString()
     req.body.roleid && delete req.body.roleid
     req.body.roleName && delete req.body.roleName
     let result = await updated(query, { $set: req.body });
-    if (result) {
+    if (typeof result !== "string") {
         res.send({ state: true, status: 200, msg: '更新成功' })
     } else {
-        res.send({ state: false, status: 10077, msg: '更新出错' })
+        res.send({ state: false, status: 10077, msg: '更新出错,' + result })
     }
 }
 
@@ -234,6 +246,7 @@ const login = async (req, res) => {
 
             //获取角色信息
             let result2 = await roleModel.find({ queryParams: { roleid } })
+
             //获取角色权限表中的的权限信息
             let data = await permissionModel.find({ queryParams: { roleid } })
             //根据角色权限表中的权限id进行到path表中连表查询
@@ -246,7 +259,16 @@ const login = async (req, res) => {
             let buttons = ['read', 'delete', 'edit', 'add']
             // info.rows = rows
             req.session.userInfo = info;
-            info.roleName = result2[0].roleName
+            console.log(result2)
+            if (result2.length == 0) {
+                //说明角色可能被删除了,默认走普通用户的角色
+                info.roleid = "5"
+                info.roleName = "普通用户"
+                updated({ unid }, {$set:{ roleid: "5" }})
+            } else {
+                info.roleName = result2[0].roleName
+            }
+
             let newInfo = { ...info }
 
             // delete newInfo.rows

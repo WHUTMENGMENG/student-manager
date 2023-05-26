@@ -86,7 +86,7 @@ const updated = (query, update) => {
         .then(res => res)
         .catch(err => {
             console.log(err);
-            return false
+            return err.toString()
         })
 }
 
