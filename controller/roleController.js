@@ -409,7 +409,7 @@ let isParent = (currentid, targetid, fullRoleList) => {
 //permission_ids:[权限id] string
 
 let grantRole = async (req, res, next) => {
-    console.log('999999999999')
+    // console.log('999999999999')
     let { roleids = [], permission_ids = [] } = req.body;
 
     // console.log(roleids, permission_ids)
@@ -603,7 +603,7 @@ let getRolePermission = async (req, res, next) => {
 //传递roleid,要分配的角色id
 
 //传递unid, 分配的用户id
-
+//也可以根据用户名分配
 let roleAssignment = async (req, res, next) => {
     //获取当前角色id
     let roleid = req.session.userInfo.roleid;
@@ -644,10 +644,15 @@ let roleAssignment = async (req, res, next) => {
         return;
     }
 
-
-
+    //如果传递了用户名
+    let query; //查询条件
+    if (req.body.username) {
+        query = { username }
+    } else if (req.body.unid) {
+        query = { unid: unid }
+    }
     //查询当前分配角色的用户是否存在
-    let isExistsUser = await usersModel.find({ unid: userid })
+    let isExistsUser = await usersModel.find(query)
     //查询当前分配的角色是否存在
     let isExistsRole = await model.find({ queryParams: { roleid: targetRoleid } })
     console.log(isExistsRole)
