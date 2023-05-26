@@ -251,7 +251,7 @@ let delRole = async (req, res, next) => {
     let data = await model.del({ roleid })
     //也要删除授权的权限表数据
     await permissionModel.del({ roleid })
-    
+
     if (typeof (data) !== 'string') {
         res.send({
             state: true,
@@ -330,6 +330,38 @@ let updateRole = async (req, res, next) => {
         return;
     }
 
+
+    //检查要修改的parentid是否存在,并且是不是自己的上级角色
+
+    let parentid = req.body.parentid;
+
+    //如果传递了parentid并且和当前登入的角色id不一致,那么就要检查parentid是否存在
+    if (parentid && parentid !== req.session.userInfo.roleid) {
+        let isExistsParent = fullRoleList.find(item => item.roleid === parentid);
+        //如果不存在
+        if (!isExistsParent) {
+            res.send({
+                state: false,
+                code: 403,
+                msg: '修改的parentid对应角色不存在'
+            })
+            return
+        } else {
+            //如果存在 检查是不是当前的上级
+            let isParentRole = isParent(req.session.userInfo.roleid, parentid, fullRoleList);
+            if (isParentRole && req.session.roleid !== '1') {
+                res.send({
+                    state: false,
+                    code: 403,
+                    msg: '目标觉得不能是自己的上级角色'
+                })
+                return
+            }
+        }
+    }
+
+
+
     //添加修改时间
     req.body.update_at = new Date().toLocaleString();
 
@@ -377,7 +409,7 @@ let isParent = (currentid, targetid, fullRoleList) => {
 //permission_ids:[权限id] string
 
 let grantRole = async (req, res, next) => {
-
+    console.log('999999999999')
     let { roleids = [], permission_ids = [] } = req.body;
 
     // console.log(roleids, permission_ids)
@@ -426,6 +458,8 @@ let grantRole = async (req, res, next) => {
     //获取所有的角色,查看授权的对象是不是自己的上级对象
 
     let fullRoleList = await model.find({ queryParams: {} })
+
+
 
     //判断当前授权的角色是否是自己的上级角色
 
@@ -609,6 +643,9 @@ let roleAssignment = async (req, res, next) => {
         })
         return;
     }
+
+
+
     //查询当前分配角色的用户是否存在
     let isExistsUser = await usersModel.find({ unid: userid })
     //查询当前分配的角色是否存在
@@ -631,6 +668,18 @@ let roleAssignment = async (req, res, next) => {
         })
         return;
     }
+    //查看目标角色的状态是否禁用
+    if (isExistsRole[0].status !== '1') {
+        //禁用不允许授权
+        res.send({
+            state: false,
+            code: 403,
+            msg: '目标授权角色已经被禁用,不能进行授权'
+        })
+        return
+    }
+
+
     //如果存在,那么进行更新操作
     let updateResult = await usersModel.updated({ unid: userid }, { $set: { roleid: targetRoleid } })
     // console.log(updateResult)
