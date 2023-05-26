@@ -249,6 +249,9 @@ let delRole = async (req, res, next) => {
 
 
     let data = await model.del({ roleid })
+    //也要删除授权的权限表数据
+    await permissionModel.del({ roleid })
+    
     if (typeof (data) !== 'string') {
         res.send({
             state: true,
