@@ -430,7 +430,7 @@ var getAllUsers = async (req, res) => {
                 phone: item.phone,
                 nickname: item.nickname,
                 headimgurl: item.headimgurl,
-                roleName: roleName ? roleName : '位置角色',
+                roleName: roleName ? roleName.roleName : '未知角色',
                 openid: item.openid,
                 sex: item.sex,
                 city: item.city,
