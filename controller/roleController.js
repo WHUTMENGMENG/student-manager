@@ -696,6 +696,15 @@ let roleAssignment = async (req, res, next) => {
 
     let targetUserRoleid = isExistsUser[0].roleid;
 
+    //查看角色的id是否存在角色列表中
+
+    let isUserRoleExists = roleList.find(item => item.roleid === targetUserRoleid);
+
+    if(!isUserRoleExists){
+        //默认给5就是游客角色
+        targetUserRoleid = '5'
+    }
+
     let isUserRoleParent = isParent(roleid, targetUserRoleid, roleList);
 
     if (isUserRoleParent && roleid !== '1') {
