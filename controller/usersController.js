@@ -419,25 +419,28 @@ var getAllUsers = async (req, res) => {
         let roleNames = await roleModel.find({ queryParams: {} });
 
         //组织数据
-        var users = result.map((item, index) => ({
-            roleid: item.roleid,
-            unid: item.unid,
-            vipLevel: item.vipLevel || 0,
-            vipStamp: item.vipStamp || 0,
-            username: item.username,
-            phone: item.phone,
-            nickname: item.nickname,
-            headimgurl: item.headimgurl,
-            roleName: (roleNames.find(v => v.roleid == item.roleid)).roleName,
-            openid: item.openid,
-            sex: item.sex,
-            city: item.city,
-            province: item.province,
-            country: item.country,
-            status: item.status || '1',
-            create_at: item.create_at || null,
-            update_at: item.update_at || null,
-        }))
+        var users = result.map((item, index) => {
+            let roleName = (roleNames.find(v => v.roleid == item.roleid));
+            return {
+                roleid: item.roleid,
+                unid: item.unid,
+                vipLevel: item.vipLevel || 0,
+                vipStamp: item.vipStamp || 0,
+                username: item.username,
+                phone: item.phone,
+                nickname: item.nickname,
+                headimgurl: item.headimgurl,
+                roleName: roleName ? roleName : '位置角色',
+                openid: item.openid,
+                sex: item.sex,
+                city: item.city,
+                province: item.province,
+                country: item.country,
+                status: item.status || '1',
+                create_at: item.create_at || null,
+                update_at: item.update_at || null,
+            }
+        })
         res.send({ status: 200, state: true, msg: "success", total: result.total, data: users })
     } else {
         res.send({ status: 403, state: false, msg: "获取出错" })
