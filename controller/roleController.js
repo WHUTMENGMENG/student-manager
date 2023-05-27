@@ -349,6 +349,8 @@ let updateRole = async (req, res, next) => {
         } else {
             //如果存在 检查是不是当前的上级
             let isParentRole = isParent(req.session.userInfo.roleid, parentid, fullRoleList);
+            // console.log("------",req.session.userInfo.roleid, parentid)
+            console.log("------", isParentRole)
             if (isParentRole && req.session.roleid !== '1') {
                 res.send({
                     state: false,
@@ -386,18 +388,33 @@ let updateRole = async (req, res, next) => {
 
 //工具方法,用于判断当前授权的角色是否是自己的上级角色
 
-let isParent = (currentid, targetid, fullRoleList) => {
-    //如果修改的是自己的权限可以直接通过
-    if (currentid == targetid) return true;
-    //先通过currentid查找到自身的数据对象
-    let current = fullRoleList.find(item => item.roleid == currentid);
-    //查找到自身之后,判断自身的parentid是否等于targetid
-    if (current) {
-        //可以递归查找自己的父级id是不是等于targetid
-        return isParent(current.parentid, targetid, fullRoleList)
-    } else {
-        return false
+let isParent = (currentRoleid, targetRoleid, roleList) => {
+
+    //从完整的角色表roleList中根据目标角色id取出目标角色的数据对象
+
+    let targetRole = roleList.find(item => item.roleid === targetRoleid)
+
+    //声明一个布尔值,用于储存最终的判断结果,是不是自己的孩子
+
+    let isChildFlag = true;
+
+    //使用while循环,一直向上查找,直到节点没有parentid
+
+    while (targetRole && targetRole.parentid) {
+        //进行对比
+        if (targetRole.parentid === currentRoleid) {
+            //是自己的孩子
+            isChildFlag = false;
+            //跳出循环
+            break;
+        } else {
+            //不是自己的孩子,继续向上查找
+            targetRole = roleList.find(item => item.roleid === targetRole.parentid)
+        }
+
     }
+    //返回判断的结果
+    return isChildFlag
 }
 
 
@@ -464,9 +481,7 @@ let grantRole = async (req, res, next) => {
     //判断当前授权的角色是否是自己的上级角色
 
     let flag = isParent(roleids[0], roleids[1], fullRoleList)
-    // console.log(flag)
-    //如果是自己的上级角色,超级管理员允许操作
-    // console.log(roleids[1])
+
     if (flag && currentRoleid !== '1') {
         res.send({
             state: false,
@@ -622,6 +637,10 @@ let roleAssignment = async (req, res, next) => {
     }
     //判断分配的角色是否是自己的上级角色
     let flag = isParent(roleid, targetRoleid, roleList);
+
+    //根据unid或者
+    //如果是自己的上级角色,超级管理员允许操作
+    // console.log(roleids[1])
     //如果是自己的上级角色,超级管理员允许操作,其它不允许
     if (flag && roleid !== '1') {
         res.send({
@@ -673,6 +692,23 @@ let roleAssignment = async (req, res, next) => {
         })
         return;
     }
+    //查看当前分配的用户的角色是否是自己的上级角色
+
+    let targetUserRoleid = isExistsUser[0].roleid;
+
+    let isUserRoleParent = isParent(roleid, targetUserRoleid, roleList);
+
+    if (isUserRoleParent && roleid !== '1') {
+
+        res.send({
+            state: false,
+            code: 403,
+            msg: '目标用户的角色是自己的上级角色,不能进行分配'
+        })
+        return;
+    }
+
+
     //查看目标角色的状态是否禁用
     if (isExistsRole[0].status !== '1') {
         //禁用不允许授权

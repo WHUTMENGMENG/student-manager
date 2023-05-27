@@ -82,7 +82,7 @@ const updateUser = async (req, res) => {
     //当前角色的id
     let currentRoleid = req.session.userInfo.roleid;
     let { unid, roleid, vipLevel, username, vipStamp, vipExpires, password } = req.body;
-    if (roleid) {
+    if (roleid && currentRoleid != "1") {
         res.send({ state: false, status: 3004, msg: "没有权限修改用户角色" });
         return
     }
