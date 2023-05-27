@@ -264,7 +264,7 @@ const login = async (req, res) => {
                 //说明角色可能被删除了,默认走普通用户的角色
                 info.roleid = "5"
                 info.roleName = "普通用户"
-                updated({ unid }, {$set:{ roleid: "5" }})
+                updated({ unid }, { $set: { roleid: "5" } })
             } else {
                 info.roleName = result2[0].roleName
             }
@@ -416,7 +416,7 @@ var getAllUsers = async (req, res) => {
         let roleids = result.map(item => item.roleid);
 
         //开始查找
-        let roleNames = await roleModel.find({ queryParams: { roleid: { $in: roleids } } });
+        let roleNames = await roleModel.find({ queryParams: {} });
 
         //组织数据
         var users = result.map((item, index) => ({
@@ -428,7 +428,7 @@ var getAllUsers = async (req, res) => {
             phone: item.phone,
             nickname: item.nickname,
             headimgurl: item.headimgurl,
-            roleName: roleNames[index]?.roleName,
+            roleName: (roleNames.find(v => v.roleid == item.roleid)).roleName,
             openid: item.openid,
             sex: item.sex,
             city: item.city,
