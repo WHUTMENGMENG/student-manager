@@ -36,7 +36,7 @@ let Collection = mongoose.model("users", schema)
 
 //查重
 let find = async (query = {}) => {
-    let { page = 1, count = 100, order_by = 1 } = query;
+    let { page = 1, count = 100, order_by = -1 } = query;
     order_by = parseInt(order_by);
     page = page - 0;
     count = count - 0
@@ -45,7 +45,7 @@ let find = async (query = {}) => {
     delete query.order_by
     let total = await Collection.countDocuments(query)//获取总数
     console.log(query)
-    return Collection.find(query).skip((page - 1) * count).limit(count).sort({ _id: order_by })
+    return Collection.find(query).skip((page - 1) * count).limit(count).sort({ create_at: order_by })
         .then(res => {
             res.total = total;
             return res;

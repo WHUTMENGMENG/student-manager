@@ -350,7 +350,7 @@ let updateRole = async (req, res, next) => {
             //如果存在 检查是不是当前的上级
             let isParentRole = isParent(req.session.userInfo.roleid, parentid, fullRoleList);
             // console.log("------",req.session.userInfo.roleid, parentid)
-            console.log("------", isParentRole)
+            // console.log("------", isParentRole)
             if (isParentRole && req.session.roleid !== '1') {
                 res.send({
                     state: false,
@@ -674,7 +674,7 @@ let roleAssignment = async (req, res, next) => {
     let isExistsUser = await usersModel.find(query)
     //查询当前分配的角色是否存在
     let isExistsRole = await model.find({ queryParams: { roleid: targetRoleid } })
-    console.log(isExistsRole)
+    // console.log(isExistsRole)
     if (isExistsRole.length < 1) {
         res.send({
             state: false,

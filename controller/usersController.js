@@ -259,7 +259,7 @@ const login = async (req, res) => {
             let buttons = ['read', 'delete', 'edit', 'add']
             // info.rows = rows
             req.session.userInfo = info;
-            console.log(result2)
+            // console.log(result2)
             if (result2.length == 0) {
                 //说明角色可能被删除了,默认走普通用户的角色
                 info.roleid = "5"
