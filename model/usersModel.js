@@ -44,7 +44,7 @@ let find = async (query = {}) => {
     delete query.count
     delete query.order_by
     let total = await Collection.countDocuments(query)//获取总数
-    console.log(query)
+    // console.log(query)
     return Collection.find(query).skip((page - 1) * count).limit(count).sort({ create_at: order_by })
         .then(res => {
             res.total = total;
@@ -81,7 +81,7 @@ let loginModel = (params) => {
 //更新数据库 
 
 const updated = (query, update) => {
-    console.log(query, update)
+    // console.log(query, update)
     return Collection.updateOne(query, update)
         .then(res => res)
         .catch(err => {

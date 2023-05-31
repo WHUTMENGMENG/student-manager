@@ -83,7 +83,7 @@ const updateUser = async (req, res) => {
     let currentRoleid = req.session.userInfo.roleid;
     let { unid, roleid, vipLevel, username, vipStamp, vipExpires, password } = req.body;
     if (roleid && currentRoleid != "1") {
-        res.send({ state: false, status: 3004, msg: "没有权限修改用户角色" });
+        res.send({ state: false, status: 3004, msg: "没有权限修改用户角色的id" });
         return
     }
     if (!unid) {
@@ -100,8 +100,10 @@ const updateUser = async (req, res) => {
     if (req.body.phone) {//如果传递了手机号进行绑定
         let findRes = await find({ phone: req.body.phone });
         if (findRes.length) {
-            res.send({ state: false, status: 10066, msg: "手机号已经被绑定" })
-            return
+            if (findRes[0].unid !== unid) {
+                res.send({ state: false, status: 10066, msg: "手机号已经被绑定" })
+                return
+            }
         }
     }
 
@@ -403,7 +405,7 @@ var getAllUsers = async (req, res) => {
     //通过用户名进行查找
     if (username) {
         params = {
-            username
+            username: new RegExp(username)
         }
     }
 
