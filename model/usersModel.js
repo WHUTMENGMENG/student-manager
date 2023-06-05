@@ -90,9 +90,21 @@ const updated = (query, update) => {
         })
 }
 
+//删除数据
+
+let deleteModel = (params) => {
+    return Collection.deleteMany(params)
+        .then(res => res)
+        .catch(err => {
+            console.log(err)
+            return err.toString()
+        })
+}
+
 module.exports = {
     find,
     registerModel,
     loginModel,
-    updated
+    updated,
+    deleteModel
 }

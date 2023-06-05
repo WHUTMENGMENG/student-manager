@@ -1,4 +1,4 @@
-const { find, registerModel, loginModel, updated } = require("../model/usersModel")
+const { find, registerModel, loginModel, updated, deleteModel } = require("../model/usersModel")
 const perModel = require("../model/permissionModel")
 const isParent = require("../utils/isParent")
 const { addLog, findLog } = require("../model/logModel")
@@ -13,6 +13,7 @@ let roleModel = require("../model/roleModel")
 let pathModel = require("../model/permissionPathModel")
 let permissionModel = require('../model/permission_New')
 const { type } = require("os")
+const isChild = require("../utils/isParent")
 // ✂️✂️✂️✂️✂️✂️✂️✂️✂️✂️✂️华丽的分割线✂️✂️✂️✂️✂️✂️✂️✂️✂️✂️✂️✂️
 
 const register = async (req, res) => {
@@ -701,6 +702,71 @@ const wechatCallBackCtr = async (req, res) => {
 
 }
 
+//删除用户
+
+let deleteUser = async (req, res) => {
+    // console.log(req.query)
+    let { unid, username } = req.query;
+    // console.log(unid,username)
+    //根据用户名或者unid查看用户是否存在
+    if (!unid && !username) {
+        res.send({ state: false, code: 30001, msg: "没有传递username或者unid" })
+        return
+    }
+    //当前登入用户的角色id
+    let currentRoleid = req.session.userInfo.roleid;
+    //查询条件
+    let query = {}
+
+    if (unid) {
+        query = {
+            unid: { $in: Array.isArray(unid) ? unid : [unid] }
+        }
+    }
+
+    if (username) {
+        query = { username: { $in: [username] } }
+    }
+
+
+    let result = await find(query);
+
+    if (typeof result !== "string") {
+
+        //判断用户是否存在
+
+        if (result.length == 0) { 
+            res.send({ state: false, code: 30001, msg: "用户不存在" })
+            return
+        }
+
+        //如果存在 查看删除用户的角色是否是自己的下级
+        let targetRoleid = result[0].roleid;
+        //获取完整角色表
+        let roleList = await roleModel.find({ queryParams: {} })
+        //调用方法进行查询
+        let isSubordinate = isChild(currentRoleid, targetRoleid, roleList);
+
+        if (isSubordinate && currentRoleid != "1") {
+            res.send({ state: false, code: 30002, msg: "没有权限删除该用户" })
+            return
+        }
+
+        //删除用户
+
+        let delRes = await deleteModel(query);
+
+        if (typeof delRes !== "string") {
+            res.send({ state: true, code: 200, msg: "删除成功" })
+        } else {
+            res.send({ state: false, code: 3003, msg: "删除失败,错误:" + delRes })
+        }
+
+    } else {
+        res.send({ state: false, code: 30002, msg: "删除出错:" + result })
+    }
+}
+
 module.exports = {
     register,
     login,
@@ -710,5 +776,6 @@ module.exports = {
     wechatCallBackCtr,
     wechatLoginCtr,
     getScancodeCtr,
-    updateUser
+    updateUser,
+    deleteUser
 }
