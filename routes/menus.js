@@ -20,4 +20,15 @@ router.get('/delMenus', controller.delMenus);
 
 router.post('/updateMenus', controller.updateMenus);
 
+//给角色分配菜单
+
+router.post('/assignmentMenu', controller.assignmentMenu);
+
+//获取角色的菜单
+
+router.get('/getRoleMenus', controller.getRoleMenus);
+
+//删除角色菜单
+router.get('delRoleMenus', controller.delRoleMenus);    
+
 module.exports = router
