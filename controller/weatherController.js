@@ -1,8 +1,8 @@
 let model = require("../model/weather");
 let axios = require("axios")
 let version = "v61";
-let appid = '28382686';
-let appsecret = 'OZpHoMB3';
+let appid = '36922785';
+let appsecret = 'TapapWj9';
 let city = "南京";
 let count = 0;
 let oldTime = new Date();

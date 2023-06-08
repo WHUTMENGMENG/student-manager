@@ -26,6 +26,7 @@ let add = (params) => {
     //         console.log(err)
     //         return err.toString()
     //     })
+    console.log(params)
     return Collection.create(params)
         .then(res => res)
         .catch(err => {
@@ -47,7 +48,7 @@ let find = async (query = {}) => {
     return Collection.find(queryParams)
         //这个方法将mongo文档转换成普通对象
         .lean()
-        .select({ _id: 1, roleid: 1, permission_id: 1, create_at: 1 })
+        .select({ _id: 1, menu_id: 1, roleid: 1, create_at: 1, update_at: 1, updator: 1 })
         .skip((page - 1) * count).limit(count).sort({ create_at: order_by })
         .then(res => {
             res.total = total;
@@ -64,7 +65,8 @@ let find = async (query = {}) => {
 
 let del = (params) => {
     // console.log(params)
-    return Collection.deleteMany(params)
+    let { queryParams } = params;
+    return Collection.deleteMany(queryParams)
         .then(res => res)
         .catch(err => {
             console.log(err)

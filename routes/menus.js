@@ -29,6 +29,6 @@ router.post('/assignmentMenu', controller.assignmentMenu);
 router.get('/getRoleMenus', controller.getRoleMenus);
 
 //删除角色菜单
-router.get('delRoleMenus', controller.delRoleMenus);    
+router.post('/delRoleMenus', controller.delRoleMenus);    
 
 module.exports = router

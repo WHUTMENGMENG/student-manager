@@ -42,7 +42,7 @@ function buildTree(flatData, childKey = 'menu_id', parentKey = 'parentid') {
 }
 
 let getMenus = async (req, res, next) => {
-    let { page, count, order_by, menu_id } = req.query;
+    let { page, count, order_by, menu_id, type } = req.query;
     let queryParams = {}
     if (menu_id) {
         queryParams = { menu_id }
@@ -57,7 +57,7 @@ let getMenus = async (req, res, next) => {
             code: 200,
             msg: '查询成功',
             total: data.total,
-            data: buildTree(data, 'menu_id')
+            data: type == 1 ? data : buildTree(data, 'menu_id')
         })
     } else {
         res.send({
@@ -277,8 +277,9 @@ const assignmentMenu = async (req, res) => {
     }
 
     //查询是否是自己的上级角色
+    // console.log(roleList)
 
-    let isParentRes = isParent(roleList, currentRoleid, roleid)
+    let isParentRes = isParent(currentRoleid, roleid, roleList)
 
     //如果是上级角色,并且操作者不是超级管理员
 
@@ -308,12 +309,25 @@ const assignmentMenu = async (req, res) => {
 
     let menuList = await model.find({ queryParams: query });
 
-    if (menuList.length !== menu_id.length) {
+    if (menuList.length !== menu_id.length || menuList.length === 0) {
         //查询出来的结果如果和传入的id的长度不一致,说明有不存在的菜单
         res.send({
             state: false,
             code: 403,
             msg: '传入的菜单id有不存在的'
+        })
+        return
+    }
+
+    //查找角色是否拥有对应权限
+
+    let roleMenuList = await roleMenuModel.find({ queryParams: { roleid, ...query } })
+
+    if (roleMenuList.length !== 0) {
+        res.send({
+            state: false,
+            code: 403,
+            msg: '角色已经拥有你传递的某个菜单了'
         })
         return
     }
@@ -376,7 +390,9 @@ const getRoleMenus = async (req, res) => {
         return
     } else {
         //获取角色菜单的id
+        // console.log(roleMenus)
         let menu_id = roleMenus.map(item => item.menu_id);
+        // console.log(menu_id)
         //根据角色菜单的id获取菜单
         let menus = await model.find({ queryParams: { menu_id: { $in: menu_id } }, order_by });
         if (typeof menus === 'string') {
@@ -388,7 +404,7 @@ const getRoleMenus = async (req, res) => {
             return
         } else {
             //如果是树形
-            if (type === '1') {
+            if (type == '1') {
                 //获取树形菜单
                 let treeMenus = buildTree(menus);
                 res.send({
@@ -418,19 +434,34 @@ const getRoleMenus = async (req, res) => {
 //role_menu_id:string | string[]
 
 let delRoleMenus = async (req, res) => {
-    let { role_menu_id } = req.query;
-    if (!role_menu_id) {
+    let { menu_id, roleid } = req.body;
+    if (!menu_id || !roleid) {
         res.send({
             state: false,
             code: 400,
-            msg: '缺少role_menu_id'
+            msg: '缺少roleid或者menu_id'
         })
         return
     }
-    let queryParams = { role_menu_id }
+
+    //查看删除的是不是自己的上级角色
+
+    //获取完整的角色表
+    let roleList = await roleModel.find({ queryParams: {} })
+    let currentRoleid = req.session.userInfo.roleid
+    let isParentRes = isParent(currentRoleid, roleid,roleList)
+    if (isParentRes && currentRoleid !== '1') {
+        res.send({
+            state: false,
+            code: 403,
+            msg: '没有权限删除自己上级角色的菜单'
+        })
+        return
+    }
+    let queryParams = { roleid, menu_id }
     //如果是数组 要批量删除
-    if (Array.isArray(role_menu_id)) {
-        queryParams = { role_menu_id: { $in: role_menu_id } }
+    if (Array.isArray(menu_id)) {
+        queryParams = { roleid, menu_id: { $in: menu_id } }
     }
     let delRes = await roleMenuModel.del({ queryParams })
 
