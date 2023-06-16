@@ -48,7 +48,7 @@ const authorizition = (req, res, next) => {
                 // let newPath = 1
                 let isAuth = rolePath.some(item => item.path === reqPath)
 
-                if (isAuth||req.session.userInfo.roleid=="1") {
+                if (isAuth || req.session.userInfo.roleid == "1") {
                     //vip对应的内容 暂时注释不要 2023/05/24 周三 11:53:00
                     // if (req.path !== "/students/getstulist") {
                     //     //检查当前的vip是否过期
